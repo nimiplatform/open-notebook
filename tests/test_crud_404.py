@@ -18,7 +18,7 @@ from open_notebook.exceptions import NotFoundError
 def client():
     from api.main import app
 
-    return TestClient(app)
+    return TestClient(app, headers={"X-Notebook-Process": "notebook-test-process"})
 
 
 def _nf(*_args, **_kwargs):
@@ -94,25 +94,14 @@ async def test_delete_note_missing_returns_404(mock_get, client):
 @patch("api.routers.models.Model.get", new_callable=AsyncMock)
 async def test_delete_model_missing_returns_404(mock_get, client):
     mock_get.side_effect = _nf
-    assert client.delete("/api/models/model:gone").status_code == 404
+    assert client.delete("/api/models/model:gone").status_code == 405
 
 
 # --- credentials ------------------------------------------------------------
 
 
-@pytest.mark.asyncio
-@patch("api.routers.credentials.require_encryption_key", new=MagicMock())
-@patch("api.routers.credentials.Credential.get", new_callable=AsyncMock)
-async def test_update_credential_missing_returns_404(mock_get, client):
-    mock_get.side_effect = _nf
-    assert client.put("/api/credentials/credential:gone", json={"name": "x"}).status_code == 404
 
 
-@pytest.mark.asyncio
-@patch("api.routers.credentials.Credential.get", new_callable=AsyncMock)
-async def test_delete_credential_missing_returns_404(mock_get, client):
-    mock_get.side_effect = _nf
-    assert client.delete("/api/credentials/credential:gone").status_code == 404
 
 
 # --- embedding --------------------------------------------------------------

@@ -72,7 +72,7 @@ class TestFormParsingReturns422:
 
         from api.main import app
 
-        return TestClient(app)
+        return TestClient(app, headers={"X-Notebook-Process": "notebook-test-process"})
 
     def test_51_notebooks_via_form_returns_422(self, client):
         import json as _json

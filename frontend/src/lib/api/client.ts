@@ -1,6 +1,5 @@
 import axios, { AxiosResponse } from 'axios'
 import { getApiUrl } from '@/lib/config'
-import { getAuthToken } from '@/lib/auth-token'
 
 // API client with runtime-configurable base URL
 // The base URL is fetched from the API config endpoint on first request
@@ -39,11 +38,6 @@ apiClient.interceptors.request.use(async (config) => {
     config.baseURL = `${apiUrl}/api`
   }
 
-  const token = getAuthToken()
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-
   // Handle FormData vs JSON content types
   if (config.data instanceof FormData) {
     // Remove any Content-Type header to let browser set multipart boundary
@@ -59,13 +53,6 @@ apiClient.interceptors.request.use(async (config) => {
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Clear auth and redirect to login
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('auth-storage')
-        window.location.href = '/login'
-      }
-    }
     return Promise.reject(error)
   }
 )

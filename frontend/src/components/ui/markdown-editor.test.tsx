@@ -3,6 +3,7 @@ import { act, render, screen } from '@testing-library/react'
 import MarkdownPreview from '@uiw/react-markdown-preview'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { createRequire } from 'node:module'
 
 import { useThemeStore } from '@/lib/stores/theme-store'
 import { MarkdownEditor, PREVIEW_OPTIONS } from './markdown-editor'
@@ -93,7 +94,7 @@ describe('MarkdownEditor preview sanitization', () => {
   it('restores top-level list markers without overriding nested and task lists', () => {
     const appCss = readFileSync(join(process.cwd(), 'src/app/globals.css'), 'utf8')
     const previewCss = readFileSync(
-      join(process.cwd(), 'node_modules/@uiw/react-markdown-preview/markdown.css'),
+      createRequire(import.meta.url).resolve('@uiw/react-markdown-preview/markdown.css'),
       'utf8'
     )
     const markerRules = ['ul', 'ol'].map((tag) => {

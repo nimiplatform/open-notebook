@@ -1,0 +1,1 @@
+REMOVE FIELD IF EXISTS briefing_suffix ON TABLE episode;

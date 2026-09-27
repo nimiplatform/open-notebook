@@ -1,0 +1,63 @@
+app_id: io.github.nimiplatform.open-notebook
+display_name: Open Notebook
+version: 1.14.1
+profile: standalone
+manifest_role: submitted-input
+app_access:
+  - runtime.consume
+capability_contract_refs:
+  - text.generate
+  - text.embed
+  - audio.transcribe
+  - audio.synthesize
+required_standardized_feature_refs: []
+safety_profile:
+  intended_audience: general
+  content_descriptors: []
+  ai:
+    direct_interaction: true
+    interaction_notice: absent
+    risk_features: []
+    subject_notice: not-applicable
+    outputs:
+      - modality: text
+        exposure: exportable
+        publication_control: not-applicable
+        in_product_notice: absent
+        export_visible_marking: absent
+        machine_readable_marking: absent
+      - modality: audio
+        exposure: exportable
+        publication_control: not-applicable
+        in_product_notice: absent
+        export_visible_marking: absent
+        machine_readable_marking: absent
+  data_practices:
+    publisher_direct_external_network: true
+    telemetry: []
+    third_party_account: none
+    user_content_sharing: none
+    commercial_features: []
+    sensitive_data_categories: []
+  high_impact_decision_uses: []
+storage_policy:
+  kind: app-owned-os-storage
+  os_storage_disclosure:
+    - path_pattern: ~/Library/Application Support/Open Notebook — Nimi/
+      purpose: Account-scoped notebook databases, source uploads, chat checkpoints and podcast media on macOS
+      expected_size_band: 10 MB–20 GB according to imported sources and generated audio
+    - path_pattern: '%APPDATA%/Open Notebook — Nimi/'
+      purpose: Account-scoped notebook databases, source uploads, chat checkpoints and podcast media on Windows
+      expected_size_band: 10 MB–20 GB according to imported sources and generated audio
+local_development:
+  electron:
+    renderer_origin: http://127.0.0.1:6012
+    host_source_directory: src-electron
+metadata:
+  summary: Research your sources, keep notes, ask questions and create podcasts using Nimi AI.
+  icon: assets/app-icon.png
+  readme: docs/nimi-user-guide.md
+  release_notes: docs/nimi-release-notes.md
+  author: Luis Novo and Open Notebook contributors; Nimi adaptation contributors
+  homepage_url: https://github.com/nimiplatform/open-notebook
+  support_url: https://github.com/nimiplatform/open-notebook/issues

@@ -45,16 +45,15 @@ describe('AppSidebar', () => {
 
     const themeButton = screen.getByText('common.theme').closest('button')
     const languageButton = screen.getByText('common.language').closest('button')
-    const signOutButton = screen.getByRole('button', { name: 'common.signOut' })
+    expect(screen.queryByRole('button', { name: 'common.signOut' })).not.toBeInTheDocument()
 
     expect(themeButton?.className.split(/\s+/)).toContain('px-3')
 
-    for (const button of [themeButton, languageButton, signOutButton]) {
+    for (const button of [themeButton, languageButton]) {
       expect(button?.className.split(/\s+/)).toContain('gap-2')
     }
 
     expect(themeButton?.querySelector(':scope > span.relative.size-4')).not.toBeNull()
-    expect(signOutButton.className.split(/\s+/)).not.toContain('gap-3')
   })
 
   it('toggles collapse state when clicking handle', () => {

@@ -4,27 +4,31 @@ Normative rules for working on the Python backend. Architecture and design ratio
 
 ## Commands
 
-- Run API: `uv run uvicorn api.main:app --port 5055` (Swagger at http://localhost:5055/docs)
-- Background jobs need the worker: `make worker-start` (`surreal-commands-worker --import-modules commands`)
-- Tests: `uv run pytest tests/`
-- Lint/typecheck: `ruff check . --fix` and `uv run python -m mypy .`
+- Start the complete App with root `pnpm dev`; the supervised Host starts both
+  API and worker. Python is not an independent Nimi authentication carrier.
+- Tests: `uv run pytest tests/`; lint: `uv run ruff check api open_notebook commands`.
 
 ## API layer (`api/`)
 
 - Structure is routes → services → models. Routers stay thin; business logic goes in `*_service.py`.
-- Provider metadata (env vars, modalities, test models, discovery URLs, docs links) lives in the registry: `open_notebook/ai/provider_registry.py` `PROVIDERS`. `TEST_MODELS`, `PROVIDER_ENV_CONFIG`, `PROVIDER_MODALITIES` and `OPENAI_COMPAT_PROVIDERS` are derived from it, and `GET /api/providers` exposes it. Adding a provider = add it to the registry, plus **one** manual copy: the `SupportedProvider` Literal in `api/models.py` (typing can't be derived at runtime) — enforced by `tests/test_credential_provider_validation.py`. The frontend consumes `GET /api/providers` at runtime (`useProviders()`), so it needs no edit; the registry declaration order is the display order.
+- Nimi model/provider configuration uses Kit AIConfig in the renderer. The Python
+  model records only name the four App capability slots; they are not model registrations.
 - NEVER return API key values from any endpoint — metadata only.
 - Every user-supplied URL field must go through `validate_url()` (`open_notebook/utils/url_validation.py`, async) for SSRF protection. Private IPs/localhost are intentionally allowed (self-hosted Ollama, LM Studio).
 - Errors: raise typed exceptions from `open_notebook.exceptions` — global handlers map them to HTTP status codes (`NotFoundError`→404, `InvalidInputError`→400, `AuthenticationError`→401, `RateLimitError`→429, `ConfigurationError`→422, `NetworkError`/`ExternalServiceError`→502, `OpenNotebookError`→500). Don't raise bare `HTTPException` for domain errors.
 - Requests over `OPEN_NOTEBOOK_MAX_UPLOAD_SIZE_MB` (default 100) are rejected by `MaxBodySizeMiddleware` before auth/routing.
-- CORS is open by default (`CORS_ORIGINS`); `allow_credentials` flips to `True` only when origins are explicit. No rate limiting built in.
+- The Host supplies the exact loopback CORS origin and a per-process HTTP secret. This protects App transport; Nimi owns account authorization.
 
-## AI / model provisioning (`open_notebook/ai/`)
+## AI / model provisioning (`open_notebook/nimi/`)
 
-- All LLM calls in graph nodes go through `provision_langchain_model()` — never instantiate provider clients directly. It auto-upgrades to `large_context_model` above 105,000 tokens (hard-coded threshold).
-- Missing/unconfigured model → raise `ConfigurationError` (not `ValueError`) so the API returns 422.
-- Credential-linked models are preferred; `provision_provider_keys()` is the env-var fallback and **mutates `os.environ`** — be aware in tests.
-- `DefaultModels.get_instance()` intentionally bypasses the singleton cache (fresh DB fetch each call).
+- Graph nodes use `provision_langchain_model()` and the private notebook callback.
+  The Electron Host executes the public SDK call. No provider/env fallback.
+- Preserve explicit task controls and structured-output requirements. Missing
+  Nimi configuration is an error; never substitute a provider or report fake success.
+- Embeddings keep their Runtime `space_id` through batching and pooling. Database
+  search only compares vectors from that space, including equal-dimensional spaces.
+- Media decoding, segmentation and podcast assembly use App-owned FFmpeg.
+  Recognition and speech synthesis use the Host's Nimi Scenario Jobs.
 
 ## Graphs (`open_notebook/graphs/`)
 
@@ -70,7 +74,7 @@ Normative rules for working on the Python backend. Architecture and design ratio
 
 | Variable | Meaning |
 |---|---|
-| `OPEN_NOTEBOOK_ENCRYPTION_KEY` (or `_FILE`) | Required for credential storage; any string, no default |
+| `OPEN_NOTEBOOK_HOST_TOKEN` | Host-private App HTTP transport secret; never expose in renderer JavaScript |
 | `OPEN_NOTEBOOK_CHUNK_SIZE` / `_CHUNK_OVERLAP` | Token-based (default 400 / 15%); restart required |
 | `OPEN_NOTEBOOK_MAX_UPLOAD_SIZE_MB` | Upload cap (default 100) |
 | `LANGGRAPH_CHECKPOINT_FILE` | Chat history SQLite path |

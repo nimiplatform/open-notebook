@@ -17,6 +17,9 @@ from typing import List, Optional
 import numpy as np
 from loguru import logger
 
+from open_notebook.exceptions import ConfigurationError
+from open_notebook.nimi.embeddings import EmbeddingVector
+
 from .chunking import CHUNK_SIZE, ContentType, chunk_text
 from .token_utils import token_count
 
@@ -71,13 +74,17 @@ async def mean_pool_embeddings(embeddings: List[List[float]]) -> List[float]:
     if not embeddings:
         raise ValueError("Cannot mean pool empty list of embeddings")
 
+    spaces = {getattr(vector, "space_id", None) for vector in embeddings}
+    if len(spaces) != 1:
+        raise ConfigurationError("Cannot combine vectors from different embedding spaces")
+    space_id = spaces.pop()
     if len(embeddings) == 1:
         # Single embedding - just normalize and return
         arr = np.array(embeddings[0], dtype=np.float64)
         norm = np.linalg.norm(arr)
         if norm > 0:
             arr = arr / norm
-        return arr.tolist()
+        return EmbeddingVector(arr.tolist(), space_id) if space_id else arr.tolist()
 
     # Convert to numpy array
     arr = np.array(embeddings, dtype=np.float64)
@@ -100,7 +107,7 @@ async def mean_pool_embeddings(embeddings: List[List[float]]) -> List[float]:
     if mean_norm > 0:
         mean = mean / mean_norm
 
-    return mean.tolist()
+    return EmbeddingVector(mean.tolist(), space_id) if space_id else mean.tolist()
 
 
 async def generate_embeddings(
@@ -174,8 +181,12 @@ async def generate_embeddings(
         for attempt in range(1, EMBEDDING_MAX_RETRIES + 1):
             try:
                 batch_embeddings = await embedding_model.aembed(batch)
+                if all_embeddings and getattr(all_embeddings[0], "space_id", None) != batch_embeddings[0].space_id:
+                    raise ConfigurationError("Nimi embedding space changed during this batch; retry the task")
                 all_embeddings.extend(batch_embeddings)
                 break
+            except ConfigurationError:
+                raise
             except Exception as e:
                 cmd_context = f" (command: {command_id})" if command_id else ""
                 if attempt < EMBEDDING_MAX_RETRIES:

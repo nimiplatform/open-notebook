@@ -1,3 +1,12 @@
+# Nimi adaptation
+
+This work adapts [lfnovo/open-notebook](https://github.com/lfnovo/open-notebook)
+from commit `3127f14ea9dbb519f0e4ddc64a0742ca644ba6ef` (1.14.0). The upstream
+MIT license and research workflows remain. Current implementation and verification
+are recorded in [the Nimi development guide](README.nimi.md).
+
+The sections below preserve upstream documentation; use the Nimi guide for this adaptation.
+
 <a id="readme-top"></a>
 
 <!-- [![Contributors][contributors-shield]][contributors-url] -->

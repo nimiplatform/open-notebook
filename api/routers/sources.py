@@ -19,7 +19,6 @@ from pydantic import ValidationError
 from surreal_commands import execute_command_sync, submit_command
 
 from api.command_service import CommandService
-from api.credentials_service import validate_url
 from api.models import (
     AssetModel,
     CreateSourceInsightRequest,
@@ -42,6 +41,7 @@ from open_notebook.exceptions import (
     OpenNotebookError,
     UnsupportedTypeException,
 )
+from open_notebook.utils.url_validation import validate_url
 
 router = APIRouter()
 

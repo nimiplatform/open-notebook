@@ -1,6 +1,7 @@
 'use client'
 
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { getNimiClient } from '@/lib/nimi/client'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import type { FieldErrorsImpl } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -31,7 +32,7 @@ import { useTranslation } from '@/lib/hooks/use-translation'
 
 const speakerConfigSchema = (t: TFunction) => z.object({
   name: z.string().min(1, t('common.nameRequired') || 'Name is required'),
-  voice_id: z.string().min(1, t('podcasts.voiceIdRequired') || 'Voice ID is required'),
+  voice_id: z.string(),
   backstory: z.string().min(1, t('podcasts.backstoryRequired') || 'Backstory is required'),
   personality: z.string().min(1, t('podcasts.personalityRequired') || 'Personality is required'),
   voice_model: z.string().nullable().optional(),
@@ -71,6 +72,16 @@ export function SpeakerProfileFormDialog({
   initialData,
 }: SpeakerProfileFormDialogProps) {
   const { t } = useTranslation()
+  const [voices, setVoices] = useState<readonly { voiceId: string; name: string }[]>([])
+  const [voiceError, setVoiceError] = useState('')
+  useEffect(() => {
+    if (!open) return
+    let live = true
+    void getNimiClient().aiConfig.listOptions({ kind: 'preset-voices' }).then(result => {
+      if (live && result.kind === 'preset-voices') { setVoices(result.options); setVoiceError('') }
+    }, error => { if (live) setVoiceError(error instanceof Error ? error.message : String(error)) })
+    return () => { live = false }
+  }, [open])
   const createProfile = useCreateSpeakerProfile()
   const updateProfile = useUpdateSpeakerProfile()
 
@@ -79,7 +90,7 @@ export function SpeakerProfileFormDialog({
       return {
         name: initialData.name,
         description: initialData.description ?? '',
-        voice_model: initialData.voice_model ?? '',
+        voice_model: initialData.voice_model ?? 'model:nimi_text_to_speech',
         speakers: initialData.speakers?.map((speaker) => ({
           ...speaker,
           voice_model: speaker.voice_model ?? null,
@@ -90,7 +101,7 @@ export function SpeakerProfileFormDialog({
     return {
       name: '',
       description: '',
-      voice_model: '',
+      voice_model: 'model:nimi_text_to_speech',
       speakers: [{ ...EMPTY_SPEAKER }],
     }
   }, [initialData])
@@ -270,12 +281,11 @@ export function SpeakerProfileFormDialog({
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor={`speaker-voice-${index}`}>{t('podcasts.voiceId')} *</Label>
-                    <Input
-                      id={`speaker-voice-${index}`}
-                      {...register(`speakers.${index}.voice_id` as const)}
-                      placeholder="voice_123"
-                      autoComplete="off"
-                    />
+                    <select className="w-full rounded border bg-background p-2" id={`speaker-voice-${index}`} {...register(`speakers.${index}.voice_id` as const)}>
+                      <option value="">{t('common.default')}</option>
+                      {voices.map(voice => <option key={voice.voiceId} value={voice.voiceId}>{voice.name}</option>)}
+                    </select>
+                    {voiceError && <p role="alert" className="text-xs text-destructive">{voiceError}</p>}
                     {errors.speakers?.[index]?.voice_id ? (
                       <p className="text-xs text-destructive">
                         {errors.speakers[index]?.voice_id?.message}

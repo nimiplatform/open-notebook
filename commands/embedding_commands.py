@@ -14,7 +14,7 @@ from loguru import logger
 from surreal_commands import CommandInput, CommandOutput, command, submit_command
 
 from open_notebook.ai.models import model_manager
-from open_notebook.database.repository import ensure_record_id, repo_insert, repo_query
+from open_notebook.database.repository import ensure_record_id, repo_query
 from open_notebook.domain.notebook import Note, Source, SourceInsight
 from open_notebook.exceptions import ConfigurationError, ContextLengthExceededError
 from open_notebook.utils.chunking import ContentType, chunk_text, detect_content_type
@@ -125,10 +125,11 @@ async def _embed_markdown_record(
 
     # 3. UPSERT embedding into the record
     await repo_query(
-        "UPDATE $record_id SET embedding = $embedding",
+        "UPDATE $record_id SET embedding = $embedding, embedding_space = $embedding_space",
         {
             "record_id": ensure_record_id(record_id),
-            "embedding": embedding,
+            "embedding": list(embedding),
+            "embedding_space": embedding.space_id,
         },
     )
 
@@ -332,13 +333,6 @@ async def embed_source_command(input_data: EmbedSourceInput) -> EmbedSourceOutpu
         if not source.full_text or not source.full_text.strip():
             raise ValueError(f"Source '{input_data.source_id}' has no text to embed")
 
-        # 2. DELETE existing embeddings (idempotency)
-        logger.debug(f"Deleting existing embeddings for source {input_data.source_id}")
-        await repo_query(
-            "DELETE source_embedding WHERE source = $source_id",
-            {"source_id": ensure_record_id(input_data.source_id)},
-        )
-
         # 3. Detect content type from file path if available
         file_path = source.asset.file_path if source.asset else None
         content_type = detect_content_type(source.full_text, file_path)
@@ -378,13 +372,17 @@ async def embed_source_command(input_data: EmbedSourceInput) -> EmbedSourceOutpu
                 "source": ensure_record_id(input_data.source_id),
                 "order": idx,
                 "content": chunk,
-                "embedding": embedding,
+                "embedding": list(embedding),
+                "embedding_space": embedding.space_id,
             }
             for idx, (chunk, embedding) in enumerate(zip(chunks, embeddings))
         ]
 
         logger.debug(f"Inserting {len(records)} source_embedding records")
-        await repo_insert("source_embedding", records)
+        await repo_query(
+            "BEGIN TRANSACTION; DELETE source_embedding WHERE source = $source_id; INSERT INTO source_embedding $records; COMMIT TRANSACTION;",
+            {"source_id": ensure_record_id(input_data.source_id), "records": records},
+        )
 
         return {"chunks_created": total_chunks}, f": {total_chunks} chunks"
 

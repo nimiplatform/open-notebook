@@ -13,6 +13,7 @@ export default defineConfig({
   css: { postcss: { plugins: [] } },
   test: {
     environment: 'jsdom',
+    execArgv: ['--no-experimental-webstorage'],
     globals: true,
     css: false,
     setupFiles: ['./src/test/setup.ts'],

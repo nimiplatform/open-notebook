@@ -1,0 +1,2 @@
+-- Preserve the caller's additional instructions when explicitly retrying an episode.
+DEFINE FIELD IF NOT EXISTS briefing_suffix ON TABLE episode TYPE option<string>;

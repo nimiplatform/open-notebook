@@ -22,7 +22,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-from open_notebook.exceptions import ConfigurationError, NotFoundError
+from open_notebook.exceptions import ConfigurationError
 
 CONFIG_ERROR_MESSAGE = "No default model configured. Set one in the Models section."
 
@@ -31,7 +31,7 @@ CONFIG_ERROR_MESSAGE = "No default model configured. Set one in the Models secti
 def client():
     from api.main import app
 
-    return TestClient(app, raise_server_exceptions=False)
+    return TestClient(app, headers={"X-Notebook-Process": "notebook-test-process"}, raise_server_exceptions=False)
 
 
 def _boom(*_args, **_kwargs):
@@ -47,7 +47,6 @@ CASES = [
     ("notes", "api.routers.notes.Note.get_all", "GET", "/api/notes", None),
     ("models", "api.routers.models.Model.get_all", "GET", "/api/models", None),
     ("commands", "api.routers.commands.CommandService.get_command_status", "GET", "/api/commands/jobs/command:abc", None),
-    ("credentials", "api.routers.credentials.Credential.get_all", "GET", "/api/credentials", None),
     ("embedding", "api.routers.embedding.model_manager.get_embedding_model", "POST", "/api/embed", {"item_id": "source:1", "item_type": "source"}),
     ("embedding_rebuild", "api.routers.embedding_rebuild.repo_query", "POST", "/api/embeddings/rebuild", {"mode": "existing"}),
     ("episode_profiles", "api.routers.episode_profiles.EpisodeProfile.get_all", "GET", "/api/episode-profiles", None),
@@ -80,15 +79,6 @@ class TestNotFoundErrorPropagation:
     """NotFoundError raised by the domain layer maps to 404 where the router
     has no dedicated `except NotFoundError` arm (it used to become a 500)."""
 
-    def test_get_credential_missing_returns_404(self, client):
-        with patch(
-            "api.routers.credentials.Credential.get",
-            new=AsyncMock(side_effect=NotFoundError("Credential not found")),
-        ):
-            response = client.get("/api/credentials/credential:missing")
-
-        assert response.status_code == 404
-        assert response.json()["detail"] == "Credential not found"
 
 
 class TestUnsupportedTypeErrorPropagation:

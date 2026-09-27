@@ -1,0 +1,8 @@
+app_id: io.github.nimiplatform.open-notebook
+display_name: Open Notebook
+version: 1.14.1
+npm_package_name: open-notebook-nimi
+cargo_package_name: open-notebook-nimi-shell
+tauri_identifier: ai.nimi.apps.io.github.nimiplatform.open-notebook
+package_author: Luis Novo and Open Notebook contributors; Nimi adaptation contributors
+identity_role: scaffold-generated-authoring-input

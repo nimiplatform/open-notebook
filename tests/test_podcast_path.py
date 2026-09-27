@@ -8,8 +8,6 @@ spaces and special characters (GitHub issue #663).
 
 import uuid
 from pathlib import Path, PurePosixPath
-from types import SimpleNamespace
-from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -84,55 +82,17 @@ class TestBuildEpisodeOutputDir:
 
 
 class TestResolveModelConfigMaxTokens:
-    """Test max_tokens passthrough without database access."""
+    @pytest.mark.asyncio
+    async def test_preserves_explicit_budget_for_nimi(self):
+        provider, model, config = await _resolve_model_config("model:nimi_language", max_tokens=12000)
+        assert provider == "nimi"
+        assert model == "model:nimi_language"
+        assert config == {"max_tokens": 12000}
 
     @pytest.mark.asyncio
-    async def test_includes_max_tokens_when_configured(self):
-        fake_model = SimpleNamespace(
-            provider="anthropic",
-            name="claude-sonnet-4",
-            credential=None,
-        )
-
-        with (
-            patch(
-                "open_notebook.ai.models.Model.get",
-                new=AsyncMock(return_value=fake_model),
-            ),
-            patch(
-                "open_notebook.ai.key_provider.provision_provider_keys",
-                new=AsyncMock(return_value=True),
-            ),
-        ):
-            provider, model_name, config = await _resolve_model_config(
-                "model:test", max_tokens=12000
-            )
-
-        assert provider == "anthropic"
-        assert model_name == "claude-sonnet-4"
-        assert config["max_tokens"] == 12000
-
-    @pytest.mark.asyncio
-    async def test_omits_max_tokens_when_not_configured(self):
-        fake_model = SimpleNamespace(
-            provider="anthropic",
-            name="claude-sonnet-4",
-            credential=None,
-        )
-
-        with (
-            patch(
-                "open_notebook.ai.models.Model.get",
-                new=AsyncMock(return_value=fake_model),
-            ),
-            patch(
-                "open_notebook.ai.key_provider.provision_provider_keys",
-                new=AsyncMock(return_value=True),
-            ),
-        ):
-            _, _, config = await _resolve_model_config("model:test")
-
-        assert "max_tokens" not in config
+    async def test_uses_runtime_defaults_without_an_explicit_budget(self):
+        _, _, config = await _resolve_model_config("model:nimi_language")
+        assert config == {}
 
 
 class TestEpisodeProfileMaxTokens:

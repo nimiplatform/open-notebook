@@ -1,0 +1,70 @@
+app_id: io.github.nimiplatform.open-notebook
+display_name: Open Notebook
+version: 1.14.1
+profile: standalone
+npm_package_name: open-notebook-nimi
+cargo_package_name: open-notebook-nimi-shell
+tauri_identifier: ai.nimi.apps.io.github.nimiplatform.open-notebook
+package_author: Luis Novo and Open Notebook contributors; Nimi adaptation contributors
+submission_role: developer-submitted-input
+capability_contract_refs:
+  - text.generate
+  - text.embed
+  - audio.transcribe
+  - audio.synthesize
+required_standardized_feature_refs: []
+storage_policy:
+  kind: app-owned-os-storage
+  os_storage_disclosure:
+    - path_pattern: ~/Library/Application Support/Open Notebook — Nimi/
+      purpose: Account-scoped notebook databases, source uploads, chat checkpoints and podcast media on macOS
+      expected_size_band: 10 MB–20 GB according to imported sources and generated audio
+    - path_pattern: "%APPDATA%/Open Notebook — Nimi/"
+      purpose: Account-scoped notebook databases, source uploads, chat checkpoints and podcast media on Windows
+      expected_size_band: 10 MB–20 GB according to imported sources and generated audio
+safety_profile:
+  ai:
+    direct_interaction: true
+    interaction_notice: absent
+    outputs:
+      - export_visible_marking: absent
+        exposure: exportable
+        in_product_notice: absent
+        machine_readable_marking: absent
+        modality: text
+        publication_control: not-applicable
+      - export_visible_marking: absent
+        exposure: exportable
+        in_product_notice: absent
+        machine_readable_marking: absent
+        modality: audio
+        publication_control: not-applicable
+    risk_features: []
+    subject_notice: not-applicable
+  content_descriptors: []
+  data_practices:
+    commercial_features: []
+    publisher_direct_external_network: true
+    sensitive_data_categories: []
+    telemetry: []
+    third_party_account: none
+    user_content_sharing: none
+  high_impact_decision_uses: []
+  intended_audience: general
+support_manifest:
+  diagnostics_bundle_fields:
+    - app_version
+    - runtime_status
+  redaction_rules:
+    - credentials
+  user_visible_issue_categories:
+    - startup
+    - runtime
+  escalation_path: README.md#support
+  kill_switch_visibility: visible
+  recovery_instructions: Restart the App from Nimi. If the problem persists, reinstall the current admitted release.
+review_inputs:
+  manifest: nimi.app.yaml
+  build_profile: .nimi/config/build-profile.yaml
+  scaffold_boundary: .nimi/contracts/scaffold-boundary.yaml
+admission_truth: platform-owned-after-review

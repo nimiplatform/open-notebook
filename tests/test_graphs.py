@@ -284,20 +284,14 @@ class TestContentProcessDeleteSource:
 
     @pytest.mark.asyncio
     @patch("open_notebook.graphs.source.extract_content")
-    @patch("open_notebook.graphs.source.ModelManager")
     async def test_uploaded_file_deleted_when_flag_set(
-        self, mock_model_manager, mock_extract, tmp_path
+        self, mock_extract, tmp_path
     ):
         from content_core.common import ExtractionOutput
 
         from open_notebook.graphs.source import SourceState, content_process
 
         # No STT default configured -> no audio override, no DB access.
-        mm_instance = MagicMock()
-        mm_instance.get_defaults = AsyncMock(
-            return_value=MagicMock(default_speech_to_text_model=None)
-        )
-        mock_model_manager.return_value = mm_instance
         mock_extract.return_value = ExtractionOutput(
             title="Doc", content="extracted text"
         )
@@ -325,19 +319,13 @@ class TestContentProcessDeleteSource:
 
     @pytest.mark.asyncio
     @patch("open_notebook.graphs.source.extract_content")
-    @patch("open_notebook.graphs.source.ModelManager")
     async def test_uploaded_file_kept_when_flag_not_set(
-        self, mock_model_manager, mock_extract, tmp_path
+        self, mock_extract, tmp_path
     ):
         from content_core.common import ExtractionOutput
 
         from open_notebook.graphs.source import SourceState, content_process
 
-        mm_instance = MagicMock()
-        mm_instance.get_defaults = AsyncMock(
-            return_value=MagicMock(default_speech_to_text_model=None)
-        )
-        mock_model_manager.return_value = mm_instance
         mock_extract.return_value = ExtractionOutput(title="Doc", content="text")
 
         uploaded = tmp_path / "upload.pdf"
@@ -356,19 +344,13 @@ class TestContentProcessDeleteSource:
 
     @pytest.mark.asyncio
     @patch("open_notebook.graphs.source.extract_content")
-    @patch("open_notebook.graphs.source.ModelManager")
     async def test_empty_extraction_raises_valueerror(
-        self, mock_model_manager, mock_extract, tmp_path
+        self, mock_extract, tmp_path
     ):
         from content_core.common import ExtractionOutput
 
         from open_notebook.graphs.source import SourceState, content_process
 
-        mm_instance = MagicMock()
-        mm_instance.get_defaults = AsyncMock(
-            return_value=MagicMock(default_speech_to_text_model=None)
-        )
-        mock_model_manager.return_value = mm_instance
         mock_extract.return_value = ExtractionOutput(title="", content="   ")
 
         state = {
@@ -386,9 +368,8 @@ class TestContentProcessDeleteSource:
     # Runtime present: nothing to fall back from.
     @patch("open_notebook.graphs.source.engine_runtime_missing", return_value=None)
     @patch("open_notebook.graphs.source.extract_content")
-    @patch("open_notebook.graphs.source.ModelManager")
     async def test_persisted_engines_wired_into_config(
-        self, mock_model_manager, mock_extract, _mock_runtime, mock_settings
+        self, mock_extract, _mock_runtime, mock_settings
     ):
         """The persisted content-processing engines reach ContentCoreConfig, so
         a user-selected engine (e.g. crawl4ai) actually takes effect."""
@@ -396,11 +377,6 @@ class TestContentProcessDeleteSource:
 
         from open_notebook.graphs.source import SourceState, content_process
 
-        mm_instance = MagicMock()
-        mm_instance.get_defaults = AsyncMock(
-            return_value=MagicMock(default_speech_to_text_model=None)
-        )
-        mock_model_manager.return_value = mm_instance
         mock_settings.get_instance = AsyncMock(
             return_value=MagicMock(
                 youtube_preferred_languages=None,
@@ -432,9 +408,8 @@ class TestContentProcessDeleteSource:
     @pytest.mark.asyncio
     @patch("open_notebook.graphs.source.ContentSettings")
     @patch("open_notebook.graphs.source.extract_content")
-    @patch("open_notebook.graphs.source.ModelManager")
     async def test_persisted_youtube_languages_wired_into_config(
-        self, mock_model_manager, mock_extract, mock_settings
+        self, mock_extract, mock_settings
     ):
         """ContentSettings.youtube_preferred_languages overrides the built-in
         default list, so users can add transcript languages without a code
@@ -444,11 +419,6 @@ class TestContentProcessDeleteSource:
 
         from open_notebook.graphs.source import SourceState, content_process
 
-        mm_instance = MagicMock()
-        mm_instance.get_defaults = AsyncMock(
-            return_value=MagicMock(default_speech_to_text_model=None)
-        )
-        mock_model_manager.return_value = mm_instance
         mock_settings.get_instance = AsyncMock(
             return_value=MagicMock(
                 youtube_preferred_languages=["ko", "en"],
@@ -476,9 +446,8 @@ class TestContentProcessDeleteSource:
     @pytest.mark.asyncio
     @patch("open_notebook.graphs.source.ContentSettings")
     @patch("open_notebook.graphs.source.extract_content")
-    @patch("open_notebook.graphs.source.ModelManager")
     async def test_unavailable_engine_falls_back_to_auto(
-        self, mock_model_manager, mock_extract, mock_settings
+        self, mock_extract, mock_settings
     ):
         """A stored engine whose runtime is absent must not reach content-core.
 
@@ -494,11 +463,6 @@ class TestContentProcessDeleteSource:
 
         from open_notebook.graphs.source import SourceState, content_process
 
-        mm_instance = MagicMock()
-        mm_instance.get_defaults = AsyncMock(
-            return_value=MagicMock(default_speech_to_text_model=None)
-        )
-        mock_model_manager.return_value = mm_instance
         mock_settings.get_instance = AsyncMock(
             return_value=MagicMock(
                 youtube_preferred_languages=None,
@@ -534,20 +498,14 @@ class TestContentProcessDeleteSource:
     @pytest.mark.asyncio
     @patch("open_notebook.graphs.source.ContentSettings")
     @patch("open_notebook.graphs.source.extract_content")
-    @patch("open_notebook.graphs.source.ModelManager")
     async def test_runtime_free_engines_never_fall_back(
-        self, mock_model_manager, mock_extract, mock_settings
+        self, mock_extract, mock_settings
     ):
         """Engines needing no opt-in runtime are passed through untouched."""
         from content_core.common import ExtractionOutput
 
         from open_notebook.graphs.source import SourceState, content_process
 
-        mm_instance = MagicMock()
-        mm_instance.get_defaults = AsyncMock(
-            return_value=MagicMock(default_speech_to_text_model=None)
-        )
-        mock_model_manager.return_value = mm_instance
         mock_settings.get_instance = AsyncMock(
             return_value=MagicMock(
                 youtube_preferred_languages=None,

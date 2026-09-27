@@ -1,5 +1,5 @@
+import { notebookBackend } from '@/lib/nimi/client'
 import apiClient from './client'
-import { getAuthToken } from '@/lib/auth-token'
 import {
   SourceChatSession,
   SourceChatSessionWithMessages,
@@ -49,18 +49,16 @@ export const sourceChatApi = {
   // Messaging with streaming
   sendMessage: (sourceId: string, sessionId: string, data: SendMessageRequest) => {
     // Get auth token using the same logic as apiClient interceptor
-    const token = getAuthToken()
 
     // Use relative URL to leverage Next.js rewrites
     // This works both in dev (Next.js proxy) and production (Docker network)
-    const url = `/api/sources/${sourceId}/chat/sessions/${sessionId}/messages`
+    const url = `${notebookBackend()}/api/sources/${sourceId}/chat/sessions/${sessionId}/messages`
 
     // Use fetch with ReadableStream for SSE
     return fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` })
       },
       body: JSON.stringify(data)
     }).then(response => {

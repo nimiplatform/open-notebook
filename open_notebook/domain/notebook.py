@@ -898,10 +898,11 @@ async def vector_search(
         embed = await generate_embedding(keyword)
         search_results = await repo_query(
             """
-            SELECT * FROM fn::vector_search($embed, $results, $source, $note, $minimum_score, $notebook_ids);
+            SELECT * FROM fn::vector_search($embed, $results, $source, $note, $minimum_score, $notebook_ids, $space_id);
             """,
             {
-                "embed": embed,
+                "embed": list(embed),
+                "space_id": embed.space_id,
                 "results": results,
                 "source": source,
                 "note": note,

@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { useAuth } from '@/lib/hooks/use-auth'
 import { useSidebarStore } from '@/lib/stores/sidebar-store'
 import { useCreateDialogs } from '@/lib/hooks/use-create-dialogs'
 import {
@@ -33,7 +32,6 @@ import {
   Bot,
   Shuffle,
   Settings,
-  LogOut,
   ChevronLeft,
   Menu,
   FileText,
@@ -90,7 +88,6 @@ export function AppSidebar() {
   const { t } = useTranslation()
   const navigation = getNavigation(t)
   const pathname = usePathname()
-  const { logout } = useAuth()
   const { isCollapsed, toggleCollapse } = useSidebarStore()
   const { openSourceDialog, openNotebookDialog, openPodcastDialog } = useCreateDialogs()
 
@@ -363,31 +360,7 @@ export function AppSidebar() {
             )}
           </div>
 
-          {isCollapsed ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-center sidebar-menu-item"
-                  onClick={logout}
-                  aria-label={t('common.signOut')}
-                >
-                  <LogOut className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-               <TooltipContent side="right">{t('common.signOut')}</TooltipContent>
-            </Tooltip>
-          ) : (
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-2 sidebar-menu-item"
-              onClick={logout}
-              aria-label={t('common.signOut')}
-             >
-              <LogOut className="h-4 w-4" />
-              {t('common.signOut')}
-            </Button>
-          )}
+
         </div>
       </div>
     </TooltipProvider>

@@ -15,7 +15,7 @@ from fastapi.testclient import TestClient
 def client():
     from api.main import app
 
-    return TestClient(app)
+    return TestClient(app, headers={"X-Notebook-Process": "notebook-test-process"})
 
 
 def _patch_probes(monkeypatch, *, docling, crawl4ai_local, crawl4ai_remote):

@@ -9,7 +9,7 @@ from open_notebook.domain.transformation import Transformation
 def _client() -> TestClient:
     from api.main import app
 
-    return TestClient(app)
+    return TestClient(app, headers={"X-Notebook-Process": "notebook-test-process"})
 
 
 def _transformation(model_id: str | None = None) -> Transformation:

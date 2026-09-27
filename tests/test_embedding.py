@@ -6,6 +6,7 @@ Tests embedding generation and mean pooling functionality.
 
 import pytest
 
+from open_notebook.nimi.embeddings import EmbeddingVector
 from open_notebook.utils.chunking import CHUNK_SIZE
 from open_notebook.utils.embedding import (
     generate_embedding,
@@ -252,7 +253,7 @@ class TestGenerateEmbedding:
         mock_model.model_name = "test-model"
 
         def make_embeddings(batch):
-            return [[float(i)] * 3 for i in range(len(batch))]
+            return [EmbeddingVector([float(i)] * 3, "test-space") for i in range(len(batch))]
 
         mock_model.aembed = AsyncMock(side_effect=lambda batch: make_embeddings(batch))
 

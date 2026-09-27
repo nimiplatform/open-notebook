@@ -154,3 +154,11 @@ docker-compose.override.yml
 # Local QA/debug artifacts
 screenshot-*.png
 history.txt
+
+# Nimi local development and builds
+.nimi/local/
+node_modules/
+dist-electron/
+dist-electron-package/
+dist/
+.python-build/

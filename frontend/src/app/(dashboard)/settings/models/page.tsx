@@ -1,160 +1,48 @@
 'use client'
-
-import { useMemo } from 'react'
-import { AppShell } from '@/components/layout/AppShell'
-import { LoadingSpinner } from '@/components/common/LoadingSpinner'
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
-import { Key, ShieldAlert, AlertCircle } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { ModelConfigAIConfigSurface } from '@nimiplatform/kit/features/model-config/ui'
+import type { NimiAIConfigSnapshot } from '@nimiplatform/sdk'
+import { getNimiClient } from '@/lib/nimi/client'
 import { useTranslation } from '@/lib/hooks/use-translation'
-import { useModels, useModelDefaults } from '@/lib/hooks/use-models'
-import {
-  useCredentials,
-  useCredentialStatus,
-  useEnvStatus,
-} from '@/lib/hooks/use-credentials'
-import { useProviders } from '@/lib/hooks/use-providers'
-import { Credential } from '@/lib/api/credentials'
-import {
-  DefaultModelSelectors,
-  MigrationBanner,
-  ProviderSection,
-} from '@/components/settings'
+import { AppShell } from '@/components/layout/AppShell'
 
-export default function ApiKeysPage() {
-  const { t } = useTranslation()
-
-  // Data
-  const { data: credentials, isLoading: credentialsLoading } = useCredentials()
-  const { data: models, isLoading: modelsLoading } = useModels()
-  const { data: defaults, isLoading: defaultsLoading } = useModelDefaults()
-  const { data: credentialStatus } = useCredentialStatus()
-  const { data: envStatus } = useEnvStatus()
-  const {
-    data: providers,
-    isLoading: providersLoading,
-    isError: providersError,
-  } = useProviders()
-
-  const encryptionReady = credentialStatus?.encryption_configured ?? true
-
-  // Group credentials by provider
-  const credentialsByProvider = useMemo(() => {
-    const grouped: Record<string, Credential[]> = {}
-    for (const provider of providers ?? []) {
-      grouped[provider.name] = []
-    }
-    if (credentials) {
-      for (const cred of credentials) {
-        if (!grouped[cred.provider]) grouped[cred.provider] = []
-        grouped[cred.provider].push(cred)
-      }
-    }
-    return grouped
-  }, [credentials, providers])
-
-  // Providers needing migration
-  const providersToMigrate = useMemo(() => {
-    if (!envStatus || !credentialStatus) return []
-    const result: string[] = []
-    for (const provider in envStatus) {
-      if (envStatus[provider] && credentialStatus.source[provider] === 'environment') {
-        result.push(provider)
-      }
-    }
-    return result
-  }, [envStatus, credentialStatus])
-
-  // Sort: configured providers first (the backend registry owns the base order)
-  const sortedProviders = useMemo(() => {
-    return [...(providers ?? [])].sort((a, b) => {
-      const aHas = (credentialsByProvider[a.name]?.length || 0) > 0 ? 1 : 0
-      const bHas = (credentialsByProvider[b.name]?.length || 0) > 0 ? 1 : 0
-      return bHas - aHas
-    })
-  }, [providers, credentialsByProvider])
-
-  const isLoading = credentialsLoading || modelsLoading || defaultsLoading || providersLoading
-
-  if (isLoading) {
-    return (
-      <AppShell>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <LoadingSpinner size="lg" />
-        </div>
-      </AppShell>
-    )
+export default function ModelsPage() {
+  const { t, language } = useTranslation()
+  const capabilityLabels: Record<string, string> = {
+    'text.generate': t('nimi.research'), 'text.embed': t('nimi.embedding'),
+    'audio.transcribe': t('nimi.transcription'), 'audio.synthesize': t('nimi.narration'),
   }
-
-  return (
-    <AppShell>
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-6 space-y-6">
-          {/* Header */}
-          <div>
-            <h1 className="font-display text-2xl font-bold tracking-tight flex items-center gap-2">
-              <Key className="h-5 w-5 text-muted-foreground" />
-              {t('apiKeys.title')}
-            </h1>
-            <p className="text-muted-foreground mt-1">{t('apiKeys.description')}</p>
-          </div>
-
-          {/* Encryption warning */}
-          {!encryptionReady && (
-            <Alert className="border-destructive/30 bg-destructive-tint">
-              <ShieldAlert className="h-4 w-4 text-destructive" />
-              <AlertTitle className="text-destructive">{t('apiKeys.encryptionRequired')}</AlertTitle>
-              <AlertDescription className="text-destructive">
-                <code className="text-xs bg-destructive-tint px-1 py-0.5 rounded">
-                  {t('apiKeys.encryptionRequiredDescription')}
-                </code>
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {/* Migration banner */}
-          {encryptionReady && <MigrationBanner providersToMigrate={providersToMigrate} />}
-
-          {/* Default Model Selectors */}
-          {models && defaults && (
-            <DefaultModelSelectors models={models} defaults={defaults} />
-          )}
-
-          {/* Provider Cards */}
-          {providersError ? (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>{t('apiKeys.providersLoadFailed')}</AlertTitle>
-              <AlertDescription>{t('apiKeys.providersLoadFailedDescription')}</AlertDescription>
-            </Alert>
-          ) : (
-            <div className="grid gap-4">
-              {sortedProviders.map(provider => (
-                <ProviderSection
-                  key={provider.name}
-                  provider={provider}
-                  credentials={credentialsByProvider[provider.name] || []}
-                  models={models || []}
-                  defaults={defaults || null}
-                  allCredentials={credentials || []}
-                  encryptionReady={encryptionReady}
-                />
-              ))}
-            </div>
-          )}
-
-          {/* Help link */}
-          <div className="border-t pt-4">
-            <a
-              href="https://github.com/lfnovo/open-notebook/blob/main/docs/5-CONFIGURATION/ai-providers.md"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-primary hover:underline"
-            >
-              {t('apiKeys.learnMore')}
-            </a>
-          </div>
-        </div>
-      </div>
-    </AppShell>
-  )
+  const [snapshot, setSnapshot] = useState<NimiAIConfigSnapshot | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const refresh = async () => {
+    setLoading(true); setError(null)
+    try { setSnapshot(await getNimiClient().aiConfig.get()) }
+    catch (e) { setError(e instanceof Error ? e.message : String(e)) }
+    finally { setLoading(false) }
+  }
+  useEffect(() => { void refresh() }, [])
+  return <AppShell><div className="w-full mx-auto max-w-4xl space-y-6 overflow-y-auto p-6">
+    <header className="space-y-2"><h1 className="text-2xl font-semibold">{t('navigation.models')}</h1><p className="text-muted-foreground">{t('nimi.models')}</p></header>
+    <ModelConfigAIConfigSurface
+      copy={{
+        title: t('navigation.models'), backLabel: t('common.back'),
+        detailTitle: label => `${label} · ${t('navigation.settings')}`,
+        activeModelLabel: t('chat.model'), modelPickerTitle: t('models.selectModelPlaceholder'),
+        modelPickerSearchPlaceholder: t('common.search'),
+        saveLocalLabel: t('common.save'), saveCloudLabel: t('common.save'),
+        cancelLabel: t('common.cancel'), confirmSelectionLabel: t('common.confirm'),
+        notConfiguredLabel: t('podcasts.notConfigured'),
+        capabilityLabel: (capability, fallback) => capabilityLabels[capability] ?? fallback,
+        capabilityDescription: () => '',
+      }}
+      context={{ owner: 'app-ai-config', appId: 'io.github.nimiplatform.open-notebook' }}
+      capabilityContracts={['text.generate', 'text.embed', 'audio.transcribe', 'audio.synthesize']}
+      initialCapabilityContract="text.generate" language={language}
+      capabilities={snapshot?.config ? snapshot.config.capabilities : snapshot ? null : undefined}
+      revision={snapshot?.revision} effectiveSelections={snapshot?.effectiveSelections}
+      listOptions={query => getNimiClient().aiConfig.listOptions(query)} loading={loading} loadError={error}
+      onRetry={() => { void refresh() }} onOverwrite={async input => { const result = await getNimiClient().aiConfig.overwrite(input); await refresh(); return result }}
+    />
+  </div></AppShell>
 }

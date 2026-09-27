@@ -7,21 +7,15 @@ from loguru import logger
 from surreal_commands import CommandInput, CommandOutput, command
 
 from open_notebook.config import PODCASTS_FOLDER
-from open_notebook.database.repository import ensure_record_id, repo_query
+from open_notebook.database.repository import ensure_record_id
+from open_notebook.nimi.podcast import create_notebook_podcast
 from open_notebook.podcasts.audio_paths import to_relative_audio_path
 from open_notebook.podcasts.models import (
     EpisodeProfile,
     PodcastEpisode,
     SpeakerProfile,
-    _resolve_model_config,
 )
 from open_notebook.utils.model_utils import full_model_dump
-
-try:
-    from podcast_creator import configure, create_podcast
-except ImportError as e:
-    logger.error(f"Failed to import podcast_creator: {e}")
-    raise ValueError("podcast_creator library not available")
 
 
 def build_episode_output_dir(podcasts_folder: str = PODCASTS_FOLDER) -> tuple[str, Path]:
@@ -108,147 +102,6 @@ async def generate_podcast_command(
         logger.info(f"Loaded episode profile: {episode_profile.name}")
         logger.info(f"Loaded speaker profile: {speaker_profile.name}")
 
-        # 2. Validate that model registry fields are populated
-        if not episode_profile.outline_llm:
-            raise ValueError(
-                f"Episode profile '{episode_profile.name}' has no outline model configured. "
-                "Please update the profile to select an outline model."
-            )
-        if not episode_profile.transcript_llm:
-            raise ValueError(
-                f"Episode profile '{episode_profile.name}' has no transcript model configured. "
-                "Please update the profile to select a transcript model."
-            )
-        if not speaker_profile.voice_model:
-            raise ValueError(
-                f"Speaker profile '{speaker_profile.name}' has no voice model configured. "
-                "Please update the profile to select a voice model."
-            )
-
-        # 3. Resolve model configs with credentials
-        outline_provider, outline_model_name, outline_config = (
-            await episode_profile.resolve_outline_config()
-        )
-        transcript_provider, transcript_model_name, transcript_config = (
-            await episode_profile.resolve_transcript_config()
-        )
-        tts_provider, tts_model_name, tts_config = (
-            await speaker_profile.resolve_tts_config()
-        )
-
-        logger.info(
-            f"Resolved models - outline: {outline_provider}/{outline_model_name}, "
-            f"transcript: {transcript_provider}/{transcript_model_name}, "
-            f"tts: {tts_provider}/{tts_model_name}"
-        )
-
-        # 4. Load all profiles and configure podcast-creator
-        episode_profiles = await repo_query("SELECT * FROM episode_profile")
-        speaker_profiles = await repo_query("SELECT * FROM speaker_profile")
-
-        # Transform the surrealdb array into a dictionary for podcast-creator
-        episode_profiles_dict = {
-            profile["name"]: profile for profile in episode_profiles
-        }
-        speaker_profiles_dict = {
-            profile["name"]: profile for profile in speaker_profiles
-        }
-
-        # Map speaker_profile record ID -> name so podcast-creator keeps
-        # receiving speaker names (its EpisodeProfile.speaker_config is a
-        # required non-empty name string, cross-referenced against the
-        # speakers config keyed by name).
-        speaker_name_by_id = {
-            str(profile["id"]): profile["name"] for profile in speaker_profiles
-        }
-
-        # 5. Inject resolved model configs into profile dicts
-        # Resolve ALL episode profiles (podcast-creator validates all).
-        # Remove profiles that fail resolution to prevent validation errors.
-        for ep_name in list(episode_profiles_dict.keys()):
-            ep_dict = episode_profiles_dict[ep_name]
-
-            # Since migration 20, speaker_config stores a record ID (and is
-            # None when the referenced speaker profile no longer exists).
-            # Rewrite it back to the speaker name for podcast-creator; drop
-            # profiles whose reference doesn't resolve so a single orphaned
-            # profile can't fail validation for the whole config. The profile
-            # being generated always resolves: its speaker was validated above.
-            speaker_ref = ep_dict.get("speaker_config")
-            speaker_name = (
-                speaker_name_by_id.get(str(speaker_ref)) if speaker_ref else None
-            )
-            if not speaker_name and ep_name == episode_profile.name:
-                speaker_name = speaker_profile.name
-            if not speaker_name:
-                logger.warning(
-                    f"Episode profile '{ep_name}' references a speaker profile "
-                    f"that no longer exists ({speaker_ref!r}), removing from "
-                    "config to prevent validation errors"
-                )
-                del episode_profiles_dict[ep_name]
-                continue
-            ep_dict["speaker_config"] = speaker_name
-
-            try:
-                if ep_dict.get("outline_llm"):
-                    prov, model, conf = await _resolve_model_config(
-                        str(ep_dict["outline_llm"]),
-                        max_tokens=ep_dict.get("max_tokens"),
-                    )
-                    ep_dict["outline_provider"] = prov
-                    ep_dict["outline_model"] = model
-                    ep_dict["outline_config"] = conf
-                if ep_dict.get("transcript_llm"):
-                    prov, model, conf = await _resolve_model_config(
-                        str(ep_dict["transcript_llm"]),
-                        max_tokens=ep_dict.get("max_tokens"),
-                    )
-                    ep_dict["transcript_provider"] = prov
-                    ep_dict["transcript_model"] = model
-                    ep_dict["transcript_config"] = conf
-            except Exception as e:
-                logger.warning(
-                    f"Failed to resolve models for episode profile '{ep_name}', "
-                    f"removing from config to prevent validation errors: {e}"
-                )
-                del episode_profiles_dict[ep_name]
-
-        # Resolve TTS for ALL speaker profiles (podcast-creator validates all).
-        # Remove profiles that fail resolution to prevent validation errors.
-        for sp_name in list(speaker_profiles_dict.keys()):
-            sp_dict = speaker_profiles_dict[sp_name]
-            if sp_dict.get("voice_model"):
-                try:
-                    prov, model, conf = await _resolve_model_config(
-                        str(sp_dict["voice_model"])
-                    )
-                    sp_dict["tts_provider"] = prov
-                    sp_dict["tts_model"] = model
-                    sp_dict["tts_config"] = conf
-                except Exception as e:
-                    logger.warning(
-                        f"Failed to resolve TTS for speaker profile '{sp_name}', "
-                        f"removing from config to prevent validation errors: {e}"
-                    )
-                    del speaker_profiles_dict[sp_name]
-                    continue
-
-            # Per-speaker TTS overrides
-            for speaker in sp_dict.get("speakers", []):
-                if speaker.get("voice_model"):
-                    try:
-                        prov, model, conf = await _resolve_model_config(
-                            str(speaker["voice_model"])
-                        )
-                        speaker["tts_provider"] = prov
-                        speaker["tts_model"] = model
-                        speaker["tts_config"] = conf
-                    except Exception as e:
-                        logger.warning(
-                            f"Failed to resolve per-speaker TTS for '{speaker.get('name')}': {e}"
-                        )
-
         # 6. Generate briefing
         briefing = episode_profile.default_briefing
         if input_data.briefing_suffix:
@@ -263,31 +116,13 @@ async def generate_podcast_command(
             if input_data.execution_context
             else None,
             briefing=briefing,
+            briefing_suffix=input_data.briefing_suffix,
             content=input_data.content,
             audio_file=None,
             transcript=None,
             outline=None,
         )
         await episode.save()
-
-        # SECURITY NOTE for future work: podcast_creator also supports
-        # configure("templates", {...}), which compiles the given string
-        # directly as Jinja2 template *source* (Prompter(template_text=...)
-        # in podcast_creator/config.py) - the exact SSTI shape already fixed
-        # in open_notebook/graphs/transformation.py (GHSA-f35w-wx37-26q7).
-        # We don't call it today (confirmed: no code path here sets the
-        # "templates" key, so podcast generation always uses the file-based
-        # prompts/podcast/*.jinja templates in this repo). If a "custom
-        # podcast template" feature is ever added, do NOT wire user/profile
-        # text into configure("templates", ...) - render it through a
-        # fixed, developer-authored template with the user text passed in
-        # as a plain variable instead, matching transformation.py's fix.
-        configure("speakers_config", {"profiles": speaker_profiles_dict})
-        configure("episode_config", {"profiles": episode_profiles_dict})
-
-        logger.info("Configured podcast-creator with episode and speaker profiles")
-
-        logger.info(f"Generated briefing (length: {len(briefing)} chars)")
 
         # 7. Create output directory using UUID for filesystem-safe paths
         episode_dir_name, output_dir = build_episode_output_dir()
@@ -298,14 +133,12 @@ async def generate_podcast_command(
         # 8. Generate podcast using podcast-creator
         logger.info("Starting podcast generation with podcast-creator...")
 
-        result = await create_podcast(
-            content=input_data.content,
-            briefing=briefing,
-            episode_name=episode_dir_name,
-            output_dir=str(output_dir),
-            speaker_config=speaker_profile.name,
-            episode_profile=episode_profile.name,
-        )
+        async def save_progress(outline, transcript):
+            episode.outline = outline
+            episode.transcript = {"transcript": transcript}
+            await episode.save()
+
+        result = await create_notebook_podcast(input_data.content, briefing, episode_profile, speaker_profile, output_dir, save_progress)
 
         # podcast-creator reports audio-combination failures IN-BAND: on
         # ffmpeg/clip errors combine_audio_files() returns an "ERROR: ..."
@@ -364,12 +197,4 @@ async def generate_podcast_command(
         logger.error(f"Podcast generation failed: {e}")
         logger.exception(e)
 
-        error_msg = str(e)
-        if "Invalid json output" in error_msg or "Expecting value" in error_msg:
-            error_msg += (
-                "\n\nNOTE: This error commonly occurs with GPT-5 models that use extended thinking. "
-                "The model may be putting all output inside <think> tags, leaving nothing to parse. "
-                "Try using gpt-4o, gpt-4o-mini, or gpt-4-turbo instead in your episode profile."
-            )
-
-        raise RuntimeError(error_msg) from e
+        raise RuntimeError(str(e)) from e

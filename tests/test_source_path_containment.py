@@ -35,7 +35,7 @@ def make_source(file_path=None, **overrides):
 def client():
     from api.main import app
 
-    return TestClient(app)
+    return TestClient(app, headers={"X-Notebook-Process": "notebook-test-process"})
 
 
 class TestIsSourceFileAvailableRejectsSiblingDirectoryBypass:

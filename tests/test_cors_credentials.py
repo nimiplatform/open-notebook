@@ -36,7 +36,7 @@ class TestRealAppDefaultsToNoCredentialsWithWildcard:
         assert matches[0].kwargs["allow_credentials"] is False
 
     def test_real_response_does_not_claim_allow_credentials(self):
-        client = TestClient(api_main.app)
+        client = TestClient(api_main.app, headers={"X-Notebook-Process": "notebook-test-process"})
         response = client.get(
             "/health", headers={"Origin": "https://evil.example.com"}
         )

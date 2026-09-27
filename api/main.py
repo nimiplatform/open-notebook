@@ -1,17 +1,13 @@
-# Load environment variables
-from dotenv import load_dotenv
-
-load_dotenv()
-
+# Nimi Host supplies the worker environment; no provider credential inheritance.
 # Keep the internal SurrealDB websocket out of any configured HTTP proxy
-# (issue #1160). Must run after load_dotenv() (so a proxy set in .env is
-# already visible) and before the DB is touched.
+# before opening database connections.
 from open_notebook.utils.proxy import ensure_internal_no_proxy
 
 ensure_internal_no_proxy()
 
 import asyncio
 import os
+import ssl
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -20,14 +16,12 @@ from fastapi.responses import JSONResponse
 from loguru import logger
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from api.auth import PasswordAuthMiddleware
+from api.auth import NotebookHostMiddleware
 from api.middleware import MaxBodySizeMiddleware, get_max_upload_size_bytes
 from api.routers import (
-    auth,
     capabilities,
     chat,
     config,
-    credentials,
     embedding,
     embedding_rebuild,
     episode_profiles,
@@ -37,7 +31,6 @@ from api.routers import (
     notebooks,
     notes,
     podcasts,
-    providers,
     search,
     settings,
     source_chat,
@@ -58,7 +51,11 @@ from open_notebook.exceptions import (
     RateLimitError,
     UnsupportedTypeException,
 )
-from open_notebook.utils.encryption import get_secret_from_env
+
+# content-core imports a YouTube helper that replaces Python's default HTTPS
+# factory with an unverified context. Enforce the normal verified factory after
+# loading extraction dependencies, before any business request can run.
+ssl._create_default_https_context = ssl.create_default_context
 
 
 def _parse_cors_origins(raw: str) -> list[str]:
@@ -117,13 +114,6 @@ def _cors_headers(request: Request) -> dict[str, str]:
         headers["Vary"] = "Origin"
 
     return headers
-
-
-# Import commands to register them in the API process
-try:
-    logger.info("Commands imported in API process")
-except Exception as e:
-    logger.error(f"Failed to import commands in API process: {e}")
 
 
 async def _wait_for_database(migration_manager: AsyncMigrationManager) -> None:
@@ -189,14 +179,6 @@ async def lifespan(app: FastAPI):
     # Startup: Security checks
     logger.info("Starting API initialization...")
 
-    # Security check: Encryption key
-    if not get_secret_from_env("OPEN_NOTEBOOK_ENCRYPTION_KEY"):
-        logger.warning(
-            "OPEN_NOTEBOOK_ENCRYPTION_KEY not set. "
-            "API key encryption will fail until this is configured. "
-            "Set OPEN_NOTEBOOK_ENCRYPTION_KEY to any secret string."
-        )
-
     # Run database migrations
 
     try:
@@ -207,10 +189,20 @@ async def lifespan(app: FastAPI):
         # Fail fast - don't start the API with an outdated database schema
         raise RuntimeError(f"Failed to run database migrations: {str(e)}") from e
 
-    logger.success("API initialization completed successfully")
+    from open_notebook.nimi.bootstrap import prepare_workspace
+    await prepare_workspace()
+    from surreal_commands.core.worker import listen_for_commands
+
+    import commands  # noqa: F401
+    worker = asyncio.create_task(listen_for_commands(max_tasks=3))
+    logger.success("API and notebook worker initialized")
 
     # Yield control to the application
-    yield
+    try:
+        yield
+    finally:
+        worker.cancel()
+        await asyncio.gather(worker, return_exceptions=True)
 
     # Shutdown: cleanup if needed
     logger.info("API shutdown complete")
@@ -235,16 +227,8 @@ else:
 # Add password authentication middleware first
 # Exclude /api/auth/status and /api/config from authentication
 app.add_middleware(
-    PasswordAuthMiddleware,
-    excluded_paths=[
-        "/",
-        "/health",
-        "/docs",
-        "/openapi.json",
-        "/redoc",
-        "/api/auth/status",
-        "/api/config",
-    ],
+    NotebookHostMiddleware,
+
 )
 
 # Reject oversized request bodies before they reach auth or routing - added
@@ -380,7 +364,6 @@ async def open_notebook_error_handler(request: Request, exc: OpenNotebookError):
 
 
 # Include routers
-app.include_router(auth.router, prefix="/api", tags=["auth"])
 app.include_router(config.router, prefix="/api", tags=["config"])
 app.include_router(notebooks.router, prefix="/api", tags=["notebooks"])
 app.include_router(search.router, prefix="/api", tags=["search"])
@@ -400,8 +383,6 @@ app.include_router(episode_profiles.router, prefix="/api", tags=["episode-profil
 app.include_router(speaker_profiles.router, prefix="/api", tags=["speaker-profiles"])
 app.include_router(chat.router, prefix="/api", tags=["chat"])
 app.include_router(source_chat.router, prefix="/api", tags=["source-chat"])
-app.include_router(credentials.router, prefix="/api", tags=["credentials"])
-app.include_router(providers.router, prefix="/api", tags=["providers"])
 app.include_router(capabilities.router, prefix="/api", tags=["capabilities"])
 app.include_router(languages.router, prefix="/api", tags=["languages"])
 

@@ -8,32 +8,10 @@ from open_notebook.database.repository import ensure_record_id, repo_query
 from open_notebook.domain.base import ObjectModel
 
 
-async def _resolve_model_config(
-    model_id: str, max_tokens: Optional[int] = None
-) -> Tuple[str, str, dict]:
-    """Load Model record, resolve credential -> (provider, model_name, config_dict).
-
-    Used by resolve_outline_config, resolve_transcript_config, resolve_tts_config,
-    and per-speaker TTS overrides. Optionally passes through a max_tokens override.
-    """
-    from open_notebook.ai.models import Model, resolve_anthropic_compatible_config
-
-    model = await Model.get(model_id)
-    config: dict = {}
-    if model.credential:
-        credential = await model.get_credential_obj()
-        if credential:
-            config = credential.to_esperanto_config()
-    if not config:
-        from open_notebook.ai.key_provider import provision_provider_keys
-
-        await provision_provider_keys(model.provider)
-    provider = model.provider
-    if provider == "anthropic_compatible":
-        provider, config = await resolve_anthropic_compatible_config(config)
-    if max_tokens is not None:
-        config = {**config, "max_tokens": max_tokens}
-    return (provider, model.name, config)
+async def _resolve_model_config(model_id: str, max_tokens: Optional[int] = None) -> Tuple[str, str, dict]:
+    if model_id not in {"model:nimi_language", "model:nimi_text_to_speech"}:
+        raise ValueError("Select a Nimi capability for this podcast profile")
+    return ("nimi", model_id, {"max_tokens": max_tokens} if max_tokens else {})
 
 
 class EpisodeProfile(ObjectModel):
@@ -231,6 +209,7 @@ class PodcastEpisode(ObjectModel):
         ..., description="Speaker profile used (stored as object)"
     )
     briefing: str = Field(..., description="Full briefing used for generation")
+    briefing_suffix: Optional[str] = Field(None, description="Additional episode instructions retained for explicit retry")
     content: str = Field(..., description="Source content")
     audio_file: Optional[str] = Field(
         default=None,

@@ -23,7 +23,7 @@ from fastapi.testclient import TestClient
 def client():
     from api.main import app
 
-    return TestClient(app)
+    return TestClient(app, headers={"X-Notebook-Process": "notebook-test-process"})
 
 
 SENSITIVE_MESSAGE = "connection refused to internal-db-host.corp.local:8000: password auth failed for user 'root'"

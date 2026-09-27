@@ -124,25 +124,15 @@ async def get_config(request: Request):
     """
     Get frontend configuration.
 
-    Returns version information and health status.
-    Note: The frontend determines the API URL via its own runtime-config endpoint,
-    so this endpoint no longer returns apiUrl.
-
-    Also checks for version updates from GitHub (with caching and error handling).
+    Returns the App version and database health. The protected Host supplies
+    the API URL; upstream server update checks do not apply to this Nimi App.
     """
     # Get current version
     current_version = get_version()
 
-    # Check for updates (with caching and error handling)
-    # This MUST NOT break the endpoint - wrapped in try-except as extra safety
+    # App distribution owns updates.
     latest_version = None
     has_update = False
-
-    try:
-        latest_version, has_update = await get_latest_version_cached(current_version)
-    except Exception as e:
-        # Extra safety: ensure version check never breaks the config endpoint
-        logger.error(f"Unexpected error during version check: {e}")
 
     # Check database health
     db_health = await check_database_health()

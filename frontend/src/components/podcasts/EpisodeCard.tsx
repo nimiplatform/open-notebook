@@ -177,8 +177,7 @@ export function EpisodeCard({ episode, onDelete, deleting, onRetry, retrying }: 
       }
 
       try {
-        // apiClient attaches the auth header; directAudioUrl is absolute so
-        // the dynamic baseURL is ignored.
+        // The Host adds its private transport header for this App's backend.
         const response = await apiClient.get<Blob>(directAudioUrl, {
           responseType: 'blob',
         })

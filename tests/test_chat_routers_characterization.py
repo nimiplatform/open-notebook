@@ -27,7 +27,7 @@ from open_notebook.exceptions import NotFoundError
 def client():
     from api.main import app
 
-    return TestClient(app)
+    return TestClient(app, headers={"X-Notebook-Process": "notebook-test-process"})
 
 
 def _nf(*_args, **_kwargs):

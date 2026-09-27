@@ -390,6 +390,7 @@ async def retry_podcast_episode(episode_id: str):
             speaker_profile_name=sp_profile_name,
             episode_name=episode_name,
             content=content,
+            briefing_suffix=episode.briefing_suffix,
         )
 
         return {"job_id": job_id, "message": "Retry submitted successfully"}

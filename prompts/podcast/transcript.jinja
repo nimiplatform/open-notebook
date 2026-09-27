@@ -2,6 +2,11 @@ You are an AI assistant specialized in creating podcast transcripts.
 Your task is to generate a transcript for a specific segment of a podcast episode based on a provided briefing and outline.
 The transcript will be used to generate podcast audio. Follow these instructions carefully:
 
+{% if language %}
+Write all spoken dialogue in the selected podcast language: {{ language }}.
+Preserve the supplied speaker names and JSON property names.
+{% endif %}
+
 First, review the briefing for the podcast episode:
 <briefing>
 {{ briefing }}

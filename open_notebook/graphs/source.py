@@ -2,7 +2,7 @@ import operator
 import os
 from typing import Any, Dict, List, Optional
 
-from content_core import ContentCoreConfig, extract_content
+from content_core import ContentCoreConfig
 from content_core.common import ExtractionOutput
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
@@ -10,11 +10,11 @@ from langgraph.types import Send
 from loguru import logger
 from typing_extensions import Annotated, TypedDict
 
-from open_notebook.ai.models import Model, ModelManager
 from open_notebook.domain.content_settings import ContentSettings
 from open_notebook.domain.notebook import Asset, Source
 from open_notebook.domain.transformation import Transformation
 from open_notebook.graphs.transformation import graph as transform_graph
+from open_notebook.nimi.media import extract_notebook_content as extract_content
 from open_notebook.utils.runtime_capabilities import engine_runtime_missing
 
 # Default preferred languages for YouTube transcript selection, used when
@@ -112,21 +112,6 @@ async def content_process(state: SourceState) -> dict:
         logger.opt(exception=True).warning(
             f"Failed to load content settings, using defaults: {e}"
         )
-
-    try:
-        model_manager = ModelManager()
-        defaults = await model_manager.get_defaults()
-        if defaults.default_speech_to_text_model:
-            stt_model = await Model.get(defaults.default_speech_to_text_model)
-            if stt_model:
-                config_kwargs["audio_provider"] = stt_model.provider
-                config_kwargs["audio_model"] = stt_model.name
-                logger.debug(
-                    f"Using speech-to-text model: {stt_model.provider}/{stt_model.name}"
-                )
-    except Exception as e:
-        logger.warning(f"Failed to retrieve speech-to-text model configuration: {e}")
-        # Continue without custom audio model (content-core will use its default)
 
     config = ContentCoreConfig(**config_kwargs) if config_kwargs else None
 

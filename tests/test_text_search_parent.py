@@ -40,8 +40,9 @@ async def test_text_insights_keep_their_id_and_resolve_the_parent_source(
             CREATE notebook:other SET name = 'Other';
             CREATE source:parent SET title = 'quasar source', full_text = 'quasar text';
             CREATE source_insight:insight SET source = source:parent,
-                insight_type = 'summary', content = 'quasar evidence', embedding = [1.0, 0.0];
-            CREATE note:control SET title = 'quasar note', content = 'quasar note', embedding = [1.0, 0.0];
+                insight_type = 'summary', content = 'quasar evidence', embedding = [1.0, 0.0], embedding_space = 'test-space';
+            CREATE source_insight:other_space SET source = source:parent, insight_type = 'summary', content = 'unrelated space', embedding = [1.0, 0.0], embedding_space = 'another-space';
+            CREATE note:control SET title = 'quasar note', content = 'quasar note', embedding = [1.0, 0.0], embedding_space = 'test-space';
             RELATE source:parent->reference->notebook:chosen;
             RELATE note:control->artifact->notebook:chosen;
             """
@@ -58,10 +59,11 @@ async def test_text_insights_keep_their_id_and_resolve_the_parent_source(
         assert str(by_id["note:control"]["parent_id"]) == "note:control"
         vector = records(
             await db.query(
-                "RETURN fn::vector_search([1.0, 0.0], 10, true, false, 0.5, $scope);",
+                "RETURN fn::vector_search([1.0, 0.0], 10, true, false, 0.5, $scope, 'test-space');",
                 {"scope": None if scope is None else [item for item in scope]},
             )
         )
+        assert all(str(row["id"]) != "source_insight:other_space" for row in vector)
         assert str(vector[0]["parent_id"]) == "source:parent"
         assert str(vector[0]["id"]) == "source_insight:insight"
         assert (
@@ -102,7 +104,7 @@ async def test_migration_25_up_down_up_preserves_vector_search() -> None:
         await db.query(
             "CREATE source:parent SET title = 'Article';"
             "CREATE source_insight:insight SET source = source:parent,"
-            "insight_type = 'summary', content = 'quasar', embedding = [1.0, 0.0];"
+            "insight_type = 'summary', content = 'quasar', embedding = [1.0, 0.0], embedding_space = 'test-space';"
         )
         before = functions(await db.query("INFO FOR DB;"))
         for migration, expected in [

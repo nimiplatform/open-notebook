@@ -4,6 +4,8 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
+from open_notebook.nimi.embeddings import EmbeddingVector
+
 MIGRATIONS_DIR = Path("open_notebook/database/migrations")
 
 
@@ -12,7 +14,7 @@ def client():
     """Create test client after environment variables have been cleared by conftest."""
     from api.main import app
 
-    return TestClient(app)
+    return TestClient(app, headers={"X-Notebook-Process": "notebook-test-process"})
 
 
 class TestSearchLimitValidation:
@@ -131,12 +133,12 @@ class TestVectorSearchOrdering:
                 "generate_embedding",
                 create=True,
                 new_callable=AsyncMock,
-                return_value=[0.1, 0.2],
+                return_value=EmbeddingVector([0.1, 0.2], "test-space"),
             ),
             patch(
                 "open_notebook.utils.embedding.generate_embedding",
                 new_callable=AsyncMock,
-                return_value=[0.1, 0.2],
+                return_value=EmbeddingVector([0.1, 0.2], "test-space"),
             ),
             patch.object(
                 notebook_module,
@@ -177,7 +179,7 @@ class TestVectorSearchOrdering:
             patch(
                 "open_notebook.utils.embedding.generate_embedding",
                 new_callable=AsyncMock,
-                return_value=[0.1],
+                return_value=EmbeddingVector([0.1], "test-space"),
             ),
             patch.object(
                 notebook_module,
@@ -501,7 +503,7 @@ class TestNotebookScopedSearchDomain:
             patch(
                 "open_notebook.utils.embedding.generate_embedding",
                 new_callable=AsyncMock,
-                return_value=[0.1],
+                return_value=EmbeddingVector([0.1], "test-space"),
             ),
             patch.object(
                 notebook_module, "repo_query", new_callable=AsyncMock, return_value=[]
