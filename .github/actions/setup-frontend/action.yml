@@ -1,0 +1,14 @@
+name: Set up the frontend workspace
+description: Install the pinned Node and pnpm workspace dependencies from the root lockfile.
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+      with:
+        node-version: 24
+        package-manager-cache: false
+    - run: corepack enable
+      shell: bash
+    - run: pnpm install --frozen-lockfile
+      shell: bash
+      working-directory: ${{ github.workspace }}

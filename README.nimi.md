@@ -21,8 +21,9 @@ public SDK/Kit for authorization, model configuration, text, embeddings and spee
 ## Development
 
 Start the Nimi source Runtime and Desktop using their guarded `pnpm dev:runtime`
-and `pnpm dev:desktop` commands. This checkout uses complete local package
-archives, so place the archives selected by `pnpm-workspace.yaml` before installing:
+and `pnpm dev:desktop` commands. This checkout includes the selected complete
+development package archives in `vendor/nimi/`, so a fresh clone and CI can
+install the same cohort from the root workspace:
 
 ```sh
 pnpm install --frozen-lockfile
@@ -138,14 +139,14 @@ missing-connector error mapping; affected sessions were notified briefly.
 ### Checks and build scope
 
 - App Tools `check`, Electron and frontend TypeScript checks: passed.
-- Frontend: 133 tests in 26 files passed. Lint passed with five existing hook
+- Frontend: 137 tests in 26 files passed. Lint passed with five existing hook
   warnings in untouched source components and the original generation dialog.
 - Backend: the final full suite passed 567 tests, including language, HTTPS,
   cancellation and embedding-space regressions. Modified Python files pass Ruff;
   the eight Nimi Python modules pass mypy. Two upstream dependency deprecation
   warnings remain.
 - Real SurrealDB vector-space/search regression: four tests passed.
-- The current-source macOS build and `pack --target macos-aarch64 --production`
+- The macOS build at adaptation commit `0abbe3f` and `pack --target macos-aarch64 --production`
   passed on the resumed acceptance run: Next standalone, frozen Python worker,
   SurrealDB resources, Electron packaging and native seal validation. Routine
   functional work still uses development/CDP. The App-owned packager now rejects
@@ -169,6 +170,32 @@ production packing and was imported through Desktop. Its exact Imported 0.1.0
 source launched with Nimi Access ready and completed a real text request with
 the output `安装授权验收通过。` in its native installed window.
 
+### Audit follow-up
+
+The frontend now reads the Host's current API endpoint for each request and
+caches version/health information by backend URL. Four added regressions cover
+endpoint changes, late old responses, failed requests and explicit retry.
+The existing installed 1.14.1 archive above predates this source fix; a real
+installed backend-crash/recovery journey is **NOT-VERIFIED** for the fix.
+
+Frontend CI now installs the root pnpm workspace on Node 24 and runs on both
+`main` and `nimi`. The complete dependency archives below are included in Git,
+so CI no longer needs a developer's ignored `.nimi/local/packages/` directory.
+A separate source snapshot without existing dependencies or local artifacts
+passed `pnpm install --frozen-lockfile` and all 137 frontend coverage tests.
+Its Next production build also passed, with two CSS optimizer warnings; the
+first attempt hit a Google Fonts connection failure, so font downloads still
+require network access at build time.
+App Tools check and its no-change sync preview also passed for the relocated
+archives. The managed release workflow remains owned by App Tools.
+
+The complete native GitHub workflow is still **NOT-VERIFIED**: its build jobs
+need explicit Python/uv and SurrealDB preparation, and the matching Windows
+native carrier is not in this cohort (the registry query for version 0.16.0
+returned 404). These are native build prerequisites beyond the repaired
+workspace dependency installation. Public-release preflight still requires
+registry resolutions.
+
 ### Exact local package combination
 
 Declarations: SDK `^0.19.0`, Kit `^0.16.0`, App Tools `^0.11.4`, exact
@@ -178,14 +205,16 @@ The native target is `macos-aarch64` / `darwin-arm64`, built with the
 `source-local-development` trust profile for the source Desktop carrier
 (Electron 42.10.1). Matching version numbers alone are insufficient.
 
-All paths in this table are below `.nimi/local/packages/`:
+All paths in this table are below `vendor/nimi/`. These are the same bytes used
+for the recorded acceptance; moving the archives into Git does not change the
+selected package combination:
 
 | Archive | SHA-256 |
 | --- | --- |
 | `nimiplatform-sdk-0.19.0.tgz` | `4597ca7783f11badf2c765cb1e4119b99f0b9508460214a29ff99e9d0b866a45` |
-| `connector-reason/nimiplatform-kit-0.16.0.tgz` | `f44da5fd9150c63a9fbeefbc4e5fad9b1698223eb7f1464e5fa0a13c63070dd0` |
+| `nimiplatform-kit-0.16.0.tgz` | `f44da5fd9150c63a9fbeefbc4e5fad9b1698223eb7f1464e5fa0a13c63070dd0` |
 | `nimiplatform-app-tools-0.11.4.tgz` | `969d3bb7e5c512ab05b8e24b5249eb96da848186d58f03b7038d034028aead16` |
-| `carrier-diagnostics/nimiplatform-kit-protected-local-darwin-arm64-0.16.0.tgz` | `025ecc532c2740cd79ccd5e31d4bf9880987e171c8f46fec64cee9a6c9b7b8b8` |
+| `nimiplatform-kit-protected-local-darwin-arm64-0.16.0.tgz` | `025ecc532c2740cd79ccd5e31d4bf9880987e171c8f46fec64cee9a6c9b7b8b8` |
 
 These packages came from the Nimi working tree based on
 `711fa4829ab5c7be54bc3e926177b99b9c3127e4`, including concurrent source changes.
@@ -194,9 +223,9 @@ The Runtime binary used for final development checks has SHA-256
 The resumed installation run uses Runtime SHA-256
 `30c93647df3ee38ee078374ccb2917f6747eaadd655703775f16db6fce8550f2`,
 including the parallel session's temporary-package verification I/O repair.
-Archives and local build output are intentionally ignored by Git. A fresh
-checkout needs the same complete archives or a deliberate upgrade through the
-App Tools package workflow. Public release requires registry resolutions and
+The selected complete archives are tracked in Git; local build and verification
+output remains ignored under `.nimi/local/`. Upgrade this cohort deliberately
+through the App Tools package workflow. Public release requires registry resolutions and
 the production native profile; this development combination is not a release.
 
 ### Remaining acceptance and decisions

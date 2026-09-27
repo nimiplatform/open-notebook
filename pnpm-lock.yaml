@@ -5,28 +5,28 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@nimiplatform/sdk': file:.nimi/local/packages/nimiplatform-sdk-0.19.0.tgz
-  '@nimiplatform/kit': file:.nimi/local/packages/connector-reason/nimiplatform-kit-0.16.0.tgz
-  '@nimiplatform/app-tools': file:.nimi/local/packages/nimiplatform-app-tools-0.11.4.tgz
-  '@nimiplatform/kit-protected-local-darwin-arm64': file:.nimi/local/packages/carrier-diagnostics/nimiplatform-kit-protected-local-darwin-arm64-0.16.0.tgz
+  '@nimiplatform/sdk': file:vendor/nimi/nimiplatform-sdk-0.19.0.tgz
+  '@nimiplatform/kit': file:vendor/nimi/nimiplatform-kit-0.16.0.tgz
+  '@nimiplatform/app-tools': file:vendor/nimi/nimiplatform-app-tools-0.11.4.tgz
+  '@nimiplatform/kit-protected-local-darwin-arm64': file:vendor/nimi/nimiplatform-kit-protected-local-darwin-arm64-0.16.0.tgz
 
 importers:
 
   .:
     dependencies:
       '@nimiplatform/kit':
-        specifier: file:.nimi/local/packages/connector-reason/nimiplatform-kit-0.16.0.tgz
-        version: file:.nimi/local/packages/connector-reason/nimiplatform-kit-0.16.0.tgz(@types/node@24.19.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(electron@42.11.8)(react-dom@19.3.0(react@19.3.0))(react-i18next@16.6.6(i18next@25.10.10(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(react@19.3.0)
+        specifier: file:vendor/nimi/nimiplatform-kit-0.16.0.tgz
+        version: file:vendor/nimi/nimiplatform-kit-0.16.0.tgz(@types/node@24.19.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(electron@42.11.8)(react-dom@19.3.0(react@19.3.0))(react-i18next@16.6.6(i18next@25.10.10(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(react@19.3.0)
       '@nimiplatform/sdk':
-        specifier: file:.nimi/local/packages/nimiplatform-sdk-0.19.0.tgz
-        version: file:.nimi/local/packages/nimiplatform-sdk-0.19.0.tgz(@grpc/grpc-js@1.14.5)
+        specifier: file:vendor/nimi/nimiplatform-sdk-0.19.0.tgz
+        version: file:vendor/nimi/nimiplatform-sdk-0.19.0.tgz(@grpc/grpc-js@1.14.5)
     devDependencies:
       '@electron/packager':
         specifier: ^20.3.0
         version: 20.3.0
       '@nimiplatform/app-tools':
-        specifier: file:.nimi/local/packages/nimiplatform-app-tools-0.11.4.tgz
-        version: file:.nimi/local/packages/nimiplatform-app-tools-0.11.4.tgz(vite@7.3.6(@types/node@24.19.0)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1))
+        specifier: file:vendor/nimi/nimiplatform-app-tools-0.11.4.tgz
+        version: file:vendor/nimi/nimiplatform-app-tools-0.11.4.tgz(vite@7.3.6(@types/node@24.19.0)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1))
       '@nimiplatform/nimi-coding':
         specifier: 0.6.3
         version: 0.6.3
@@ -70,11 +70,11 @@ importers:
         specifier: ^5.1.1
         version: 5.9.1(@standard-schema/spec@1.1.0)(react-hook-form@7.89.0(@types/react@19.3.0)(react@19.3.0))(zod@4.6.5)
       '@nimiplatform/kit':
-        specifier: file:../.nimi/local/packages/connector-reason/nimiplatform-kit-0.16.0.tgz
-        version: file:.nimi/local/packages/connector-reason/nimiplatform-kit-0.16.0.tgz(@types/node@20.19.43)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(electron@42.11.8)(react-dom@19.3.0(react@19.3.0))(react-i18next@16.6.6(i18next@25.10.10(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(react@19.3.0)
+        specifier: file:../vendor/nimi/nimiplatform-kit-0.16.0.tgz
+        version: file:vendor/nimi/nimiplatform-kit-0.16.0.tgz(@types/node@20.19.43)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(electron@42.11.8)(react-dom@19.3.0(react@19.3.0))(react-i18next@16.6.6(i18next@25.10.10(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(react@19.3.0)
       '@nimiplatform/sdk':
-        specifier: file:../.nimi/local/packages/nimiplatform-sdk-0.19.0.tgz
-        version: file:.nimi/local/packages/nimiplatform-sdk-0.19.0.tgz(@grpc/grpc-js@1.14.5)
+        specifier: file:../vendor/nimi/nimiplatform-sdk-0.19.0.tgz
+        version: file:vendor/nimi/nimiplatform-sdk-0.19.0.tgz(@grpc/grpc-js@1.14.5)
       '@radix-ui/react-accordion':
         specifier: ^1.2.12
         version: 1.2.20(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -1015,8 +1015,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@nimiplatform/app-tools@file:.nimi/local/packages/nimiplatform-app-tools-0.11.4.tgz':
-    resolution: {integrity: sha512-gWbCH5SfaAR5+SEHdnyxnNnX2vb/MoKIqEhNSJlYndqa+riyIutjpOUbWMJQmABRytw3b9mzorfzrzjiHjjUJA==, tarball: file:.nimi/local/packages/nimiplatform-app-tools-0.11.4.tgz}
+  '@nimiplatform/app-tools@file:vendor/nimi/nimiplatform-app-tools-0.11.4.tgz':
+    resolution: {integrity: sha512-gWbCH5SfaAR5+SEHdnyxnNnX2vb/MoKIqEhNSJlYndqa+riyIutjpOUbWMJQmABRytw3b9mzorfzrzjiHjjUJA==, tarball: file:vendor/nimi/nimiplatform-app-tools-0.11.4.tgz}
     version: 0.11.4
     engines: {node: '>=24.0.0'}
     hasBin: true
@@ -1026,15 +1026,15 @@ packages:
       vite:
         optional: true
 
-  '@nimiplatform/kit-protected-local-darwin-arm64@file:.nimi/local/packages/carrier-diagnostics/nimiplatform-kit-protected-local-darwin-arm64-0.16.0.tgz':
-    resolution: {integrity: sha512-SA+OixA5KPtFeElMKLR/GAi6I0YtJl1w2DojH3YSqP9gnOeWlTNZXzhuwumFaYYTzd6JIcj9sQRM2bctNWLXbg==, tarball: file:.nimi/local/packages/carrier-diagnostics/nimiplatform-kit-protected-local-darwin-arm64-0.16.0.tgz}
+  '@nimiplatform/kit-protected-local-darwin-arm64@file:vendor/nimi/nimiplatform-kit-protected-local-darwin-arm64-0.16.0.tgz':
+    resolution: {integrity: sha512-SA+OixA5KPtFeElMKLR/GAi6I0YtJl1w2DojH3YSqP9gnOeWlTNZXzhuwumFaYYTzd6JIcj9sQRM2bctNWLXbg==, tarball: file:vendor/nimi/nimiplatform-kit-protected-local-darwin-arm64-0.16.0.tgz}
     version: 0.16.0
     engines: {node: '>=22'}
     cpu: [arm64]
     os: [darwin]
 
-  '@nimiplatform/kit@file:.nimi/local/packages/connector-reason/nimiplatform-kit-0.16.0.tgz':
-    resolution: {integrity: sha512-WOpDiis6Ywt15DneRZA64kcWpCMiuXHojwTEwa3BCj1+Zflccoadk5JacbgAgPa5YthCJBQo1ueP45X+0HaEyg==, tarball: file:.nimi/local/packages/connector-reason/nimiplatform-kit-0.16.0.tgz}
+  '@nimiplatform/kit@file:vendor/nimi/nimiplatform-kit-0.16.0.tgz':
+    resolution: {integrity: sha512-WOpDiis6Ywt15DneRZA64kcWpCMiuXHojwTEwa3BCj1+Zflccoadk5JacbgAgPa5YthCJBQo1ueP45X+0HaEyg==, tarball: file:vendor/nimi/nimiplatform-kit-0.16.0.tgz}
     version: 0.16.0
     peerDependencies:
       electron: ^42.5.0
@@ -1054,8 +1054,8 @@ packages:
     engines: {node: '>=24.0.0', pnpm: '>=10.0.0'}
     hasBin: true
 
-  '@nimiplatform/sdk@file:.nimi/local/packages/nimiplatform-sdk-0.19.0.tgz':
-    resolution: {integrity: sha512-Gnt+11E4HuaRlhRZL25AmtOdH9YBuX/vW5/NQpLrz9D98Z/PwRBGGcLXA7nYKWQxP2BWbMF9boLAZw7Er6YNzg==, tarball: file:.nimi/local/packages/nimiplatform-sdk-0.19.0.tgz}
+  '@nimiplatform/sdk@file:vendor/nimi/nimiplatform-sdk-0.19.0.tgz':
+    resolution: {integrity: sha512-Gnt+11E4HuaRlhRZL25AmtOdH9YBuX/vW5/NQpLrz9D98Z/PwRBGGcLXA7nYKWQxP2BWbMF9boLAZw7Er6YNzg==, tarball: file:vendor/nimi/nimiplatform-sdk-0.19.0.tgz}
     version: 0.19.0
     peerDependencies:
       '@grpc/grpc-js': ^1.14.4
@@ -5352,7 +5352,7 @@ snapshots:
   '@next/swc-win32-x64-msvc@16.3.6':
     optional: true
 
-  '@nimiplatform/app-tools@file:.nimi/local/packages/nimiplatform-app-tools-0.11.4.tgz(vite@7.3.6(@types/node@24.19.0)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1))':
+  '@nimiplatform/app-tools@file:vendor/nimi/nimiplatform-app-tools-0.11.4.tgz(vite@7.3.6(@types/node@24.19.0)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1))':
     dependencies:
       pngjs: 7.0.0
       semver: 7.8.5
@@ -5361,13 +5361,13 @@ snapshots:
     optionalDependencies:
       vite: 7.3.6(@types/node@24.19.0)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1)
 
-  '@nimiplatform/kit-protected-local-darwin-arm64@file:.nimi/local/packages/carrier-diagnostics/nimiplatform-kit-protected-local-darwin-arm64-0.16.0.tgz':
+  '@nimiplatform/kit-protected-local-darwin-arm64@file:vendor/nimi/nimiplatform-kit-protected-local-darwin-arm64-0.16.0.tgz':
     optional: true
 
-  '@nimiplatform/kit@file:.nimi/local/packages/connector-reason/nimiplatform-kit-0.16.0.tgz(@types/node@20.19.43)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(electron@42.11.8)(react-dom@19.3.0(react@19.3.0))(react-i18next@16.6.6(i18next@25.10.10(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(react@19.3.0)':
+  '@nimiplatform/kit@file:vendor/nimi/nimiplatform-kit-0.16.0.tgz(@types/node@20.19.43)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(electron@42.11.8)(react-dom@19.3.0(react@19.3.0))(react-i18next@16.6.6(i18next@25.10.10(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(react@19.3.0)':
     dependencies:
       '@grpc/grpc-js': 1.14.5
-      '@nimiplatform/sdk': file:.nimi/local/packages/nimiplatform-sdk-0.19.0.tgz(@grpc/grpc-js@1.14.5)
+      '@nimiplatform/sdk': file:vendor/nimi/nimiplatform-sdk-0.19.0.tgz(@grpc/grpc-js@1.14.5)
       '@radix-ui/react-avatar': 1.2.6(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@radix-ui/react-dialog': 1.1.23(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@radix-ui/react-popover': 1.1.23(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -5392,7 +5392,7 @@ snapshots:
       wlipsync: 1.3.1
       zod: 4.5.4
     optionalDependencies:
-      '@nimiplatform/kit-protected-local-darwin-arm64': file:.nimi/local/packages/carrier-diagnostics/nimiplatform-kit-protected-local-darwin-arm64-0.16.0.tgz
+      '@nimiplatform/kit-protected-local-darwin-arm64': file:vendor/nimi/nimiplatform-kit-protected-local-darwin-arm64-0.16.0.tgz
       electron: 42.11.8
       react-dom: 19.3.0(react@19.3.0)
       react-i18next: 16.6.6(i18next@25.10.10(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)
@@ -5403,10 +5403,10 @@ snapshots:
       - '@types/react-dom'
       - supports-color
 
-  '@nimiplatform/kit@file:.nimi/local/packages/connector-reason/nimiplatform-kit-0.16.0.tgz(@types/node@24.19.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(electron@42.11.8)(react-dom@19.3.0(react@19.3.0))(react-i18next@16.6.6(i18next@25.10.10(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(react@19.3.0)':
+  '@nimiplatform/kit@file:vendor/nimi/nimiplatform-kit-0.16.0.tgz(@types/node@24.19.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(electron@42.11.8)(react-dom@19.3.0(react@19.3.0))(react-i18next@16.6.6(i18next@25.10.10(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(react@19.3.0)':
     dependencies:
       '@grpc/grpc-js': 1.14.5
-      '@nimiplatform/sdk': file:.nimi/local/packages/nimiplatform-sdk-0.19.0.tgz(@grpc/grpc-js@1.14.5)
+      '@nimiplatform/sdk': file:vendor/nimi/nimiplatform-sdk-0.19.0.tgz(@grpc/grpc-js@1.14.5)
       '@radix-ui/react-avatar': 1.2.6(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@radix-ui/react-dialog': 1.1.23(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@radix-ui/react-popover': 1.1.23(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -5431,7 +5431,7 @@ snapshots:
       wlipsync: 1.3.1
       zod: 4.5.4
     optionalDependencies:
-      '@nimiplatform/kit-protected-local-darwin-arm64': file:.nimi/local/packages/carrier-diagnostics/nimiplatform-kit-protected-local-darwin-arm64-0.16.0.tgz
+      '@nimiplatform/kit-protected-local-darwin-arm64': file:vendor/nimi/nimiplatform-kit-protected-local-darwin-arm64-0.16.0.tgz
       electron: 42.11.8
       react-dom: 19.3.0(react@19.3.0)
       react-i18next: 16.6.6(i18next@25.10.10(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)
@@ -5447,7 +5447,7 @@ snapshots:
       typescript: 5.9.3
       yaml: 2.9.1
 
-  '@nimiplatform/sdk@file:.nimi/local/packages/nimiplatform-sdk-0.19.0.tgz(@grpc/grpc-js@1.14.5)':
+  '@nimiplatform/sdk@file:vendor/nimi/nimiplatform-sdk-0.19.0.tgz(@grpc/grpc-js@1.14.5)':
     dependencies:
       '@protobuf-ts/runtime': 2.11.1
     optionalDependencies:
