@@ -1,3 +1,6 @@
 packages:
   - .
   - frontend
+
+patchedDependencies:
+  '@electron/osx-sign@2.7.0': patches/@electron__osx-sign@2.7.0.patch

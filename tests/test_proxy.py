@@ -54,6 +54,9 @@ def test_lowercase_and_uppercase_kept_in_sync(monkeypatch):
 
 
 def test_merges_both_case_variants(monkeypatch):
+    # Windows environment keys are case-insensitive. Exercise the POSIX merge
+    # contract with independent keys while the other tests use the host env.
+    monkeypatch.setattr(os, "environ", {})
     monkeypatch.setenv("no_proxy", "lower.example.com")
     monkeypatch.setenv("NO_PROXY", "UPPER.example.com")
     ensure_internal_no_proxy()

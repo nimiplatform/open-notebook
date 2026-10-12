@@ -25,7 +25,7 @@ class TestBuildEpisodeOutputDir:
 
     def test_path_structure(self):
         dir_name, output_dir = build_episode_output_dir("/data/podcasts")
-        assert str(output_dir) == f"/data/podcasts/episodes/{dir_name}"
+        assert output_dir == Path("/data/podcasts") / "episodes" / dir_name
 
     def test_defaults_to_podcasts_folder(self):
         """No-arg form builds under PODCASTS_FOLDER - the same root the
@@ -70,7 +70,7 @@ class TestBuildEpisodeOutputDir:
 
     def test_path_works_on_posix(self):
         dir_name, output_dir = build_episode_output_dir("/data/podcasts")
-        posix = PurePosixPath(str(output_dir))
+        posix = PurePosixPath(output_dir.as_posix())
         assert posix.parts == ("/", "data", "podcasts", "episodes", dir_name)
 
     def test_directory_can_be_created(self, tmp_path):
