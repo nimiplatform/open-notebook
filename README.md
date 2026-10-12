@@ -403,3 +403,9 @@ Open Notebook is MIT licensed. See the [LICENSE](LICENSE) file for details.
 [LangChain-url]: https://www.langchain.com/
 [SurrealDB]: https://img.shields.io/badge/SurrealDB-FF5E00?style=for-the-badge&logo=databricks&logoColor=white
 [SurrealDB-url]: https://surrealdb.com/
+
+## Published Nimi dependency update — 2026-10-12
+
+[1.14.4](https://github.com/nimiplatform/open-notebook/releases/tag/v1.14.4) is published through the managed immutable-release workflow and [admitted to the Registry](https://github.com/nimiplatform/nimi-app-registry/pull/70). The App consumes released SDK 0.21.0, Kit/native 0.19.0, App Tools 0.12.0 and Nimi Coding 0.6.5 through public npm locks, with no local Nimi dependency override.
+
+Source indexing, grounded research answers and newly generated podcast playback passed. These business checks used the actual Desktop-supervised development Host. Catalog AI acceptance remains NOT-VERIFIED; the user authorized publication and admission with that limitation recorded. Windows package production tests, build and provenance passed; Windows interactive use remains NOT-VERIFIED.
