@@ -15,7 +15,7 @@ importers:
     dependencies:
       '@nimiplatform/kit':
         specifier: ^0.19.0
-        version: 0.19.0(@types/node@24.19.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(electron@44.7.0)(react-dom@19.3.0(react@19.3.0))(react-i18next@17.0.16(i18next@26.4.3(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(react@19.3.0)
+        version: 0.19.2(@types/node@24.19.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(electron@44.7.0)(react-dom@19.3.0(react@19.3.0))(react-i18next@17.0.16(i18next@26.4.3(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(react@19.3.0)
       '@nimiplatform/sdk':
         specifier: ^0.21.0
         version: 0.21.0(@grpc/grpc-js@1.14.5)
@@ -344,6 +344,10 @@ packages:
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
+
+  '@babel/runtime@7.29.10':
+    resolution: {integrity: sha512-NpugTzbKgGrNe45Ui32cN8vCFFMxVtP/9rtfwv0nP5FRDAjvYBxJcLVpYA9mr1jxP6cnIT7x9LUzuDTbWYYNRA==}
+    engines: {node: '>=6.9.0'}
 
   '@babel/runtime@7.29.7':
     resolution: {integrity: sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw==}
@@ -1181,13 +1185,39 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
+  '@nimiplatform/kit-protected-local-darwin-arm64@0.19.2':
+    resolution: {integrity: sha512-B5vgwbVFI8sw0h5df5n/Aw5eu9aFAFp8+EHdK0pCz4b/hW8d4A1n6PcSradR7zikPZG7qS1B5WoUsEgraukxmQ==}
+    engines: {node: '>=22'}
+    cpu: [arm64]
+    os: [darwin]
+
   '@nimiplatform/kit-protected-local-win32-x64@0.19.0':
     resolution: {integrity: sha512-38A0vV90GSZr8s8ogepFgo9zxfCQ0+rPtUX4wA6EIXbUlvJfvSJ0y78Mu8bOXyN2BEc4jTeJT1N0eBigbC3fAg==}
     cpu: [x64]
     os: [win32]
 
+  '@nimiplatform/kit-protected-local-win32-x64@0.19.2':
+    resolution: {integrity: sha512-rmtJjqSvy8dAKcYYnnRvyGJvndMEzLUZ9lXC8KTA53tD1Cs8tFf4XBEMvixdHH/yPLkThBGw1hiU3r0/q6aF4Q==}
+    cpu: [x64]
+    os: [win32]
+
   '@nimiplatform/kit@0.19.0':
     resolution: {integrity: sha512-L90vHokVP81WIbqLO8aVgJ75NTCpgTEu7OxjWwGIlucqWPn9EzxuUgW/2cmUdD9yAeWkp1sHr8PmvItufgxgkw==}
+    peerDependencies:
+      electron: ^44.0.0
+      react: ^19.0.0
+      react-dom: ^19.0.0
+      react-i18next: ^17.0.0
+    peerDependenciesMeta:
+      electron:
+        optional: true
+      react-dom:
+        optional: true
+      react-i18next:
+        optional: true
+
+  '@nimiplatform/kit@0.19.2':
+    resolution: {integrity: sha512-jmdg3AAsDgtiMxSZh/2NszDLV4vLsbyGKkr6srwmcUA4GC2JEM2GJxmFQO2jnqG1s/6vAB7Ia9D+zRlR8SnJew==}
     peerDependencies:
       electron: ^44.0.0
       react: ^19.0.0
@@ -5276,6 +5306,8 @@ snapshots:
       '@babel/core': 7.29.7
       '@babel/helper-plugin-utils': 7.29.7
 
+  '@babel/runtime@7.29.10': {}
+
   '@babel/runtime@7.29.7': {}
 
   '@babel/template@7.29.7':
@@ -5879,7 +5911,13 @@ snapshots:
   '@nimiplatform/kit-protected-local-darwin-arm64@0.19.0':
     optional: true
 
+  '@nimiplatform/kit-protected-local-darwin-arm64@0.19.2':
+    optional: true
+
   '@nimiplatform/kit-protected-local-win32-x64@0.19.0':
+    optional: true
+
+  '@nimiplatform/kit-protected-local-win32-x64@0.19.2':
     optional: true
 
   '@nimiplatform/kit@0.19.0(@types/node@20.19.43)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(electron@44.7.0)(react-dom@19.3.0(react@19.3.0))(react-i18next@17.0.16(i18next@26.4.3(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(react@19.3.0)':
@@ -5921,7 +5959,7 @@ snapshots:
       - '@types/react-dom'
       - supports-color
 
-  '@nimiplatform/kit@0.19.0(@types/node@24.19.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(electron@44.7.0)(react-dom@19.3.0(react@19.3.0))(react-i18next@17.0.16(i18next@26.4.3(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(react@19.3.0)':
+  '@nimiplatform/kit@0.19.2(@types/node@24.19.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(electron@44.7.0)(react-dom@19.3.0(react@19.3.0))(react-i18next@17.0.16(i18next@26.4.3(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(react@19.3.0)':
     dependencies:
       '@grpc/grpc-js': 1.14.5
       '@nimiplatform/sdk': 0.21.0(@grpc/grpc-js@1.14.5)
@@ -5949,8 +5987,8 @@ snapshots:
       wlipsync: 1.3.1
       zod: 4.6.5
     optionalDependencies:
-      '@nimiplatform/kit-protected-local-darwin-arm64': 0.19.0
-      '@nimiplatform/kit-protected-local-win32-x64': 0.19.0
+      '@nimiplatform/kit-protected-local-darwin-arm64': 0.19.2
+      '@nimiplatform/kit-protected-local-win32-x64': 0.19.2
       electron: 44.7.0
       react-dom: 19.3.0(react@19.3.0)
       react-i18next: 17.0.16(i18next@26.4.3(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)
@@ -6933,7 +6971,7 @@ snapshots:
   '@testing-library/dom@10.4.2':
     dependencies:
       '@babel/code-frame': 7.29.7
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       '@types/aria-query': 5.0.4
       aria-query: 5.3.0
       dom-accessibility-api: 0.5.16
