@@ -15,14 +15,16 @@ def main():
     import uvicorn
 
     async def run():
-        server = uvicorn.Server(
-            uvicorn.Config(
+        config = uvicorn.Config(
                 "api.main:app",
                 host="127.0.0.1",
                 port=int(os.environ["OPEN_NOTEBOOK_API_PORT"]),
                 log_level="warning",
             )
-        )
+        # Windows numerical DLL initialization can inspect CRT stdin. Load the
+        # business modules before a blocking reader holds that descriptor.
+        config.load()
+        server = uvicorn.Server(config)
         loop = asyncio.get_running_loop()
         start_channel(
             lambda: loop.call_soon_threadsafe(setattr, server, "should_exit", True)

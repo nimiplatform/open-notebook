@@ -17,6 +17,14 @@ describe('Nimi workspace startup', () => {
   })
   afterEach(() => { cleanup(); vi.useRealTimers() })
 
+  it('preserves the serialized Host failure while authorization polling continues', async () => {
+    invoke.mockRejectedValue({ message: 'Notebook process exited: UTF-8 input required', reasonCode: 'host-internal-error' })
+    render(<NimiBoundary><div>Notebook workspace</div></NimiBoundary>)
+    await act(async () => { await vi.advanceTimersByTimeAsync(15000) })
+    expect(screen.getByRole('alert')).toHaveTextContent('Notebook process exited: UTF-8 input required')
+    expect(invoke).toHaveBeenCalledTimes(1)
+  })
+
   it('does not restart a failed backend during authorization polling', async () => {
     invoke.mockRejectedValue(new Error('Notebook backend failed'))
     render(<NimiBoundary><div>Notebook workspace</div></NimiBoundary>)

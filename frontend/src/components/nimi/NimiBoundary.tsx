@@ -34,7 +34,7 @@ export function NimiBoundary({ children }: { children: React.ReactNode }) {
         } catch (e) {
           // Continue observing Nimi authorization, but a failed App backend
           // needs the user's explicit retry instead of another process every 5s.
-          workspaceError = e instanceof Error ? e.message : String(e)
+          workspaceError = e && typeof e === 'object' && 'message' in e ? String(e.message) : String(e)
           throw e
         }
         if (live) { setNotebookBackend(workspace.apiUrl); setReady(true); setError('') }

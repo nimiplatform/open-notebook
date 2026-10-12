@@ -1,4 +1,4 @@
-import { mkdir, writeFile, chmod } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, chmod } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
@@ -16,9 +16,18 @@ const digests = {
 };
 const filename = `surreal-v${version}.${target}.${extension}`;
 const url = `https://github.com/surrealdb/surrealdb/releases/download/v${version}/${filename}`;
+const binary = path.join(folder, target.startsWith('windows') ? 'surreal.exe' : 'surreal');
+// A verified Windows executable can be reused while the development App owns
+// it. Rewriting the same running executable fails with EBUSY on Windows.
+const existing = extension === 'exe' ? await readFile(binary).catch(error => {
+  if (error.code !== 'ENOENT') throw error;
+  return null;
+}) : null;
+let bytes = existing;
+if (!bytes || createHash('sha256').update(bytes).digest('hex') !== digests[target]) {
 const download = await fetch(url);
 if (!download.ok) throw new Error(`SurrealDB download failed: ${download.status}`);
-const bytes = Buffer.from(await download.arrayBuffer());
+bytes = Buffer.from(await download.arrayBuffer());
 if (createHash('sha256').update(bytes).digest('hex') !== digests[target]) throw new Error('SurrealDB archive digest mismatch');
 const archive = path.join(folder, filename);
 await writeFile(archive, bytes);
@@ -26,7 +35,7 @@ if (extension === 'tgz') {
   const result = spawnSync('tar', ['-xzf', archive, '-C', folder], { stdio: 'inherit' });
   if (result.status !== 0) throw new Error('Cannot extract SurrealDB');
 } else await writeFile(path.join(folder, 'surreal.exe'), bytes);
-const binary = path.join(folder, target.startsWith('windows') ? 'surreal.exe' : 'surreal');
+}
 await chmod(binary, 0o755);
 const result = spawnSync(binary, ['version'], { encoding: 'utf8' });
 if (result.status !== 0 || !result.stdout.startsWith(version + ' ')) throw new Error('Unexpected SurrealDB version');

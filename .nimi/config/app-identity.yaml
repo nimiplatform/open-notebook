@@ -1,6 +1,6 @@
 app_id: io.github.nimiplatform.open-notebook
 display_name: Open Notebook
-version: 1.14.5
+version: 1.14.6
 npm_package_name: open-notebook-nimi
 cargo_package_name: open-notebook-nimi-shell
 tauri_identifier: ai.nimi.apps.io.github.nimiplatform.open-notebook

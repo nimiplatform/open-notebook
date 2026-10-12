@@ -89,12 +89,12 @@ export class NotebookWorker {
       try { if ((await fetch(`${this.apiUrl}/health`, { signal })).ok) return { apiUrl: this.apiUrl }; } catch { signal.throwIfAborted(); }
       await new Promise(resolve => setTimeout(resolve, 250));
     }
-    this.stop(); throw new Error('Notebook backend did not become ready');
+    this.stop(); throw new Error(`Notebook backend did not become ready. ${this.startupLog}`);
   }
   private child(command: string, args: string[], env: NodeJS.ProcessEnv, logStdout = true) {
     const child = spawn(command, args, { cwd: this.packaged ? path.join(process.resourcesPath, 'notebook/notebook-worker/_internal') : this.appRoot, env, stdio: 'pipe', windowsHide: true });
     this.children.push(child);
-    if (logStdout) child.stdout.on('data', c => process.stderr.write(`[notebook] ${c}`));
+    if (logStdout) child.stdout.on('data', c => { this.startupLog = (this.startupLog + String(c)).slice(-2500); process.stderr.write(`[notebook] ${c}`); });
     child.stderr.on('data', c => { this.startupLog = (this.startupLog + String(c)).slice(-2500); process.stderr.write(`[notebook] ${c}`); });
     child.once('error', error => { this.failure = error.message; process.stderr.write(`[notebook] ${error.message}\n`); this.stop(); });
     child.once('exit', code => { if (!this.controller.signal.aborted) { this.failure = `Notebook process exited (${code}): ${this.startupLog}`; this.stop(); } });
