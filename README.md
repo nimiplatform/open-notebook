@@ -7,9 +7,9 @@ source-development environment. The App always loads its own packaged native
 carrier. Source Runtime peer identity and installed-App/session admission remain
 verified; no workspace carrier replacement or trust-check bypass is used.
 
-Catalog AI acceptance for this new artifact is pending publication and admission;
-earlier development and installed-artifact results below retain their stated
-versions and limitations.
+Catalog AI acceptance passed on macOS arm64 using the actual [1.14.5 Release](https://github.com/nimiplatform/open-notebook/releases/tag/v1.14.5) admitted by [Registry PR #77](https://github.com/nimiplatform/nimi-app-registry/pull/77), downloaded and launched through source Nimi Home. Created a source and notebook, completed embedding and a dense summary, and obtained a source-cited answer containing Runtime Bridge, BLUEBIRD-743 and Kit 0.19.2. Generated a three-segment podcast through Nimi, played it in the App and exported a 241.52-second MP3. Notebook, source and completed episode survived a Home-supervised restart. The generated episode exceeded the requested 90 seconds; generation success does not certify factual accuracy or duration adherence.
+
+Local screenshots and exported results are in `.nimi/local/released-dependencies-20261012/`. Windows interactive acceptance and other unrun AI modalities remain **NOT-VERIFIED**. These results supersede the earlier Catalog limitation; historical results below retain their stated versions.
 
 # Nimi adaptation
 
