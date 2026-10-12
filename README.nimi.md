@@ -20,7 +20,7 @@ public SDK/Kit for authorization, model configuration, text, embeddings and spee
 
 ## Development
 
-Use a matching running Nimi with developer mode enabled. Version 1.14.2 uses
+Use a matching running Nimi with developer mode enabled. Version 1.14.3 uses
 the released npm SDK 0.21.0, Kit/native 0.19.0, App Tools 0.12.0 and Nimi Coding
 0.6.5. The root frozen pnpm lock records public registry integrity; local Nimi
 tarball and source-workspace overrides are removed.
