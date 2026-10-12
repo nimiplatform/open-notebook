@@ -43,7 +43,7 @@ def call_model_with_messages(state: ThreadState, config: RunnableConfig) -> dict
                 asyncio.set_event_loop(new_loop)
                 return new_loop.run_until_complete(
                     provision_langchain_model(
-                        str(payload), model_id, "chat", max_tokens=8192
+                        str(payload), model_id, "chat"
                     )
                 )
             finally:
@@ -66,7 +66,6 @@ def call_model_with_messages(state: ThreadState, config: RunnableConfig) -> dict
                     str(payload),
                     model_id,
                     "chat",
-                    max_tokens=8192,
                 )
             )
 

@@ -6,6 +6,7 @@ from podcast_creator.core import create_validated_transcript_parser, outline_par
 
 from open_notebook.ai.provision import provision_langchain_model
 from open_notebook.nimi.channel import request
+from open_notebook.nimi.language import structured_model_format
 from open_notebook.nimi.media import ffmpeg
 from open_notebook.utils import clean_thinking_content
 from open_notebook.utils.text_utils import extract_text_content
@@ -23,7 +24,7 @@ async def create_notebook_podcast(
         episode_profile.outline_llm,
         "chat",
         max_tokens=episode_profile.max_tokens,
-        structured={"type": "json"},
+        structured=structured_model_format(outline_parser.pydantic_object),
     )
     data = {
         "briefing": briefing,
@@ -51,7 +52,7 @@ async def create_notebook_podcast(
         episode_profile.transcript_llm,
         "chat",
         max_tokens=episode_profile.max_tokens,
-        structured={"type": "json"},
+        structured=structured_model_format(parser.pydantic_object),
     )
     for i, segment in enumerate(outline.segments):
         data.update(

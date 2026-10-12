@@ -1,6 +1,6 @@
 {
   "name": "open-notebook-nimi",
-  "version": "1.14.1",
+  "version": "1.14.2",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -30,11 +30,11 @@
     "dev:shell": "nimi-app dev",
     "dev:electron": "nimi-app dev --shell electron",
     "setup:backend": "node scripts/setup-backend.mjs",
-    "build:backend": "uv run python scripts/build-notebook-worker.py"
+    "build:backend": "pnpm run setup:backend && uv run --locked python scripts/build-notebook-worker.py"
   },
   "dependencies": {
-    "@nimiplatform/sdk": "^0.19.0",
-    "@nimiplatform/kit": "^0.16.0"
+    "@nimiplatform/sdk": "^0.21.0",
+    "@nimiplatform/kit": "^0.19.0"
   },
   "devDependencies": {
     "@electron/packager": "^20.3.0",
@@ -43,14 +43,14 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
     "@vitejs/plugin-react": "^5.2.0",
-    "electron": "^42.10.1",
+    "electron": "^44.5.1",
     "esbuild": "^0.28.2",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3",
-    "vite": "^7.3.6",
+    "vite": "^8.3.3",
     "yaml": "^2.9.0",
-    "@nimiplatform/app-tools": "^0.11.4",
-    "@nimiplatform/nimi-coding": "0.6.3"
+    "@nimiplatform/app-tools": "^0.12.0",
+    "@nimiplatform/nimi-coding": "0.6.5"
   },
   "author": "Luis Novo and Open Notebook contributors; Nimi adaptation contributors"
 }

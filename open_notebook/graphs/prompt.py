@@ -31,7 +31,6 @@ async def call_model(state: dict, config: RunnableConfig) -> dict:
         str(payload),
         config.get("configurable", {}).get("model_id"),
         "transformation",
-        max_tokens=5000,
     )
 
     response = await chain.ainvoke(payload)

@@ -1,8 +1,3 @@
 packages:
   - .
   - frontend
-overrides:
-  '@nimiplatform/sdk': file:vendor/nimi/nimiplatform-sdk-0.19.0.tgz
-  '@nimiplatform/kit': file:vendor/nimi/nimiplatform-kit-0.16.0.tgz
-  '@nimiplatform/app-tools': file:vendor/nimi/nimiplatform-app-tools-0.11.4.tgz
-  '@nimiplatform/kit-protected-local-darwin-arm64': file:vendor/nimi/nimiplatform-kit-protected-local-darwin-arm64-0.16.0.tgz

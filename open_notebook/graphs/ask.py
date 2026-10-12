@@ -12,15 +12,10 @@ from typing_extensions import TypedDict
 from open_notebook.ai.provision import provision_langchain_model
 from open_notebook.domain.notebook import vector_search
 from open_notebook.exceptions import ExternalServiceError, OpenNotebookError
+from open_notebook.nimi.language import structured_model_format
 from open_notebook.utils import clean_thinking_content
 from open_notebook.utils.error_classifier import classify_error
 from open_notebook.utils.text_utils import extract_text_content
-
-# Output budget shared by the three Ask stages (strategy, per-search answers,
-# final synthesis). Matches chat and transformations. The previous 2000 cap
-# silently truncated answers in token-dense languages and left reasoning
-# models with no budget for the visible answer after their thinking (#1221).
-ASK_MAX_TOKENS = 8192
 
 
 class SubGraphState(TypedDict):
@@ -70,8 +65,7 @@ async def call_model_with_messages(state: ThreadState, config: RunnableConfig) -
             system_prompt,
             config.get("configurable", {}).get("strategy_model"),
             "tools",
-            max_tokens=ASK_MAX_TOKENS,
-            structured=dict(type="json"),
+            structured=structured_model_format(Strategy),
         )
         # model = model.bind_tools(tools)
         # First get the raw response from the model
@@ -144,7 +138,6 @@ async def provide_answer(state: SubGraphState, config: RunnableConfig) -> dict:
             system_prompt,
             config.get("configurable", {}).get("answer_model"),
             "tools",
-            max_tokens=ASK_MAX_TOKENS,
         )
         ai_message = await model.ainvoke(system_prompt)
         ai_content = clean_thinking_content(extract_text_content(ai_message.content))
@@ -167,7 +160,6 @@ async def write_final_answer(state: ThreadState, config: RunnableConfig) -> dict
             system_prompt,
             config.get("configurable", {}).get("final_answer_model"),
             "tools",
-            max_tokens=ASK_MAX_TOKENS,
         )
         ai_message = await model.ainvoke(system_prompt)
         final_content = extract_text_content(ai_message.content)

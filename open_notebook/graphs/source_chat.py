@@ -82,7 +82,6 @@ def _call_model_with_source_context_inner(
             return new_loop.run_until_complete(
                 build_source_context(
                     source_id=source_id,
-                    max_tokens=50000,  # Reasonable limit for source context
                 )
             )
         finally:
@@ -161,7 +160,6 @@ def _call_model_with_source_context_inner(
                     config.get("configurable", {}).get("model_id")
                     or state.get("model_override"),
                     "chat",
-                    max_tokens=8192,
                 )
             )
         finally:
@@ -185,7 +183,6 @@ def _call_model_with_source_context_inner(
                 config.get("configurable", {}).get("model_id")
                 or state.get("model_override"),
                 "chat",
-                max_tokens=8192,
             )
         )
 

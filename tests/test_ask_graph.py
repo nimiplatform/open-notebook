@@ -1,7 +1,7 @@
 """
 Unit tests for the Ask graph (open_notebook.graphs.ask).
 
-Covers the output token budget shared by the three model stages and the
+Covers Nimi-owned output budgets across the three model stages and the
 handling of empty strategies / empty partial answers produced by reasoning
 models that exhaust their budget while thinking (#1221).
 """
@@ -15,7 +15,6 @@ from langchain_core.runnables import RunnableConfig
 
 from open_notebook.exceptions import ExternalServiceError
 from open_notebook.graphs.ask import (
-    ASK_MAX_TOKENS,
     Search,
     Strategy,
     ThreadState,
@@ -43,23 +42,19 @@ def _strategy_json(terms: list[str]) -> str:
     )
 
 
-class TestAskTokenBudget:
-    def test_budget_matches_other_workflows(self):
-        """Ask uses the same 8192 budget as chat and transformations."""
-        assert ASK_MAX_TOKENS == 8192
-
+class TestAskConfiguredBudget:
     @pytest.mark.asyncio
-    async def test_strategy_stage_uses_shared_budget(self):
+    async def test_strategy_stage_uses_nimi_configured_budget(self):
         state = cast(ThreadState, {"question": "q"})
         with patch(
             "open_notebook.graphs.ask.provision_langchain_model",
             new=AsyncMock(return_value=_model_returning(_strategy_json(["rag"]))),
         ) as provision:
             await call_model_with_messages(state, EMPTY_CONFIG)
-        assert provision.call_args.kwargs["max_tokens"] == ASK_MAX_TOKENS
+        assert "max_tokens" not in provision.call_args.kwargs
 
     @pytest.mark.asyncio
-    async def test_answer_stage_uses_shared_budget(self):
+    async def test_answer_stage_uses_nimi_configured_budget(self):
         state = {"question": "q", "term": "rag", "instructions": "extract"}
         with (
             patch(
@@ -72,10 +67,10 @@ class TestAskTokenBudget:
             ) as provision,
         ):
             await provide_answer(state, EMPTY_CONFIG)  # type: ignore[arg-type]
-        assert provision.call_args.kwargs["max_tokens"] == ASK_MAX_TOKENS
+        assert "max_tokens" not in provision.call_args.kwargs
 
     @pytest.mark.asyncio
-    async def test_final_stage_uses_shared_budget(self):
+    async def test_final_stage_uses_nimi_configured_budget(self):
         state = cast(
             ThreadState,
             {
@@ -89,7 +84,7 @@ class TestAskTokenBudget:
             new=AsyncMock(return_value=_model_returning("final")),
         ) as provision:
             result = await write_final_answer(state, EMPTY_CONFIG)
-        assert provision.call_args.kwargs["max_tokens"] == ASK_MAX_TOKENS
+        assert "max_tokens" not in provision.call_args.kwargs
         assert result == {"final_answer": "final"}
 
 

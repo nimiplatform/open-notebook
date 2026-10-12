@@ -152,7 +152,7 @@ class TestGenerateEmbeddings:
             assert len(result) == 2
             assert result[0] == [0.1, 0.2, 0.3]
             assert result[1] == [0.4, 0.5, 0.6]
-            mock_model.aembed.assert_called_once_with(["text1", "text2"])
+            mock_model.aembed.assert_called_once_with(["text1", "text2"], purpose="retrieval-document")
 
 
 # ============================================================================
@@ -188,7 +188,7 @@ class TestGenerateEmbedding:
             result = await generate_embedding("Short text")
             assert result == [0.1, 0.2, 0.3]
             # Should be called with single text
-            mock_model.aembed.assert_called_once_with(["Short text"])
+            mock_model.aembed.assert_called_once_with(["Short text"], purpose="retrieval-document")
 
     @pytest.mark.asyncio
     async def test_long_text_chunked_and_pooled(self):
@@ -255,7 +255,7 @@ class TestGenerateEmbedding:
         def make_embeddings(batch):
             return [EmbeddingVector([float(i)] * 3, "test-space") for i in range(len(batch))]
 
-        mock_model.aembed = AsyncMock(side_effect=lambda batch: make_embeddings(batch))
+        mock_model.aembed = AsyncMock(side_effect=lambda batch, **_kwargs: make_embeddings(batch))
 
         with patch(
             "open_notebook.ai.models.model_manager.get_embedding_model",
@@ -265,11 +265,10 @@ class TestGenerateEmbedding:
             result = await generate_embeddings(texts)
 
             assert len(result) == num_texts
-            # 120 texts / 50 batch size = 3 batches (50, 50, 20)
-            assert mock_model.aembed.call_count == 3
-            assert len(mock_model.aembed.call_args_list[0][0][0]) == EMBEDDING_BATCH_SIZE
-            assert len(mock_model.aembed.call_args_list[1][0][0]) == EMBEDDING_BATCH_SIZE
-            assert len(mock_model.aembed.call_args_list[2][0][0]) == 20
+            batches = [call.args[0] for call in mock_model.aembed.call_args_list]
+            assert [text for batch in batches for text in batch] == texts
+            assert all(0 < len(batch) <= EMBEDDING_BATCH_SIZE for batch in batches)
+            assert mock_model.aembed.call_count == (num_texts + EMBEDDING_BATCH_SIZE - 1) // EMBEDDING_BATCH_SIZE
 
     @pytest.mark.asyncio
     async def test_batch_retry_on_transient_failure(self):

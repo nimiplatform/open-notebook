@@ -20,10 +20,10 @@ public SDK/Kit for authorization, model configuration, text, embeddings and spee
 
 ## Development
 
-Start the Nimi source Runtime and Desktop using their guarded `pnpm dev:runtime`
-and `pnpm dev:desktop` commands. This checkout includes the selected complete
-development package archives in `vendor/nimi/`, so a fresh clone and CI can
-install the same cohort from the root workspace:
+Use a matching running Nimi with developer mode enabled. Version 1.14.2 uses
+the released npm SDK 0.21.0, Kit/native 0.19.0, App Tools 0.12.0 and Nimi Coding
+0.6.5. The root frozen pnpm lock records public registry integrity; local Nimi
+tarball and source-workspace overrides are removed.
 
 ```sh
 pnpm install --frozen-lockfile
@@ -46,7 +46,7 @@ and audio remain on disk when the App closes. Session invalidation stops old wor
 interrupted background commands require an explicit retry. Native packaging and
 installed-App acceptance are separate from supervised development.
 
-## Current verification
+## Earlier local-package verification
 
 The resumed run installed 1.14.0 and exposed a frozen-backend startup failure.
 The repaired 1.14.1 package was then applied through the existing Imported

@@ -19,8 +19,8 @@ ownership and current verification. Use the root pnpm workspace and lockfile.
   Preserve Runtime embedding space and ordered model output metadata.
 - Root checks: `pnpm check`, `pnpm test`; frontend checks:
   `pnpm --dir frontend lint`, `pnpm --dir frontend exec tsc --noEmit`.
-- Keep current Nimi package declarations and complete tarball overrides together.
-  Local package builds do not imply public release or installed acceptance.
+- Keep published Nimi package declarations and the frozen root pnpm lock together.
+  Public release and installed acceptance require their own verified journeys.
 - Preserve the upstream MIT license and product workflows. Structural App
   decisions are recorded in `docs/7-DEVELOPMENT/decisions/`.
 

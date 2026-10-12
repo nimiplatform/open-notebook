@@ -31,7 +31,7 @@ def _get_embedding_batch_size() -> int:
     This is intentionally configurable because provider limits vary widely, and
     CPU-only local embedding endpoints often need smaller batches than cloud APIs.
     """
-    raw = os.getenv("OPEN_NOTEBOOK_EMBEDDING_BATCH_SIZE", "50").strip()
+    raw = os.getenv("OPEN_NOTEBOOK_EMBEDDING_BATCH_SIZE", "16").strip()
     try:
         value = int(raw)
         if value < 1:
@@ -39,10 +39,10 @@ def _get_embedding_batch_size() -> int:
         return value
     except ValueError:
         logger.warning(
-            "Invalid OPEN_NOTEBOOK_EMBEDDING_BATCH_SIZE='{}'; falling back to 50",
+            "Invalid OPEN_NOTEBOOK_EMBEDDING_BATCH_SIZE='{}'; falling back to 16",
             raw,
         )
-        return 50
+        return 16
 
 
 EMBEDDING_BATCH_SIZE = _get_embedding_batch_size()
@@ -111,7 +111,7 @@ async def mean_pool_embeddings(embeddings: List[List[float]]) -> List[float]:
 
 
 async def generate_embeddings(
-    texts: List[str], command_id: Optional[str] = None
+    texts: List[str], command_id: Optional[str] = None, *, purpose: str = "retrieval-document"
 ) -> List[List[float]]:
     """
     Generate embeddings for multiple texts with automatic batching and retry.
@@ -180,7 +180,7 @@ async def generate_embeddings(
 
         for attempt in range(1, EMBEDDING_MAX_RETRIES + 1):
             try:
-                batch_embeddings = await embedding_model.aembed(batch)
+                batch_embeddings = await embedding_model.aembed(batch, purpose=purpose)
                 if all_embeddings and getattr(all_embeddings[0], "space_id", None) != batch_embeddings[0].space_id:
                     raise ConfigurationError("Nimi embedding space changed during this batch; retry the task")
                 all_embeddings.extend(batch_embeddings)
@@ -217,6 +217,8 @@ async def generate_embedding(
     content_type: Optional[ContentType] = None,
     file_path: Optional[str] = None,
     command_id: Optional[str] = None,
+    *,
+    purpose: str = "retrieval-document",
 ) -> List[float]:
     """
     Generate a single embedding for text, handling large content via chunking and mean pooling.
@@ -252,7 +254,7 @@ async def generate_embedding(
     if text_tokens <= CHUNK_SIZE:
         # Short text - embed directly
         logger.debug(f"Embedding short text ({text_tokens} tokens) directly")
-        embeddings = await generate_embeddings([text], command_id=command_id)
+        embeddings = await generate_embeddings([text], command_id=command_id, purpose=purpose)
         return embeddings[0]
 
     # Long text - chunk and mean pool
@@ -265,13 +267,13 @@ async def generate_embedding(
 
     if len(chunks) == 1:
         # Single chunk after splitting
-        embeddings = await generate_embeddings(chunks, command_id=command_id)
+        embeddings = await generate_embeddings(chunks, command_id=command_id, purpose=purpose)
         return embeddings[0]
 
     logger.debug(f"Embedding {len(chunks)} chunks and mean pooling")
 
     # Embed all chunks in batches
-    embeddings = await generate_embeddings(chunks, command_id=command_id)
+    embeddings = await generate_embeddings(chunks, command_id=command_id, purpose=purpose)
 
     # Mean pool to get single embedding
     pooled = await mean_pool_embeddings(embeddings)
