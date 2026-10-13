@@ -1,4 +1,4 @@
-# 1.14.6 — Windows candidate (unreleased)
+# 1.14.6 — Windows worker support
 
 Loads the Python business modules before starting the blocking input reader, fixing the reproduced Windows numerical-DLL startup deadlock. Reuses the pinned, digest-verified SurrealDB executable instead of rewriting it while the App is running. Serialized Host failures keep their readable message during authorization polling. Uses public SDK 0.21.0, Kit/native 0.19.3 and App Tools 0.12.2. Windows supervised file processing, embeddings, cited chat and the packaged Python/SurrealDB startup checks passed. Installed acceptance of this candidate remains NOT-VERIFIED.
 
