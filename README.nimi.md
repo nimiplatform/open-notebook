@@ -13,11 +13,45 @@ Windows socket initialization. Version 1.14.7 forwards that OS variable without
 inheriting Host credentials. A real Electron utility-process regression covers
 loopback serving, environment isolation, shutdown and early child exit. Startup
 failure now displays an error and terminates the Host instead of leaving a
-windowless running App. Installed business acceptance of 1.14.7 is pending.
+windowless running App.
 Production App Tools check and the full test command pass: one real Electron
 process regression, 573 backend tests and 138 frontend tests.
 
-Uses published SDK 0.21.0, Kit/native 0.19.3, App Tools 0.12.2 and Nimi Coding 0.6.5. The 573 Python tests and 138 frontend tests pass. Loading business modules before the blocking input reader fixes the reproduced Windows NumPy/DLL startup deadlock. The actual packaged Python API and SurrealDB initialized an isolated workspace. In the supervised App against Nimi 0.2.2, `Windows 蓝鸟743研究` retained its text source, Dense Summary insight, Nimi embeddings and cited Chinese chat. The answer recovered Lin Lan, Runtime Bridge and six observations; extra model interpretations were not independently fact-checked. Windows podcasts, recognition and candidate installation remain NOT-VERIFIED. Earlier macOS evidence keeps its stated versions.
+Home on the installed Nimi 0.2.3 fixed service updated the existing Imported
+source from 1.14.6 to local production 1.14.7 and opened its actual research UI.
+The new `Windows 安装验收 · 蓝鸟743` notebook accepted a synthetic Chinese text
+source, generated a Dense Summary with MiMo v2.6 Flash, indexed it using the
+current Dashscope text-embedding-v4 configuration, and produced a cited Chinese
+answer. Saving that answer created an AI note. The answer retained the project
+lead, six observations, missing-value rule and unspecified budget/deadline.
+The generated summary expanded the source's ban on zero-filling to a ban on all
+interpolation, and the answer repeated it; this is model interpretation beyond
+the original source, not a verified research fact.
+
+For strict structured podcast planning, the App was explicitly configured to
+use Qwen 3.8 Flash; synthesis uses Qwen3 TTS Flash with the actual Nimi-listed
+Cherry voice. A three-segment Chinese episode used the original source's full
+content, excluding the generated note. The installed App produced a 217,388-byte
+MP3 (54.29 seconds, 24 kHz mono), played it past 20 seconds and saved it through
+the Windows native dialog to `.nimi/local/installed-bluebird743.mp3`. The FFmpeg
+executable in that exact installed payload decoded the whole file successfully.
+Re-importing that exact MP3 through the native file chooser completed real
+transcription with qwen-audio-3.0-asr-flash-streaming. The source detail shows the
+Chinese transcript with six observations and the missing-value rule. It renders
+林岚 as 林兰 and Runtime Bridge as “rent me bridge”; the actual recognition output
+is retained. The generated narration also repeats the broader interpolation ban,
+so this successful media path does not certify factual precision. After normal
+close and relaunch of the same Imported source through Home, both sources, the
+saved note, cited conversation and completed 54-second podcast remained. The
+new renderer loaded the preserved audio again.
+
+The immutable [1.14.7 release](https://github.com/nimiplatform/open-notebook/releases/tag/v1.14.7)
+completed both platform workflows. [Registry candidate #97](https://github.com/nimiplatform/nimi-app-registry/pull/97)
+passed package/license/digest/provenance preparation and its transition check;
+human admission and a Windows Catalog installation remain NOT-VERIFIED. The
+Windows results above use the local production package, not a Catalog source.
+
+Uses published SDK 0.21.0, Kit/native 0.19.3, App Tools 0.12.2 and Nimi Coding 0.6.5. Earlier Windows development checks established the Python numerical-DLL startup repair, isolated frozen Python/SurrealDB initialization, text source processing, Dense Summary, embeddings and cited Chinese chat against Nimi 0.2.2. Earlier macOS evidence keeps its stated versions.
 
 ## Ownership
 
