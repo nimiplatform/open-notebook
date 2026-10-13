@@ -2,7 +2,7 @@ import path from 'node:path';
 import { startNotebookRenderer } from './next-server.js';
 import { NotebookWorker } from './notebook-worker.js';
 import { fileURLToPath } from 'node:url';
-import { app, BrowserWindow, ipcMain, Menu, protocol, session, shell, webContents } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Menu, protocol, session, shell, webContents } from 'electron';
 import { configureNimiElectronAppHostProfile } from '@nimiplatform/kit/shell/electron/host-profile';
 
 declare const __NIMI_ELECTRON_PRODUCTION__: boolean;
@@ -47,7 +47,11 @@ Menu.setApplicationMenu(null);
 registerNimiElectronAppAssetProtocolScheme(protocol);
 
 void app.whenReady().then(async () => {
-  if (!rendererUrl) { const renderer = await startNotebookRenderer(); rendererUrl = renderer.url; stopRenderer = renderer.stop; }
+  if (!rendererUrl) {
+    const renderer = await startNotebookRenderer(path.join(process.resourcesPath, 'notebook-renderer', 'frontend'));
+    rendererUrl = renderer.url;
+    stopRenderer = renderer.stop;
+  }
   allowedRendererUrls.push(rendererUrl);
   const bridge = registerNimiElectronAppBridge({
     appId: APP_ID,
@@ -87,6 +91,13 @@ void app.whenReady().then(async () => {
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) void createMainWindow();
   });
+}).catch((error: unknown) => {
+  worker?.stop();
+  stopRenderer?.();
+  const message = error instanceof Error ? error.message : String(error);
+  process.stderr.write(`[notebook-startup] ${message}\n`);
+  dialog.showErrorBox('Open Notebook could not start', message);
+  app.exit(1);
 });
 
 app.on('window-all-closed', () => {

@@ -1,6 +1,6 @@
 app_id: io.github.nimiplatform.open-notebook
 display_name: Open Notebook
-version: 1.14.6
+version: 1.14.7
 profile: standalone
 manifest_role: submitted-input
 app_access:

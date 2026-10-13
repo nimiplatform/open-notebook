@@ -5,7 +5,17 @@ SurrealDB notebooks, LangGraph research and chat, transformations, sources and
 podcast profiles. Nimi Desktop supervises the Electron Host. The Host uses the
 public SDK/Kit for authorization, model configuration, text, embeddings and speech.
 
-## Windows candidate 1.14.6 — 2026-10-13
+## Windows candidate 1.14.7 — 2026-10-13
+
+Installed 1.14.6 on Nimi 0.2.3 exposed a separate Electron renderer startup
+failure: omitting `SystemRoot` from the utility process environment prevented
+Windows socket initialization. Version 1.14.7 forwards that OS variable without
+inheriting Host credentials. A real Electron utility-process regression covers
+loopback serving, environment isolation, shutdown and early child exit. Startup
+failure now displays an error and terminates the Host instead of leaving a
+windowless running App. Installed business acceptance of 1.14.7 is pending.
+Production App Tools check and the full test command pass: one real Electron
+process regression, 573 backend tests and 138 frontend tests.
 
 Uses published SDK 0.21.0, Kit/native 0.19.3, App Tools 0.12.2 and Nimi Coding 0.6.5. The 573 Python tests and 138 frontend tests pass. Loading business modules before the blocking input reader fixes the reproduced Windows NumPy/DLL startup deadlock. The actual packaged Python API and SurrealDB initialized an isolated workspace. In the supervised App against Nimi 0.2.2, `Windows 蓝鸟743研究` retained its text source, Dense Summary insight, Nimi embeddings and cited Chinese chat. The answer recovered Lin Lan, Runtime Bridge and six observations; extra model interpretations were not independently fact-checked. Windows podcasts, recognition and candidate installation remain NOT-VERIFIED. Earlier macOS evidence keeps its stated versions.
 
@@ -24,7 +34,7 @@ Uses published SDK 0.21.0, Kit/native 0.19.3, App Tools 0.12.2 and Nimi Coding 0
 
 ## Development
 
-Use a matching running Nimi with developer mode enabled. Candidate 1.14.6 uses
+Use a matching running Nimi with developer mode enabled. Candidate 1.14.7 uses
 the released npm SDK 0.21.0, Kit/native 0.19.3, App Tools 0.12.2 and Nimi Coding
 0.6.5. The root frozen pnpm lock records public registry integrity; local Nimi
 tarball and source-workspace overrides are removed.

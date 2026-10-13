@@ -1,6 +1,6 @@
 {
   "name": "open-notebook-nimi",
-  "version": "1.14.6",
+  "version": "1.14.7",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -19,7 +19,8 @@
     "init": "nimi-app init --adopt",
     "sync": "nimi-app sync",
     "check": "nimi-app check",
-    "test:app": "node scripts/nimi-uv.mjs run --managed-python --python 3.12 --locked pytest tests/ && pnpm --dir frontend test",
+    "test:app": "pnpm test:electron && node scripts/nimi-uv.mjs run --managed-python --python 3.12 --locked pytest tests/ && pnpm --dir frontend test",
+    "test:electron": "pnpm build:electron && node --test tests/electron/*.test.mjs",
     "test": "nimi-app test",
     "build": "pnpm --dir frontend build",
     "build:electron": "tsc -p tsconfig.electron.json && node scripts/bundle-electron-preload.mjs",

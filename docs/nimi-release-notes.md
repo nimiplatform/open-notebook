@@ -1,3 +1,12 @@
+# 1.14.7 — Windows installed renderer startup
+
+Forwards Windows `SystemRoot` to the packaged Next server's Electron utility
+process so its loopback listener can start. Other Host environment variables
+remain isolated. An early renderer exit now fails promptly; startup errors are
+shown and the Host exits instead of remaining windowless. A real Electron
+regression checks networking, environment isolation, stop and early exit.
+Installed business acceptance is pending.
+
 # 1.14.6 — Windows worker support
 
 Loads the Python business modules before starting the blocking input reader, fixing the reproduced Windows numerical-DLL startup deadlock. Reuses the pinned, digest-verified SurrealDB executable instead of rewriting it while the App is running. Serialized Host failures keep their readable message during authorization polling. Uses public SDK 0.21.0, Kit/native 0.19.3 and App Tools 0.12.2. Windows supervised file processing, embeddings, cited chat and the packaged Python/SurrealDB startup checks passed. Installed acceptance of this candidate remains NOT-VERIFIED.
