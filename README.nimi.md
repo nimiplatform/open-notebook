@@ -7,6 +7,25 @@ public SDK/Kit for authorization, model configuration, text, embeddings and spee
 
 ## Windows candidate 1.14.7 — 2026-10-13
 
+On October 14 the user approved the existing dual-platform stable candidate;
+Registry [PR #97](https://github.com/nimiplatform/nimi-app-registry/pull/97)
+passed finalization and merged. Installed Nimi 0.2.4 downloaded the complete
+1,430,936,566-byte Windows package through Catalog, verified and installed it,
+and launched its release-directory Host. Two earlier attempts were refused
+before download with the generic installation-unavailable message; re-entering
+the current Catalog entry succeeded, but the earlier refusal's cause remains
+unconfirmed. The Imported instance was retained separately.
+
+In the new Catalog workspace, `Catalog 安装验收 Q58` accepted a real synthetic
+text source and produced its summary. A real cited research answer correctly
+returned ST-Q58-7429, 贺澜, 13-minute collection, seven observations per workday,
+the MISSING/no-zero/no-fabrication rule and the absent budget. Normal close and
+Home relaunch restored the notebook, source, summary and cited conversation.
+The notebook is `notebook:mdszo1xm574h7npsob10`. This passes fresh Windows
+Catalog download/install and research/storage acceptance, not a Catalog
+N-to-N+1 update; no older Catalog instance existed here. The prior Imported
+update and media/export evidence below retain their separate scopes.
+
 Installed 1.14.6 on Nimi 0.2.3 exposed a separate Electron renderer startup
 failure: omitting `SystemRoot` from the utility process environment prevented
 Windows socket initialization. Version 1.14.7 forwards that OS variable without
@@ -47,9 +66,10 @@ new renderer loaded the preserved audio again.
 
 The immutable [1.14.7 release](https://github.com/nimiplatform/open-notebook/releases/tag/v1.14.7)
 completed both platform workflows. [Registry candidate #97](https://github.com/nimiplatform/nimi-app-registry/pull/97)
-passed package/license/digest/provenance preparation and its transition check;
-human admission and a Windows Catalog installation remain NOT-VERIFIED. The
-Windows results above use the local production package, not a Catalog source.
+passed package/license/digest/provenance preparation and its transition check.
+Human admission and Windows Catalog installation subsequently passed as recorded
+above. The earlier Windows media results use the local production package,
+not the new Catalog workspace.
 
 Uses published SDK 0.21.0, Kit/native 0.19.3, App Tools 0.12.2 and Nimi Coding 0.6.5. Earlier Windows development checks established the Python numerical-DLL startup repair, isolated frozen Python/SurrealDB initialization, text source processing, Dense Summary, embeddings and cited Chinese chat against Nimi 0.2.2. Earlier macOS evidence keeps its stated versions.
 
