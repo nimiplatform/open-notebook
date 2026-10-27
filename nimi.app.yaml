@@ -56,7 +56,6 @@ local_development:
 metadata:
   summary: Research your sources, keep notes, ask questions and create podcasts using Nimi AI.
   icon: assets/app-icon.png
-  readme: docs/nimi-user-guide.md
   release_notes: docs/nimi-release-notes.md
   author: Luis Novo and Open Notebook contributors; Nimi adaptation contributors
   homepage_url: https://github.com/nimiplatform/open-notebook
