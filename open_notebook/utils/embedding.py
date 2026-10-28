@@ -12,7 +12,8 @@ to ensure consistent behavior and proper handling of large content.
 
 import asyncio
 import os
-from typing import List, Optional
+from collections.abc import Sequence
+from typing import List, Optional, overload
 
 import numpy as np
 from loguru import logger
@@ -50,7 +51,15 @@ EMBEDDING_MAX_RETRIES = 3
 EMBEDDING_RETRY_DELAY = 2  # seconds
 
 
-async def mean_pool_embeddings(embeddings: List[List[float]]) -> List[float]:
+@overload
+async def mean_pool_embeddings(embeddings: Sequence[EmbeddingVector]) -> EmbeddingVector: ...
+
+
+@overload
+async def mean_pool_embeddings(embeddings: Sequence[Sequence[float]]) -> List[float]: ...
+
+
+async def mean_pool_embeddings(embeddings: Sequence[Sequence[float]]) -> List[float]:
     """
     Combine multiple embeddings into a single embedding using mean pooling.
 
@@ -112,7 +121,7 @@ async def mean_pool_embeddings(embeddings: List[List[float]]) -> List[float]:
 
 async def generate_embeddings(
     texts: List[str], command_id: Optional[str] = None, *, purpose: str = "retrieval-document"
-) -> List[List[float]]:
+) -> List[EmbeddingVector]:
     """
     Generate embeddings for multiple texts with automatic batching and retry.
 
@@ -170,7 +179,7 @@ async def generate_embeddings(
         lambda: _get_size_metrics()[3],
     )
 
-    all_embeddings: List[List[float]] = []
+    all_embeddings: List[EmbeddingVector] = []
     total_batches = (len(texts) + EMBEDDING_BATCH_SIZE - 1) // EMBEDDING_BATCH_SIZE
 
     for batch_idx in range(total_batches):
@@ -219,7 +228,7 @@ async def generate_embedding(
     command_id: Optional[str] = None,
     *,
     purpose: str = "retrieval-document",
-) -> List[float]:
+) -> EmbeddingVector:
     """
     Generate a single embedding for text, handling large content via chunking and mean pooling.
 

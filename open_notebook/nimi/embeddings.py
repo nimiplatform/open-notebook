@@ -1,9 +1,12 @@
+from collections.abc import Iterable, Iterator
+
 from open_notebook.exceptions import ConfigurationError
 from open_notebook.nimi.channel import request
 
 
-def embedding_batches(texts):
-    batch, size = [], 0
+def embedding_batches(texts: Iterable[str]) -> Iterator[list[str]]:
+    batch: list[str] = []
+    size = 0
     for text in texts:
         if not isinstance(text, str) or not text.strip():
             raise ConfigurationError("Embedding inputs must contain text")
@@ -19,10 +22,10 @@ def embedding_batches(texts):
         yield batch
 
 
-class EmbeddingVector(list):
+class EmbeddingVector(list[float]):
     """A vector and the Runtime-issued space that gives its numbers meaning."""
 
-    def __init__(self, values, space_id):
+    def __init__(self, values: Iterable[float], space_id: str) -> None:
         super().__init__(values)
         self.space_id = space_id
 
@@ -31,10 +34,14 @@ class EmbeddingVector(list):
 class NotebookEmbeddings:
     model_name = "Nimi configured embedding"
 
-    async def aembed(self, texts, *, purpose="retrieval-document"):
+    async def aembed(
+        self, texts: Iterable[str], *, purpose: str = "retrieval-document"
+    ) -> list[EmbeddingVector]:
         if purpose not in {"retrieval-document", "retrieval-query"}:
             raise ConfigurationError("Invalid embedding retrieval purpose")
-        output, space_id, dimensions = [], None, None
+        output: list[EmbeddingVector] = []
+        space_id: str | None = None
+        dimensions: int | None = None
         # Validate the entire input before any paid/model work, then preserve
         # its order and one Runtime-issued space across every finite batch.
         for batch in list(embedding_batches(texts)):

@@ -33,6 +33,7 @@ def test_retry_keeps_additional_episode_instructions():
             app, headers={"X-Notebook-Process": "notebook-test-process"}
         ).post("/api/podcasts/episodes/episode:failed/retry")
     assert result.status_code == 200
+    assert submit.await_args is not None
     assert submit.await_args.kwargs["briefing_suffix"] == "只用中文。\n保留原始数据。"
 
 
@@ -65,6 +66,7 @@ async def test_wrong_outline_count_preserves_the_draft_before_failure(tmp_path):
             await create_notebook_podcast(
                 "资料", "三段", profile, speaker, tmp_path, save
             )
+    assert save.await_args is not None
     assert save.await_args.args[0]["segments"][0]["name"] == "实际的大纲"
     assert save.await_args.args[1] == []
     assert "selected podcast language: zh-CN" in model.ainvoke.await_args.args[0]
@@ -131,6 +133,7 @@ async def test_transcript_preserves_profile_language_and_speaker_voice(tmp_path)
     assert len(model.ainvoke.await_args_list) == 4
     for call in model.ainvoke.await_args_list:
         assert "selected podcast language: fr-FR" in call.args[0]
+    assert speech.await_args is not None
     assert speech.await_args.args == (
         "podcast.speak",
         {"text": "Bonjour.", "voice": "selected-voice", "language": "fr-FR"},

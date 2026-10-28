@@ -9,6 +9,7 @@ from api.auth import NotebookHostMiddleware
 from open_notebook.ai.provision import provision_langchain_model
 from open_notebook.exceptions import ConfigurationError
 from open_notebook.nimi.channel import request
+from open_notebook.nimi.language import NotebookLanguageModel
 
 
 def test_backend_import_keeps_https_certificate_verification():
@@ -72,6 +73,7 @@ async def test_user_budget_is_preserved():
     model = await provision_langchain_model(
         "hello", None, "chat", max_tokens=4096, temperature=0.4
     )
+    assert isinstance(model, NotebookLanguageModel)
     assert model.max_tokens == 4096
     assert model.temperature == 0.4
 
@@ -81,11 +83,11 @@ def test_late_terminal_reply_does_not_break_another_request():
 
     from open_notebook.nimi.channel import _settle
 
-    canceled = Future()
+    canceled = Future[dict[str, str]]()
     canceled.cancel()
     # Represents cancellation after the reader selected this pending future.
     _settle(canceled, result={"text": "late"})
-    active = Future()
+    active = Future[dict[str, str]]()
     _settle(active, result={"text": "中文结果"})
     assert active.result() == {"text": "中文结果"}
     assert canceled.cancelled()
