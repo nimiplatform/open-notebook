@@ -2,7 +2,7 @@ import { registerPlugin } from '@capacitor/core'
 interface Files {
   beginExport(input: { name: string; mimeType: string; size: number }): Promise<{ id: string }>
   appendExport(input: { id: string; offset: number; data: string }): Promise<{ received: number }>
-  saveExport(input: { id: string; size: number }): Promise<{ bytesWritten: number }>
+  saveExport(input: { id: string; size: number }): Promise<{ bytesWritten: number; destinationName?: string }>
   abortExport(input: { id: string }): Promise<void>
 }
 const files = registerPlugin<Files>('NotebookFiles')
@@ -23,7 +23,7 @@ export async function saveAndroidFile(source: Blob, name: string, signal: AbortS
     signal.throwIfAborted(); choosing = true
     const result = await files.saveExport({ id, size: offset })
     if (result.bytesWritten !== offset) throw new Error('NOTEBOOK_EXPORT_INCOMPLETE')
-    return { canceled: false }
+    return { canceled: false, destinationName: result.destinationName }
   } catch (error) {
     if (!choosing) await files.abortExport({ id }).catch(() => undefined)
     if ((error as { code?: string }).code === 'NOTEBOOK_EXPORT_CANCELED') return { canceled: true }

@@ -52,13 +52,13 @@ function IdentityWorkspace({ identity }: { identity: { signal: AbortSignal } }) 
     if (!input.current) throw new Error('NOTEBOOK_FILE_INPUT_UNAVAILABLE')
     input.current.accept = intent.accept; input.current.multiple = intent.multiple; input.current.click()
   }))
-  const [saved, setSaved] = useState<{ kind: string; name: string; error?: string }>()
+  const [saved, setSaved] = useState<{ kind: string; name?: string; error?: string }>()
   const [save] = useState(() => async (blob: Blob, name: string, signal: AbortSignal) => {
     // Local Save completion belongs to the identity, including its system-dialog lifetime.
     setSaved({ kind: 'saving', name })
     try {
       const result = await saveAndroidFile(blob, name, signal)
-      if (!identity.signal.aborted) setSaved({ kind: result.canceled ? 'canceled' : 'saved', name })
+      if (!identity.signal.aborted) setSaved({ kind: result.canceled ? 'canceled' : 'saved', name: result.destinationName })
       return result
     } catch (error) { if (!identity.signal.aborted) setSaved({ kind: 'error', name, error: String(error) }); throw error }
   })
@@ -68,7 +68,7 @@ function IdentityWorkspace({ identity }: { identity: { signal: AbortSignal } }) 
     <input ref={input} hidden type="file" aria-label={t('sources.uploadFile')} onChange={event => { const files = Array.from(event.currentTarget.files || []); event.currentTarget.value = ''; state.selected(files) }} />
     {selection && <section className="notebook-mobile-notice" aria-live="polite"><strong>{selection.files.map(file => file.name).join(', ')}</strong><p>{t('nimi.mobileFiles')}</p>
       <div><Button disabled={!state.canDeliver()} onClick={() => state.deliver()}>{t('nimi.mobileContinue')}</Button><Button variant="outline" onClick={() => state.discard()}>{t('common.cancel')}</Button></div></section>}
-    {saved && <p className="notebook-mobile-notice" role="status">{saved.kind === 'error' ? saved.error : saved.kind === 'saving' ? t('nimi.mobileSaving', { name: saved.name }) : saved.kind === 'saved' ? t('nimi.mobileSaved', { name: saved.name }) : t('nimi.mobileCanceled')}</p>}
+    {saved && <p className="notebook-mobile-notice" role="status">{saved.kind === 'error' ? saved.error : saved.kind === 'saving' ? t('nimi.mobileSaving', { name: saved.name }) : saved.kind === 'saved' ? (saved.name ? t('nimi.mobileSaved', { name: saved.name }) : t('nimi.mobileSavedUnnamed')) : t('nimi.mobileCanceled')}</p>}
     <NimiAppAccessGate externalAccountControl title={t('common.appName')} language={language.startsWith('zh') ? 'zh' : 'en'}>{scope => <Workspace key={scope.viewKey} scope={scope} state={state} save={save} />}</NimiAppAccessGate>
   </>
 }

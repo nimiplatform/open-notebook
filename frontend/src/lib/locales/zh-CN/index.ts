@@ -7,6 +7,7 @@ export const zhCN = {
     mobileContinue: "继续使用所选文件",
     mobileSaving: "正在保存 {{name}}…",
     mobileSaved: "已将 {{name}} 保存到所选位置。",
+    mobileSavedUnnamed: "已保存到所选位置。",
     mobileCanceled: "已取消保存，PC 原文件仍保留。",
     "navigation":"导航","expandNavigation":"展开导航","collapseNavigation":"收起导航", "webDetails": "详情", "webProviderFailed": "网页版连接暂不可用。电脑上的笔记本仍可使用；请查看详情后重新打开 App。", "webWorkspace": "连接电脑上的笔记本工作区","webConnect": "请保持电脑 Nimi 中的 Open Notebook 开启。在 Nimi Home → 集成中，允许此 Web 客户端使用笔记本操作，然后重试。","webStorage": "笔记本、来源、研究任务和播客仍保存在所选电脑工作区。使用网页版时，请保持电脑及其 Open Notebook 运行。","webPermission": "电脑工作区已可用。请在 Nimi Home → 集成中，为此 Web 客户端允许笔记本操作。","webUnavailable": "已连接电脑上的 Open Notebook 尚未就绪。请在 Nimi 中打开原有 App，然后重试。","webModels": "研究、索引、转写和配音使用电脑 Open Notebook 中配置的模型。请打开电脑 App 的「模型」页面查看或修改；Web 账号的模型设置不控制此工作区。", "title": "Open Notebook · Nimi", "connect": "请打开 Nimi Desktop，并授权 Open Notebook 以继续。", "storage": "笔记本与媒体保存在当前 Nimi 工作区对应的本机目录中。", "models": "通过 Nimi 选择模型。研究、向量检索、语音转写和播客配音使用这里的能力配置。", "research": "研究与写作", "embedding": "语义检索", "transcription": "音频转写", "narration": "播客配音"},
   common: {

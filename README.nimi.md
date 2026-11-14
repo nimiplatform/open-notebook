@@ -44,14 +44,26 @@ Build with `NIMI_DEV_REALM=local pnpm run sync:android`, then run
 `android/gradlew.bat :app:testDebugUnitTest assembleDebug --offline --no-daemon`
 with JDK 21 and the configured local SDK. `pnpm run dev:mobile` is the explicit
 device launch command. The debug candidate is
-`.nimi/local/android-candidates/open-notebook-1.14.7-integration-kit-rc4-layout-20261115-042124-debug.apk`,
-**14,489,884 bytes**, SHA-256
-`a941fddb288c9654d22906c22b0766e4fc5bdf7d7dd2668a7cec63269ba9cc83`.
-The earlier 22:23, 02:04 styles, 02:15 File-realm and fully exercised 02:28 UI
-candidates remain archived.
+`.nimi/local/android-candidates/open-notebook-1.14.7-integration-kit-rc4-save-name-20261115-045700-debug.apk`,
+**14,489,883 bytes**, SHA-256
+`c6f50b3b1afa253c553372a8e1f017d6ecce37985fab1444b69772ebea52b27b`.
+The earlier 22:23, 02:04 styles, 02:15 File-realm, fully exercised 02:28 UI and
+04:21 layout candidates remain archived.
 Its checked signer is
 `756e56a08527a94e830921233bc80f31121fd0fe57dccef1535e27e9eb0a6585`.
 This is a local candidate, not a release or installed/Catalog result.
+
+This candidate corrects the successful Save notice after SAF renames a file or
+adds a collision suffix. The existing saved source actually ended in `(1)`, but
+the old notice still used the proposed name. After closing and verifying the
+destination write, the plugin now reads `DISPLAY_NAME` from the returned URI and
+passes the optional actual name to the identity notice. If metadata is unavailable,
+all fourteen locales show a success notice without a filename. Suggested names
+are never used as the saved destination name. Three focused result/transfer
+regressions plus 27 locale assertions, TypeScript, mobile/Capacitor build and Java
+tests/Android assembly passed. The new candidate's renamed Save is
+**NOT-VERIFIED** pending the device slot; the prior business and layout acceptance
+below remains applicable to unchanged behavior.
 
 Source: client `io.github.nimiplatform.open-notebook.android.dev`, package
 `ai.nimi.apps.opennotebook.dev`, origin `ai.nimi.apps.opennotebook.dev:/`, callback

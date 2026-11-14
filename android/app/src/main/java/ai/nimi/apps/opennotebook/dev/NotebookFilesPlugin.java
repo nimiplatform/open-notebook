@@ -2,8 +2,10 @@ package ai.nimi.apps.opennotebook.dev;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.StatFs;
+import android.provider.OpenableColumns;
 import androidx.activity.result.ActivityResult;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -96,7 +98,7 @@ public class NotebookFilesPlugin extends Plugin {
         try {
             require(call); Uri destination = result.getData() == null ? null : result.getData().getData();
             if (result.getResultCode() != Activity.RESULT_OK || destination == null) { cleanup(); call.reject("File saving was canceled.", "NOTEBOOK_EXPORT_CANCELED"); return; }
-            final File source = staged; final long sourceSize = size; final String sourceName = name;
+            final File source = staged; final long sourceSize = size;
             copier.execute(() -> {
                 try {
                     long copied = 0;
@@ -107,10 +109,23 @@ public class NotebookFilesPlugin extends Plugin {
                         target.flush();
                     }
                     if (copied != sourceSize) throw new IllegalStateException("The staged file is incomplete.");
-                    JSObject saved = new JSObject(); saved.put("bytesWritten", copied); saved.put("name", sourceName); synchronized (this) { cleanup(); } call.resolve(saved);
+                    JSObject saved = new JSObject(); saved.put("bytesWritten", copied);
+                    String actualName = destinationName(destination);
+                    if (actualName != null) saved.put("destinationName", actualName);
+                    synchronized (this) { cleanup(); } call.resolve(saved);
                 } catch (Exception error) { synchronized (this) { cleanup(); } call.reject("The file was not completely saved. Check the selected destination; the original remains on the PC.", "NOTEBOOK_EXPORT_SAVE_FAILED"); }
             });
         } catch (Exception error) { cleanup(); call.reject(error.getMessage(), "NOTEBOOK_EXPORT_SAVE_FAILED"); }
+    }
+    private String destinationName(Uri destination) {
+        try (Cursor cursor = getContext().getContentResolver().query(destination, new String[] { OpenableColumns.DISPLAY_NAME }, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int column = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                String value = column < 0 ? null : cursor.getString(column);
+                return value == null || value.isBlank() ? null : value;
+            }
+        } catch (RuntimeException ignored) { /* Metadata is optional after the completed write. */ }
+        return null;
     }
     @PluginMethod public synchronized void abortExport(PluginCall call) { if (id != null && id.equals(call.getString("id")) && !choosing) cleanup(); call.resolve(); }
     private void require(PluginCall call) { if (id == null || !id.equals(call.getString("id"))) throw new IllegalArgumentException("Unknown file transfer."); }
