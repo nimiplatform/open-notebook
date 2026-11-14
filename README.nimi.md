@@ -157,10 +157,15 @@ consumer to normal word boundaries with `overflow-wrap:anywhere`; other
 InlineEdit consumers are unchanged. Android's internal Navigation row also omits
 its repeated Open Notebook brand, while retaining Navigation and the actual
 notebook title. Archive/Delete, metadata, business behavior and citations are
-unchanged. Typecheck, mobile/Next Web builds and Gradle assembly passed. These two
-layout changes remain **NOT-VERIFIED on the foreground device** pending a short
-visual recheck; the 02:28 candidate's completed business evidence above is retained
-without repeating its model request.
+unchanged. Typecheck, mobile/Next Web builds and Gradle assembly passed. The 04:21
+candidate then passed its foreground-device recheck through install-r, the system
+launcher and official Halliday Continue, reusing the existing grants. The same
+four notebooks and complete NOTE-6152 answer/citation read back. Computed style
+was `word-break: normal` and `overflow-wrap: anywhere`; the real screenshot showed
+ordinary words intact, only Navigation in the inner row, and the original notebook
+title/actions/metadata retained. See `09-layout-word-wrap.png` in the Android
+evidence directory. The 02:28 business evidence above remains valid for its scope;
+no upload or model request was repeated for this layout-only check.
 
 Screenshots and the real `source-saved.txt` are under
 `.nimi/local/ui-audit/2026-11-15-android/`, including the original permission view,
