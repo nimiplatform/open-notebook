@@ -72,6 +72,7 @@ export const useNavigationStore = create<NavigationState>()(
       storage: {
         getItem: (name: string) => {
           try {
+            if (process.env.NEXT_PUBLIC_NIMI_WEB === '1') return null
             const value = sessionStorage.getItem(name)
             return value
           } catch {
@@ -80,7 +81,7 @@ export const useNavigationStore = create<NavigationState>()(
         },
         setItem: (name: string, value: string) => {
           try {
-            sessionStorage.setItem(name, value)
+            if (process.env.NEXT_PUBLIC_NIMI_WEB !== '1') sessionStorage.setItem(name, value)
           } catch {
             // Silently fail if sessionStorage is not available
           }

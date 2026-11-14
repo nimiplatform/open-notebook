@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback } from 'react'
-import { useRouter, useSearchParams, usePathname } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from '@/lib/navigation'
 
 export type ModalType = 'source' | 'note' | 'insight'
 

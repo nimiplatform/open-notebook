@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Controller } from "react-hook-form"
+import { SourceFileInput } from '@/mobile/SourceFileInput'
 
 interface CreateSourceFormData {
   type: 'link' | 'upload' | 'text'
@@ -87,6 +88,7 @@ const getSourceTypes = (t: TFunction) => [
 ]
 
 interface SourceTypeStepProps {
+  mobileDraftKey: string
   control: Control<CreateSourceFormData>
   register: UseFormRegister<CreateSourceFormData>
   setValue: UseFormSetValue<CreateSourceFormData>
@@ -97,7 +99,7 @@ interface SourceTypeStepProps {
 
 const MAX_BATCH_SIZE = 50
 
-export function SourceTypeStep({ control, register, setValue, errors, urlValidationErrors, onClearUrlErrors }: SourceTypeStepProps) {
+export function SourceTypeStep({ control, register, setValue, errors, urlValidationErrors, onClearUrlErrors, mobileDraftKey }: SourceTypeStepProps) {
   const { t } = useTranslation()
   // Watch the selected type and inputs to detect batch mode
   const selectedType = useWatch({ control, name: 'type' })
@@ -245,7 +247,8 @@ export function SourceTypeStep({ control, register, setValue, errors, urlValidat
                           </Badge>
                         )}
                       </div>
-                      <Input
+                      <SourceFileInput
+                        draftKey={mobileDraftKey}
                         id="file"
                         type="file"
                         multiple

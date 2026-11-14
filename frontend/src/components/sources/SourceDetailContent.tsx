@@ -1,4 +1,5 @@
 'use client'
+import { saveNotebookFile } from '@/mobile/bridge'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
@@ -293,14 +294,8 @@ function SourceDetailContentInner({
       const fallbackName = extractFilename(source.asset.file_path, `source-${source.id}`)
       const filename = filenameFromHeader || fallbackName
 
-      const blobUrl = window.URL.createObjectURL(response.data)
-      const link = document.createElement('a')
-      link.href = blobUrl
-      link.download = filename
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(blobUrl)
+      const saved = await saveNotebookFile(response.data, filename)
+      if (saved.canceled) return
       setFileAvailable(true)
       toast.success(t('common.success'))
     } catch (err) {

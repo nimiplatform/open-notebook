@@ -52,8 +52,8 @@ export function NotebookHeader({ notebook }: NotebookHeaderProps) {
     <>
       <div className="border-b pb-6">
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 flex-1">
+          <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+            <div className="flex w-full min-w-0 items-center gap-3 sm:flex-1">
               <InlineEdit
                 id="notebook-name"
                 name="notebook-name"
@@ -67,7 +67,7 @@ export function NotebookHeader({ notebook }: NotebookHeaderProps) {
                 <Badge variant="secondary">{t('notebooks.archived')}</Badge>
               )}
             </div>
-            <div className="flex gap-2">
+            <div className="flex shrink-0 gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -105,7 +105,7 @@ export function NotebookHeader({ notebook }: NotebookHeaderProps) {
             name="notebook-description"
             value={notebook.description || ''}
             onSave={handleUpdateDescription}
-            className="text-muted-foreground"
+            className="text-muted-foreground break-normal [overflow-wrap:anywhere]"
             inputClassName="text-muted-foreground"
             placeholder={t('notebooks.addDescription')}
             multiline

@@ -1,7 +1,14 @@
 import type { TranslationShape } from '../en-US';
 
 export const jaJP = {
-  nimi: {"title": "Open Notebook · Nimi", "connect": "Open Nimi Desktop and allow Open Notebook access to continue.", "storage": "Notebooks and media are stored on this device in the current Nimi workspace.", "models": "Choose models through Nimi. Research, embeddings, transcription and podcast voices use these capability settings.", "research": "調査と執筆", "embedding": "意味検索", "transcription": "音声の文字起こし", "narration": "ポッドキャストの音声"},
+  nimi: {
+    mobileConnect: "PCでOpen Notebookを起動したまま、Nimi Home → IntegrationsでこのAndroidアプリにノートブック操作を許可してください。",
+    mobileFiles: "選択したファイルは保持されています。続行すると元のソースフォームに戻ります。作成前にノートブックと処理設定を確認してください。",
+    mobileContinue: "選択したファイルで続行",
+    mobileSaving: "{{name}} を保存中…",
+    mobileSaved: "{{name}} を選択した保存先に保存しました。",
+    mobileCanceled: "保存をキャンセルしました。PCの元ファイルは保持されています。",
+    "navigation":"Navigation","expandNavigation":"Expand navigation","collapseNavigation":"Collapse navigation", "webDetails": "Details", "webProviderFailed": "Web connection is unavailable. You can still use the PC notebook; review the details and reopen the App.", "webWorkspace": "Connect your PC notebook workspace","webConnect": "Keep Open Notebook open in Nimi on your PC. In Nimi Home → Integrations, allow this Web client to use the Notebook operations, then retry.","webStorage": "Notebooks, sources, research tasks and podcasts remain in the selected PC workspace. Keep the PC and its Open Notebook App running while using the Web interface.","webPermission": "The PC workspace is available. Allow the Notebook operations for this Web client in Nimi Home → Integrations.","webUnavailable": "Open Notebook is not available on the connected PC. Open the existing App in Nimi and retry.","webModels": "Research, indexing, transcription and narration use the models configured in Open Notebook on your PC. Open its Models page to review or change those settings; Web account model settings do not control this workspace.", "title": "Open Notebook · Nimi", "connect": "Open Nimi Desktop and allow Open Notebook access to continue.", "storage": "Notebooks and media are stored on this device in the current Nimi workspace.", "models": "Choose models through Nimi. Research, embeddings, transcription and podcast voices use these capability settings.", "research": "調査と執筆", "embedding": "意味検索", "transcription": "音声の文字起こし", "narration": "ポッドキャストの音声"},
   common: {
     search: "検索...",
     create: "新規",
@@ -424,6 +431,7 @@ export const jaJP = {
     maxFilesAllowed: "一括処理は最大{{count}}件までです",
   },
   chat: {
+    sendMessage: "メッセージを送信",
     sessions: "セッション",
     sessionTitlePlaceholder: "タイトルを入力...",
     noSessions: "チャットセッションがまだありません",

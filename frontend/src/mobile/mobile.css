@@ -1,0 +1,12 @@
+@import '../app/globals.css';
+@import 'katex/dist/katex.min.css';
+@source '../';
+:root { --font-instrument-sans: Arial; --font-bricolage: 'Trebuchet MS'; --font-spline-mono: monospace; }
+html, body, #root { height: 100%; width: 100%; margin: 0; overflow: hidden; }
+.notebook-mobile-shell { display: flex; flex-direction: column; height: 100dvh; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+.notebook-mobile-shell>header { display: flex; align-items: center; justify-content: space-between; gap: .75rem; min-height: 3rem; padding: .4rem .75rem; border-bottom: 1px solid var(--border); }
+.notebook-mobile-shell iframe { border: 0; width: 100%; min-height: 0; flex: 1; }
+.notebook-mobile-notice { padding: .65rem .85rem; border-bottom: 1px solid var(--border); font-size: .85rem; overflow-wrap: anywhere; }
+.notebook-mobile-notice>div { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .5rem; }
+[data-slot='dialog-content'] { max-height: calc(100dvh - 2rem); overflow-y: auto; }
+@media (max-width: 480px) { [data-slot='tabs-trigger'] { white-space: normal; min-height: 2.5rem; height: auto; } }

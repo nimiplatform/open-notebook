@@ -16,7 +16,7 @@ import { Label } from '@/components/ui/label'
 import { useTranslation } from '@/lib/hooks/use-translation'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 import { useNotebookDeletePreview, useDeleteNotebook } from '@/lib/hooks/use-notebooks'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/lib/navigation'
 
 interface NotebookDeleteDialogProps {
   open: boolean

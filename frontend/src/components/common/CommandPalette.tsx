@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback, useMemo, useId } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/lib/navigation'
 import { useCreateDialogs } from '@/lib/hooks/use-create-dialogs'
 import { useNotebooks } from '@/lib/hooks/use-notebooks'
 import { useTheme } from '@/lib/stores/theme-store'

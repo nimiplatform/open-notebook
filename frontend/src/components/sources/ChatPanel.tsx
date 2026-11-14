@@ -1,4 +1,5 @@
 'use client'
+import { isNotebookMobile } from '@/mobile/bridge'
 
 import { memo, useCallback, useState, useRef, useEffect, useId } from 'react'
 import { Button } from '@/components/ui/button'
@@ -292,13 +293,14 @@ function ChatComposer({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={`${t('chat.sendPlaceholder')} (${t('chat.pressToSend', { key: keyHint })})`}
+          placeholder={isNotebookMobile() ? t('chat.sendPlaceholder') : `${t('chat.sendPlaceholder')} (${t('chat.pressToSend', { key: keyHint })})`}
           disabled={isStreaming}
           className="flex-1 min-h-[40px] max-h-[100px] resize-none py-2 px-3 min-w-0"
           rows={1}
         />
         <Button
           onClick={handleSend}
+          aria-label={t('chat.sendMessage')}
           disabled={!input.trim() || isStreaming}
           size="icon"
           className="h-[40px] w-[40px] flex-shrink-0"

@@ -1,3 +1,4 @@
+import { notebookFetch } from '@/lib/nimi/web-transport'
 import { notebookBackend } from '@/lib/nimi/client'
 import apiClient from './client'
 import {
@@ -55,7 +56,7 @@ export const sourceChatApi = {
     const url = `${notebookBackend()}/api/sources/${sourceId}/chat/sessions/${sessionId}/messages`
 
     // Use fetch with ReadableStream for SSE
-    return fetch(url, {
+    return notebookFetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -1,6 +1,6 @@
 'use client'
 
-import dynamic from 'next/dynamic'
+import MDEditor from '@/components/ui/md-editor-loader'
 import { forwardRef } from 'react'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
@@ -8,11 +8,6 @@ import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import type { PluggableList } from 'unified'
 
 import { useTheme } from '@/lib/stores/theme-store'
-
-const MDEditor = dynamic(
-  () => import('@uiw/react-md-editor').then((mod) => mod.default),
-  { ssr: false }
-)
 
 // Render `$...$` / `$$...$$` math in the live preview. @uiw/react-md-editor
 // concatenates these with its defaults (gfm, prism, raw), so syntax

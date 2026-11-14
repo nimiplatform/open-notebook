@@ -1,7 +1,14 @@
 import type { TranslationShape } from '../en-US';
 
 export const zhTW = {
-  nimi: {"title": "Open Notebook · Nimi", "connect": "請開啟 Nimi Desktop，並授權 Open Notebook 以繼續。", "storage": "筆記本與媒體儲存在目前 Nimi 工作區對應的本機目錄中。", "models": "透過 Nimi 選擇模型。研究、向量檢索、語音轉寫和播客配音使用這裡的能力設定。", "research": "研究與寫作", "embedding": "語意檢索", "transcription": "音訊轉寫", "narration": "播客配音"},
+  nimi: {
+    mobileConnect: "請保持 PC 上的 Open Notebook 執行，並在 Nimi Home → 整合中允許此 Android App 使用筆記本操作。",
+    mobileFiles: "已保留所選檔案。繼續後會放回原來源表單；建立來源前請核對筆記本與處理選項。",
+    mobileContinue: "繼續使用所選檔案",
+    mobileSaving: "正在儲存 {{name}}…",
+    mobileSaved: "已將 {{name}} 儲存至所選位置。",
+    mobileCanceled: "已取消儲存，PC 原檔案仍保留。",
+    "navigation":"Navigation","expandNavigation":"Expand navigation","collapseNavigation":"Collapse navigation", "webDetails": "Details", "webProviderFailed": "Web connection is unavailable. You can still use the PC notebook; review the details and reopen the App.", "webWorkspace": "Connect your PC notebook workspace","webConnect": "Keep Open Notebook open in Nimi on your PC. In Nimi Home → Integrations, allow this Web client to use the Notebook operations, then retry.","webStorage": "Notebooks, sources, research tasks and podcasts remain in the selected PC workspace. Keep the PC and its Open Notebook App running while using the Web interface.","webPermission": "The PC workspace is available. Allow the Notebook operations for this Web client in Nimi Home → Integrations.","webUnavailable": "Open Notebook is not available on the connected PC. Open the existing App in Nimi and retry.","webModels": "Research, indexing, transcription and narration use the models configured in Open Notebook on your PC. Open its Models page to review or change those settings; Web account model settings do not control this workspace.", "title": "Open Notebook · Nimi", "connect": "請開啟 Nimi Desktop，並授權 Open Notebook 以繼續。", "storage": "筆記本與媒體儲存在目前 Nimi 工作區對應的本機目錄中。", "models": "透過 Nimi 選擇模型。研究、向量檢索、語音轉寫和播客配音使用這裡的能力設定。", "research": "研究與寫作", "embedding": "語意檢索", "transcription": "音訊轉寫", "narration": "播客配音"},
   common: {
     search: "搜尋...",
     create: "新增",
@@ -424,6 +431,7 @@ export const zhTW = {
     maxFilesAllowed: "每批最多允許 {{count}} 個檔案",
   },
   chat: {
+    sendMessage: "傳送訊息",
     sessions: "對話",
     sessionTitlePlaceholder: "在此輸入標題...",
     noSessions: "暫無對話",

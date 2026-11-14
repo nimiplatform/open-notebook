@@ -162,3 +162,9 @@ dist-electron/
 dist-electron-package/
 dist/
 .python-build/
+
+# Web development environment and Next output
+/.env.local
+/frontend/.next-web/
+/frontend/.next-web-build/
+/dist-mobile/

@@ -5,7 +5,7 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Redirect root to notebooks
-  if (pathname === '/') {
+  if (pathname === '/' && process.env.NEXT_PUBLIC_NIMI_WEB !== '1') {
     return NextResponse.redirect(new URL('/notebooks', request.url))
   }
 

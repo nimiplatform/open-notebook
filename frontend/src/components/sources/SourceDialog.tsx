@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/lib/navigation'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { SourceDetailContent } from './SourceDetailContent'
 import { useTranslation } from '@/lib/hooks/use-translation'

@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { Link } from '@/lib/navigation'
+import { usePathname } from '@/lib/navigation'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -84,11 +84,12 @@ function LogoPebbles({ className }: { className?: string }) {
 
 type CreateTarget = 'source' | 'notebook' | 'podcast'
 
-export function AppSidebar() {
+export function AppSidebar({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
   const { t } = useTranslation()
   const navigation = getNavigation(t)
   const pathname = usePathname()
-  const { isCollapsed, toggleCollapse } = useSidebarStore()
+  const { isCollapsed: desktopCollapsed, toggleCollapse } = useSidebarStore()
+  const isCollapsed = !mobile && desktopCollapsed
   const { openSourceDialog, openNotebookDialog, openPodcastDialog } = useCreateDialogs()
 
   // The active item is the longest href that prefixes the current path.
@@ -110,6 +111,7 @@ export function AppSidebar() {
 
   const handleCreateSelection = (target: CreateTarget) => {
     setCreateMenuOpen(false)
+    onNavigate?.()
 
     if (target === 'source') {
       openSourceDialog()
@@ -125,7 +127,7 @@ export function AppSidebar() {
       <div
         className={cn(
           'app-sidebar flex h-full flex-col bg-sidebar border-sidebar-border border-r transition-all duration-300',
-          isCollapsed ? 'w-16' : 'w-64'
+          mobile ? 'w-full' : isCollapsed ? 'w-16' : 'w-64'
         )}
       >
         <div
@@ -141,7 +143,8 @@ export function AppSidebar() {
                 variant="ghost"
                 size="sm"
                 onClick={toggleCollapse}
-                className="absolute text-sidebar-foreground hover:bg-sidebar-accent opacity-0 group-hover:opacity-100 transition-opacity"
+                aria-label={t('nimi.expandNavigation')}
+                className="absolute text-sidebar-foreground hover:bg-sidebar-accent opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
               >
                 <Menu className="h-4 w-4" />
               </Button>
@@ -154,22 +157,23 @@ export function AppSidebar() {
                   {t('common.appName')}
                 </span>
               </div>
-              <Button
+              {!mobile && <Button
                 variant="ghost"
                 size="sm"
                 onClick={toggleCollapse}
+                aria-label={t('nimi.collapseNavigation')}
                 className="text-sidebar-foreground hover:bg-sidebar-accent"
                 data-testid="sidebar-toggle"
               >
                 <ChevronLeft className="h-4 w-4" />
-              </Button>
+              </Button>}
             </>
           )}
         </div>
 
         <nav
           className={cn(
-            'flex-1 space-y-1 py-4',
+            'min-h-0 flex-1 overflow-y-auto space-y-1 py-4',
             isCollapsed ? 'px-2' : 'px-3'
           )}
         >
@@ -267,6 +271,7 @@ export function AppSidebar() {
                   const button = (
                     <Button
                       variant="ghost"
+                      aria-label={item.name}
                       className={cn(
                         'w-full gap-2.5 text-[13px] font-medium text-sidebar-foreground/80 sidebar-menu-item relative',
                         isActive &&
@@ -283,7 +288,7 @@ export function AppSidebar() {
                     return (
                       <Tooltip key={item.name}>
                         <TooltipTrigger asChild>
-                          <Link href={item.href}>
+                          <Link href={item.href} onClick={onNavigate}>
                             {button}
                           </Link>
                         </TooltipTrigger>
@@ -293,7 +298,7 @@ export function AppSidebar() {
                   }
 
                   return (
-                    <Link key={item.name} href={item.href}>
+                    <Link key={item.name} href={item.href} onClick={onNavigate}>
                       {button}
                     </Link>
                   )

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Open Notebook</string>
+    <string name="title_activity_main">Open Notebook</string>
+    <string name="package_name">ai.nimi.apps.opennotebook.dev</string>
+    <string name="custom_url_scheme">ai.nimi.apps.opennotebook.dev</string>
+</resources>

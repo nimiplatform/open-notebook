@@ -1,7 +1,14 @@
 import type { TranslationShape } from '../en-US';
 
 export const esES = {
-  nimi: {"title": "Open Notebook · Nimi", "connect": "Open Nimi Desktop and allow Open Notebook access to continue.", "storage": "Notebooks and media are stored on this device in the current Nimi workspace.", "models": "Choose models through Nimi. Research, embeddings, transcription and podcast voices use these capability settings.", "research": "Investigación y escritura", "embedding": "Búsqueda semántica", "transcription": "Transcripción de audio", "narration": "Narración de pódcast"},
+  nimi: {
+    mobileConnect: "Mantén Open Notebook abierto en el PC. En Nimi Home → Integraciones, permite las operaciones de Notebook a esta aplicación Android.",
+    mobileFiles: "Se conservan los archivos seleccionados. Continuar los devuelve al formulario original. Revisa el cuaderno y el procesamiento antes de crear las fuentes.",
+    mobileContinue: "Continuar con los archivos seleccionados",
+    mobileSaving: "Guardando {{name}}…",
+    mobileSaved: "{{name}} se guardó en el destino seleccionado.",
+    mobileCanceled: "Guardado cancelado. El original permanece en el PC.",
+    "navigation":"Navigation","expandNavigation":"Expand navigation","collapseNavigation":"Collapse navigation", "webDetails": "Details", "webProviderFailed": "Web connection is unavailable. You can still use the PC notebook; review the details and reopen the App.", "webWorkspace": "Connect your PC notebook workspace","webConnect": "Keep Open Notebook open in Nimi on your PC. In Nimi Home → Integrations, allow this Web client to use the Notebook operations, then retry.","webStorage": "Notebooks, sources, research tasks and podcasts remain in the selected PC workspace. Keep the PC and its Open Notebook App running while using the Web interface.","webPermission": "The PC workspace is available. Allow the Notebook operations for this Web client in Nimi Home → Integrations.","webUnavailable": "Open Notebook is not available on the connected PC. Open the existing App in Nimi and retry.","webModels": "Research, indexing, transcription and narration use the models configured in Open Notebook on your PC. Open its Models page to review or change those settings; Web account model settings do not control this workspace.", "title": "Open Notebook · Nimi", "connect": "Open Nimi Desktop and allow Open Notebook access to continue.", "storage": "Notebooks and media are stored on this device in the current Nimi workspace.", "models": "Choose models through Nimi. Research, embeddings, transcription and podcast voices use these capability settings.", "research": "Investigación y escritura", "embedding": "Búsqueda semántica", "transcription": "Transcripción de audio", "narration": "Narración de pódcast"},
   common: {
     search: "Buscar...",
     create: "Nuevo",
@@ -424,6 +431,7 @@ export const esES = {
     maxFilesAllowed: "Máximo {{count}} archivos permitidos por lote",
   },
   chat: {
+    sendMessage: "Enviar mensaje",
     sessions: "Sesiones",
     sessionTitlePlaceholder: "Escribe un título aquí...",
     noSessions: "Aún no hay sesiones de chat",

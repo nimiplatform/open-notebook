@@ -2,11 +2,19 @@
 import { useEffect, useState } from 'react'
 import { ModelConfigAIConfigSurface } from '@nimiplatform/kit/features/model-config/ui'
 import type { NimiAIConfigSnapshot } from '@nimiplatform/sdk'
+import { isNotebookWeb } from '@/lib/nimi/web-transport'
 import { getNimiClient } from '@/lib/nimi/client'
 import { useTranslation } from '@/lib/hooks/use-translation'
 import { AppShell } from '@/components/layout/AppShell'
 
 export default function ModelsPage() {
+  return isNotebookWeb ? <PCModels /> : <NativeModels />
+}
+function PCModels() {
+  const { t } = useTranslation()
+  return <AppShell><section className="mx-auto w-full max-w-4xl space-y-4 p-6"><h1 className="text-2xl font-semibold">{t('navigation.models')}</h1><p>{t('nimi.webModels')}</p><p className="text-sm text-muted-foreground">{t('nimi.webStorage')}</p></section></AppShell>
+}
+function NativeModels() {
   const { t, language } = useTranslation()
   const capabilityLabels: Record<string, string> = {
     'text.generate': t('nimi.research'), 'text.embed': t('nimi.embedding'),

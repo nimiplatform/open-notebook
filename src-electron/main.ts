@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { startNotebookRenderer } from './next-server.js';
 import { NotebookWorker } from './notebook-worker.js';
+import { startNotebookProvider } from './notebook-provider.js';
 import { fileURLToPath } from 'node:url';
 import { app, BrowserWindow, dialog, ipcMain, Menu, protocol, session, shell, webContents } from 'electron';
 import { configureNimiElectronAppHostProfile } from '@nimiplatform/kit/shell/electron/host-profile';
@@ -39,6 +40,8 @@ const developmentRendererUrl = readDevelopmentRendererUrl();
 let rendererUrl = developmentRendererUrl;
 const allowedRendererUrls: string[] = [];
 let worker: NotebookWorker | null = null;
+let provider: ReturnType<typeof startNotebookProvider> | null = null;
+let remoteAccessError = '';
 let starting: Promise<{ apiUrl: string }> | null = null;
 let resettingRenderer = false;
 let quitting = false;
@@ -64,21 +67,40 @@ void app.whenReady().then(async () => {
     appCommandHandlers: {
       'notebook.workspace': async ({ payload }) => {
         if (Object.keys(payload).length) throw new Error('Notebook workspace takes no identity or path input');
-        if (worker?.controller.signal.aborted) { worker = null; starting = null; }
-        if (!starting) {
-          const candidate = new NotebookWorker(bridge.services, appRoot, path.join(app.getPath('appData'), 'Open Notebook — Nimi'), new URL(rendererUrl).origin, app.isPackaged);
-          worker = candidate;
-          starting = candidate.start().catch(error => {
-            candidate.stop();
-            if (worker === candidate) { worker = null; starting = null; }
-            throw error;
-          });
-        }
-        return starting;
+        return { ...await ensureWorkspace(), remoteAccessError };
       },
     },
-    onSessionInvalidated: () => { worker?.stop(); worker = null; starting = null; resetAccountScopedRenderer(); },
+    onSessionReady: services => {
+      provider?.stop();
+      remoteAccessError = '';
+      provider = startNotebookProvider(services.integration, async () => {
+        const ready = await ensureWorkspace();
+        if (!worker || worker.controller.signal.aborted) throw new Error('NOTEBOOK_WORKSPACE_UNAVAILABLE');
+        return { ...ready, token: worker.token };
+      }, app.getPath('temp'), error => {
+        remoteAccessError = error instanceof Error ? error.message : String(error);
+        process.stderr.write(`[notebook-provider] ${remoteAccessError}\n`);
+      }, async () => {
+        const result = await services.aiConfig.listOptions({ kind: 'preset-voices' });
+        if (result.kind !== 'preset-voices') throw new Error('NOTEBOOK_VOICES_UNAVAILABLE');
+        return result.options.map(voice => ({ voiceId: voice.voiceId, name: voice.name }));
+      });
+    },
+    onSessionInvalidated: () => { provider?.stop(); provider = null; worker?.stop(); worker = null; starting = null; resetAccountScopedRenderer(); },
   });
+  function ensureWorkspace() {
+    if (worker?.controller.signal.aborted) { worker = null; starting = null; }
+    if (!starting) {
+      const candidate = new NotebookWorker(bridge.services, appRoot, path.join(app.getPath('appData'), 'Open Notebook — Nimi'), new URL(rendererUrl).origin, app.isPackaged);
+      worker = candidate;
+      starting = candidate.start().catch(error => {
+        candidate.stop();
+        if (worker === candidate) { worker = null; starting = null; }
+        throw error;
+      });
+    }
+    return starting;
+  }
   session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
     const headers = { ...details.requestHeaders };
     if (worker && !worker.controller.signal.aborted && details.url.startsWith(worker.apiUrl + '/')
@@ -106,7 +128,7 @@ void app.whenReady().then(async () => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin' && !resettingRenderer && BrowserWindow.getAllWindows().length === 0) app.quit();
 });
-app.on('before-quit', () => { quitting = true; worker?.stop(); stopRenderer?.(); });
+app.on('before-quit', () => { quitting = true; provider?.stop(); worker?.stop(); stopRenderer?.(); });
 
 // A revoked/account-changed scope must not leave renderer timers or queued
 // promises alive to use the rebound Host. This does not run on normal renewal.

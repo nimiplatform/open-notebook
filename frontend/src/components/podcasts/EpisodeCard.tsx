@@ -1,4 +1,5 @@
 'use client'
+import { isNotebookMobile, saveNotebookFile } from '@/mobile/bridge'
 
 import { useEffect, useMemo, useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
@@ -156,6 +157,7 @@ function extractTranscriptEntries(transcript: unknown): TranscriptEntry[] {
 export function EpisodeCard({ episode, onDelete, deleting, onRetry, retrying }: EpisodeCardProps) {
   const { t, language } = useTranslation()
   const [audioSrc, setAudioSrc] = useState<string | undefined>()
+  const [audioBlob, setAudioBlob] = useState<Blob>()
   const [audioError, setAudioError] = useState<string | null>(null)
   const [detailsOpen, setDetailsOpen] = useState(false)
 
@@ -164,7 +166,9 @@ export function EpisodeCard({ episode, onDelete, deleting, onRetry, retrying }: 
 
   useEffect(() => {
     let revokeUrl: string | undefined
+    let current = true
     setAudioError(null)
+    setAudioBlob(undefined)
 
     // If backend exposed a protected endpoint, fetch it with auth headers
     const loadProtectedAudio = async () => {
@@ -182,6 +186,8 @@ export function EpisodeCard({ episode, onDelete, deleting, onRetry, retrying }: 
           responseType: 'blob',
         })
 
+        if (!current) return
+        setAudioBlob(response.data)
         revokeUrl = URL.createObjectURL(response.data)
         setAudioSrc(revokeUrl)
       } catch (error) {
@@ -194,6 +200,7 @@ export function EpisodeCard({ episode, onDelete, deleting, onRetry, retrying }: 
     void loadProtectedAudio()
 
     return () => {
+      current = false
       if (revokeUrl) {
         URL.revokeObjectURL(revokeUrl)
       }
@@ -432,6 +439,9 @@ export function EpisodeCard({ episode, onDelete, deleting, onRetry, retrying }: 
         {audioSrc ? (
           <div className="rounded-md border bg-card p-2">
             <audio controls preload="none" src={audioSrc} className="w-full" />
+            {isNotebookMobile() && audioBlob && <Button variant="outline" onClick={() => {
+              void saveNotebookFile(audioBlob, episode.audio_file?.split(/[\\/]/).pop() || `${episode.id}.audio`).catch(error => setAudioError(String(error)))
+            }}>{t('common.download')}</Button>}
           </div>
         ) : audioError ? (
           <p className="text-sm text-destructive">{audioError}</p>

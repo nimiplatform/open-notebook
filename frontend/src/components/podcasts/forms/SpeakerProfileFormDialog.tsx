@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { isNotebookWeb, notebookWebVoices } from '@/lib/nimi/web-transport'
 import { getNimiClient } from '@/lib/nimi/client'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import type { FieldErrorsImpl } from 'react-hook-form'
@@ -77,7 +78,7 @@ export function SpeakerProfileFormDialog({
   useEffect(() => {
     if (!open) return
     let live = true
-    void getNimiClient().aiConfig.listOptions({ kind: 'preset-voices' }).then(result => {
+    void (isNotebookWeb ? notebookWebVoices().then(options => ({ kind: 'preset-voices' as const, options })) : getNimiClient().aiConfig.listOptions({ kind: 'preset-voices' })).then(result => {
       if (live && result.kind === 'preset-voices') { setVoices(result.options); setVoiceError('') }
     }, error => { if (live) setVoiceError(error instanceof Error ? error.message : String(error)) })
     return () => { live = false }

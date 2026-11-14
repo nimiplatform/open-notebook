@@ -1,3 +1,4 @@
+import { notebookFetch } from '@/lib/nimi/web-transport'
 import { notebookBackend } from '@/lib/nimi/client'
 import type { AppConfig, BackendConfigResponse } from '@/lib/types/config'
 
@@ -26,7 +27,7 @@ export async function getConfig(): Promise<AppConfig> {
 }
 
 async function fetchConfig(apiUrl: string): Promise<AppConfig> {
-  const response = await fetch(`${apiUrl}/api/config`, { cache: 'no-store' })
+  const response = await notebookFetch(`${apiUrl}/api/config`, { cache: 'no-store' })
   if (!response.ok) {
     throw new Error(`API config endpoint returned status ${response.status}`)
   }

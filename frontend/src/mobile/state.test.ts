@@ -1,0 +1,45 @@
+import { describe, it, expect, vi } from 'vitest'
+import { NotebookMobileState } from './state'
+import { mobilePath } from './navigation'
+
+describe('Notebook mobile identity drafts and file choice', () => {
+  it('retains an actual selected file across scope end but requires explicit delivery to the same target and source form', () => {
+    const identity = new AbortController(), first = new AbortController(), next = new AbortController()
+    const state = new NotebookMobileState(identity.signal, vi.fn()), old = vi.fn(), wrong = vi.fn(), current = vi.fn()
+    state.bind({ target: 'pc-a', view: 'old', signal: first.signal })
+    state.input('source:notebook:a', old, 'old')
+    state.choose({ key: 'source:notebook:a', multiple: true, accept: '.txt' }, 'old')
+    first.abort()
+    const file = new File(['original source bytes'], 'source.txt', { type: 'text/plain' })
+    state.selected([file])
+    expect(state.canDeliver()).toBe(false)
+    state.bind({ target: 'pc-b', view: 'wrong-pc', signal: next.signal }); state.input('source:notebook:a', wrong, 'wrong-pc')
+    state.deliver(); expect(wrong).not.toHaveBeenCalled()
+    state.bind({ target: 'pc-a', view: 'new', signal: next.signal }); state.input('source:notebook:b', wrong, 'new')
+    state.deliver(); expect(wrong).not.toHaveBeenCalled()
+    state.input('source:notebook:a', current, 'old'); expect(state.canDeliver()).toBe(false)
+    state.input('source:notebook:a', current, 'new'); expect(state.canDeliver()).toBe(true)
+    expect(current).not.toHaveBeenCalled(); state.deliver()
+    expect(current).toHaveBeenCalledExactlyOnceWith([file]); expect(old).not.toHaveBeenCalled()
+    state.deliver(); expect(current).toHaveBeenCalledTimes(1)
+    identity.abort()
+  })
+  it('restores UI route and source choices only within one identity and target, and ignores old callbacks', () => {
+    const identity = new AbortController(), first = new AbortController(), next = new AbortController()
+    const state = new NotebookMobileState(identity.signal, vi.fn())
+    state.bind({ target: 'pc', view: 'old', signal: first.signal })
+    state.navigate('/notebooks/notebook%3Aa?modal=note&id=note%3Ab', 'old')
+    state.draft('source:notebook:a', { open: true, step: 2, values: { type: 'upload', embed: false }, notebooks: ['notebook:a'], transformations: [] }, 'old')
+    first.abort(); state.navigate('/notebooks/stale', 'old')
+    expect(state.bind({ target: 'different-pc', view: 'other', signal: next.signal }).drafts).toEqual({})
+    const restored = state.bind({ target: 'pc', view: 'new', signal: next.signal })
+    expect(restored.route).toBe('/notebooks/notebook%3Aa?modal=note&id=note%3Ab')
+    expect(restored.drafts['source:notebook:a'].values.embed).toBe(false)
+    identity.abort(); expect(() => state.bind({ target: 'pc', view: 'later', signal: next.signal })).toThrow()
+  })
+  it('keeps dynamic IDs and modal/search queries in the local route and rejects external route substitution', () => {
+    expect(mobilePath('/sources/source%3Aa?modal=insight&id=source_insight%3A123')).toBe('/sources/source%3Aa?modal=insight&id=source_insight%3A123')
+    expect(() => mobilePath('https://example.com/notebooks')).toThrow('NOTEBOOK_INVALID_ROUTE')
+    expect(() => mobilePath('//example.com/notebooks')).toThrow('NOTEBOOK_INVALID_ROUTE')
+  })
+})

@@ -5,6 +5,8 @@ profile: standalone
 manifest_role: submitted-input
 app_access:
   - runtime.consume
+  - integration.consume
+  - integration.provide
 capability_contract_refs:
   - text.generate
   - text.embed
@@ -50,9 +52,17 @@ storage_policy:
       purpose: Account-scoped notebook databases, source uploads, chat checkpoints and podcast media on Windows
       expected_size_band: 10 MB–20 GB according to imported sources and generated audio
 local_development:
+  mobile:
+    command: pnpm run dev:android
   electron:
     renderer_origin: http://127.0.0.1:6012
     host_source_directory: src-electron
+  web:
+    command: pnpm run dev:web-renderer
+    local:
+      origin: https://127.0.0.1:4487
+      redirect_uri: https://127.0.0.1:4487/
+      client_id: io.github.nimiplatform.open-notebook.web.dev
 metadata:
   summary: Research your sources, keep notes, ask questions and create podcasts using Nimi AI.
   icon: assets/app-icon.png

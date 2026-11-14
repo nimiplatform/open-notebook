@@ -1,7 +1,14 @@
 import type { TranslationShape } from '../en-US';
 
 export const bnIN = {
-  nimi: {"title": "Open Notebook · Nimi", "connect": "Open Nimi Desktop and allow Open Notebook access to continue.", "storage": "Notebooks and media are stored on this device in the current Nimi workspace.", "models": "Choose models through Nimi. Research, embeddings, transcription and podcast voices use these capability settings.", "research": "গবেষণা ও লেখা", "embedding": "অর্থভিত্তিক অনুসন্ধান", "transcription": "অডিও প্রতিলিপি", "narration": "পডকাস্টের কণ্ঠ"},
+  nimi: {
+    mobileConnect: "PC-তে Open Notebook চালু রাখুন। Nimi Home → Integrations-এ এই Android অ্যাপকে Notebook কাজের অনুমতি দিন।",
+    mobileFiles: "নির্বাচিত ফাইল রাখা হয়েছে। চালিয়ে গেলে মূল উৎস ফর্মে ফিরবে। উৎস তৈরির আগে নোটবুক ও প্রক্রিয়াকরণ বিকল্প পরীক্ষা করুন।",
+    mobileContinue: "নির্বাচিত ফাইল নিয়ে চালিয়ে যান",
+    mobileSaving: "{{name}} সংরক্ষণ করা হচ্ছে…",
+    mobileSaved: "{{name}} নির্বাচিত গন্তব্যে সংরক্ষিত হয়েছে।",
+    mobileCanceled: "সংরক্ষণ বাতিল হয়েছে। PC-তে মূল ফাইল রয়ে গেছে।",
+    "navigation":"Navigation","expandNavigation":"Expand navigation","collapseNavigation":"Collapse navigation", "webDetails": "Details", "webProviderFailed": "Web connection is unavailable. You can still use the PC notebook; review the details and reopen the App.", "webWorkspace": "Connect your PC notebook workspace","webConnect": "Keep Open Notebook open in Nimi on your PC. In Nimi Home → Integrations, allow this Web client to use the Notebook operations, then retry.","webStorage": "Notebooks, sources, research tasks and podcasts remain in the selected PC workspace. Keep the PC and its Open Notebook App running while using the Web interface.","webPermission": "The PC workspace is available. Allow the Notebook operations for this Web client in Nimi Home → Integrations.","webUnavailable": "Open Notebook is not available on the connected PC. Open the existing App in Nimi and retry.","webModels": "Research, indexing, transcription and narration use the models configured in Open Notebook on your PC. Open its Models page to review or change those settings; Web account model settings do not control this workspace.", "title": "Open Notebook · Nimi", "connect": "Open Nimi Desktop and allow Open Notebook access to continue.", "storage": "Notebooks and media are stored on this device in the current Nimi workspace.", "models": "Choose models through Nimi. Research, embeddings, transcription and podcast voices use these capability settings.", "research": "গবেষণা ও লেখা", "embedding": "অর্থভিত্তিক অনুসন্ধান", "transcription": "অডিও প্রতিলিপি", "narration": "পডকাস্টের কণ্ঠ"},
   common: {
     search: "অনুসন্ধান...",
     create: "নতুন",
@@ -424,6 +431,7 @@ export const bnIN = {
     maxFilesAllowed: "ব্যাচে সর্বোচ্চ {{count}}টি ফাইল অনুমোদিত",
   },
   chat: {
+    sendMessage: "বার্তা পাঠান",
     sessions: "সেশনগুলি",
     sessionTitlePlaceholder: "এখানে একটি শিরোনাম লিখুন...",
     noSessions: "এখনও কোন চ্যাট সেশন নেই",

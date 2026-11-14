@@ -1,3 +1,4 @@
+import { notebookFetch } from '@/lib/nimi/web-transport'
 import { notebookBackend } from '@/lib/nimi/client'
 import apiClient from './client'
 import { SearchRequest, SearchResponse, AskRequest } from '@/lib/types/search'
@@ -18,7 +19,7 @@ export const searchApi = {
     const url = `${notebookBackend()}/api/search/ask`
 
     // Use fetch with ReadableStream for SSE
-    const response = await fetch(url, {
+    const response = await notebookFetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

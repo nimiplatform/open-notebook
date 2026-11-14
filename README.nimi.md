@@ -5,6 +5,273 @@ SurrealDB notebooks, LangGraph research and chat, transformations, sources and
 podcast profiles. Nimi Desktop supervises the Electron Host. The Host uses the
 public SDK/Kit for authorization, model configuration, text, embeddings and speech.
 
+## Local Android companion — 2026-11-14
+
+The Android candidate packages the original ten research client pages, dashboard
+providers and full source/note/chat/podcast interface. An App-owned navigation
+boundary supplies local history, dynamic notebook/source IDs and modal query
+parameters; Native and Web continue to use Next navigation. The mobile build
+rejects Next server imports. The two existing streaming consumers already use
+the public Notebook transport, so Android does not need a Next server, a second
+business backend or a mobile AI execution owner. Android uses system font fallbacks.
+
+The official Kit `createMobileNimiAppSession` owns login and connection. Each
+Runtime scope gets a new same-origin workspace document and one captured public
+client; old documents cannot bind a replacement client. JSON Integration envelopes
+remain valid across the document boundary. The frozen
+`io.github.nimiplatform.open-notebook.workspace.v1` contract and all **88** operations
+are unchanged. SurrealDB, extraction, research, task state and original media
+remain with the existing PC Host and worker.
+
+Only identity-lived UI state is retained on Android: the same target's route and
+source-wizard choices plus explicitly selected files. Returning from the system
+picker does not send a file. **Continue with selected files** restores the file to
+the corresponding original source form; the user still reviews its notebook,
+transformation and embedding choices and uses the original create action. This
+does not restore or replay an uncertain workflow. Signing out clears these drafts.
+Saved source files and podcast audio use Android's real Storage Access Framework
+Save operation. Its App-owned sink checks ordered chunks, exact byte counts,
+MIME essence and destination close before reporting success; cancel/failure keeps
+the PC original. The original 100 MiB upload boundary remains.
+
+The complete `integration-20261114-android-http-rc.4` cohort is retained under
+`.nimi/local/packages/`. Only Kit's override moved to **0.24.0-rc.4**; SDK
+**0.24.0-rc.2**, Windows native **0.24.0-rc.1** and App Tools **0.16.0-rc.2** keep
+their frozen bytes. Declarations retain the supported caret matrix. Existing
+uncommitted Web, locale and governance changes were preserved.
+
+Build with `NIMI_DEV_REALM=local pnpm run sync:android`, then run
+`android/gradlew.bat :app:testDebugUnitTest assembleDebug --offline --no-daemon`
+with JDK 21 and the configured local SDK. `pnpm run dev:mobile` is the explicit
+device launch command. The debug candidate is
+`.nimi/local/android-candidates/open-notebook-1.14.7-integration-kit-rc4-layout-20261115-042124-debug.apk`,
+**14,489,884 bytes**, SHA-256
+`a941fddb288c9654d22906c22b0766e4fc5bdf7d7dd2668a7cec63269ba9cc83`.
+The earlier 22:23, 02:04 styles, 02:15 File-realm and fully exercised 02:28 UI
+candidates remain archived.
+Its checked signer is
+`756e56a08527a94e830921233bc80f31121fd0fe57dccef1535e27e9eb0a6585`.
+This is a local candidate, not a release or installed/Catalog result.
+
+Source: client `io.github.nimiplatform.open-notebook.android.dev`, package
+`ai.nimi.apps.opennotebook.dev`, origin `ai.nimi.apps.opennotebook.dev:/`, callback
+`ai.nimi.apps.opennotebook.dev:/oauth/callback`. It requests runtime.consume and
+integration.consume with the original four AI capability references. Its own
+Registry admission and Home source/88-operation grants are required. Only the
+debug manifest admits the local callback and loopback cleartext coordination;
+the native bridge requires main-frame-only messaging. Android min API 31,
+compile API 37 and target API 36 follow this local cohort. Public App Links and
+Android distribution are not configured.
+
+Engineering passed: App Tools check, frozen offline installation, Host build and
+six real HTTP/stream/ownership regressions, TypeScript, lint (the same five existing
+hook warnings), 68 related frontend assertions including fourteen-locale parity,
+original markdown/navigation/download consumers and source-form restoration,
+three Java MIME/integer boundary tests, Next Web build, mobile build and Android
+assembly. The locale reference test now scans `src` rather than racing generated
+Next output. No model call was repeated for these checks.
+
+The original 2026-10-28 registration was refreshed from Desktop's list as
+`dev-project-IuafbmbTz7x1jWqankWNWYtU` and resumed at 6012 / CDP 58484. Its real
+native renderer read back the original Windows notebook and both existing Web
+acceptance notebooks and sources. No registration or database was replaced.
+The subsequent real Android results and their remaining limits are recorded below.
+
+The first actual Android launch of the 22:23 candidate completed official Halliday
+Continue/return and Home's exact source confirmation. Before workspace grants,
+the permission page exposed a build/UI issue: the original primary button had a
+transparent background because Tailwind's mobile entry did not scan all original
+frontend components. The same permission instruction also appeared twice. The
+current candidate explicitly includes this App's `frontend/src` in mobile CSS
+scanning and shows the instruction once. Typecheck, mobile/Capacitor build and
+Android assembly passed; the new artifact contains the missing original utility
+styles. The device recheck showed the original green primary action and complete
+notebook controls. The initial screenshot is
+`.nimi/local/ui-audit/2026-11-15-android/01-workspace-permission-guidance.png`.
+
+### Real Android slice — 2026-11-15
+
+Official Halliday login, the exact Android source confirmation and the existing
+`iap_9279f888ded856252cd262439b5cb1c7` v1 target's **88** grants passed through Home.
+The original Web grants and historical target were retained. Updates used
+`install -r` and the normal Android launcher, without clearing data. The phone
+read all three existing notebooks and opened the original Windows notebook's
+source and saved library/Amber Room answer. No existing notebook content was
+edited or regenerated.
+
+A separate **Android 研究验收 NOTE-6152** notebook was created as
+`notebook:gn1bxm8dndxvwwhb3bic`. Its original Add Source wizard opened the system
+picker for the **324-byte** synthetic `open-notebook-android-20261115.txt`.
+Returning ended the old Runtime view but preserved the same target notebook,
+**Android 原文 NOTE-6152** title and the selected File. No source was submitted
+automatically. Explicit Continue restored it to the original form, with only
+the new notebook selected. All transformations and embedding were disabled
+before the original Done action.
+
+The first creation attempt returned an explicit HTTP 400, `File upload or
+file_path is required for upload type`; the new notebook still had zero sources.
+The identity-owned File retained its parent-document prototype even inside the
+child DataTransfer, so the original source API's `instanceof File` guard omitted
+it. The fix rewraps the same Blob bytes as a File in the receiving document,
+preserving name, MIME and lastModified. The API guard, upload limit and v1 schema
+were not widened. A regression using two real JavaScript File realms failed
+before the fix and then verified the original multipart API receives unchanged
+binary bytes and metadata. Eight affected file/form/transport tests, typecheck,
+scoped lint and the mobile/Gradle builds passed.
+
+The same picker/explicit-Continue/Done journey was then repeated only in that
+empty new notebook. It produced one source, `source:ly0p5dy8lgrga2d23f3e`, with
+the original Mira Chen / East Room / Tuesday / twelve lamps / nine working /
+three replacements text. Source Details confirmed it was not embedded. Its
+Download action opened the real Android Save screen; Downloads retained the
+input and created `open-notebook-android-20261115.txt (1)`. The saved copy is
+**324 bytes**, byte-identical to the input, SHA-256
+`fd144835f13623fccb9f036d8c92539b52e579bd9f277a6ccc58b64148e1f418`.
+The identity shell reported Saved, and the new scope restored the same notebook
+and source modal.
+
+The PC App's own Models page was read to confirm the existing on-device
+**Gemma 4 26B Q4 text-only v2** selection. One explicit Android notebook question
+used that single short source (the UI reported 115 context tokens / 432 chars).
+The completed answer identified Mira Chen, East Room, Tuesday, twelve total,
+nine working and three replacements. It correctly stated that the West Room was
+not inspected and no budget was provided. Eight visible citation controls pointed
+to the actual source; opening one showed the same original text and source ID.
+No cloud resource or additional summary/embedding generation was introduced.
+
+Formal Disconnect removed the workspace iframe while the PC Host and Runtime
+stayed running. The first explicit Connect succeeded and restored the same
+notebook route, source and complete question/answer without resubmission. A final
+UI-only improvement adds the Send message accessible name in all fourteen locales
+and uses the original question placeholder without the desktop keyboard hint on
+Android. Thirty-eight locale/chat checks, typecheck and mobile/Gradle builds
+passed. The final 02:28 candidate was installed and formally logged in again;
+the same source and full answer read back, the accessible Send control was present
+once, and the mobile placeholder was correct. No model or upload was repeated for
+that label-only recheck.
+
+Review of `08-final-ui-result.png` then confirmed a narrow typography issue:
+the description inherited `InlineEdit`'s `break-all`, splitting ordinary English
+words. The current layout candidate overrides only the notebook-description
+consumer to normal word boundaries with `overflow-wrap:anywhere`; other
+InlineEdit consumers are unchanged. Android's internal Navigation row also omits
+its repeated Open Notebook brand, while retaining Navigation and the actual
+notebook title. Archive/Delete, metadata, business behavior and citations are
+unchanged. Typecheck, mobile/Next Web builds and Gradle assembly passed. These two
+layout changes remain **NOT-VERIFIED on the foreground device** pending a short
+visual recheck; the 02:28 candidate's completed business evidence above is retained
+without repeating its model request.
+
+Screenshots and the real `source-saved.txt` are under
+`.nimi/local/ui-audit/2026-11-15-android/`, including the original permission view,
+restored styles, processing choices, actual file save, cited answer, original
+citation and reconnected/final UI. This is the existing local Android emulator
+with loopback coordination, not a physical-device/network claim. **NOT-VERIFIED:**
+podcast synthesis, playback or audio export in this cohort, other import formats,
+maximum-size transfers, in-flight cancellation/background recovery, long-idle
+reconnection, different accounts/PCs/networks and exhaustive accessibility. The
+original PC workflows and formats remain available; engineering checks are not
+substituted for those unrun paths. No commit, push or publication was performed.
+
+## Current Web development — 2026-11-14
+
+The current branch adds the full Next.js product as a Web client of the existing
+PC workspace. It consumes complete frozen SDK **0.24.0-rc.2**, Kit **0.24.0-rc.4** /
+native **0.24.0-rc.1**, App Tools **0.16.0-rc.2**, Coding **0.7.0**, and Electron **45**.
+The four package overrides and lockfile retain `.nimi/local/packages/integration-20261113-rc.2/`
+with Kit selected from the complete rc.4 cohort above;
+these local packages are required for this development checkout. This is not a
+new App release or Catalog acceptance. The real Web results below used the prior
+Kit rc.1 cohort; the Android upgrade does not imply those journeys were repeated.
+
+Resume the existing native registration using `pnpm exec nimi-app dev --list-registrations`
+and `pnpm dev -- --resume <current-selector> --cdp-port 58484`. Keep that App open.
+For the local Realm source, run `pnpm dev:web -- --realm local` and open the declared
+`https://127.0.0.1:4487/`. Set only the existing trusted TLS certificate/key paths
+as `NIMI_WEB_TLS_CERT` and `NIMI_WEB_TLS_KEY` in ignored `.env.local`.
+The HTTPS server reuses App Tools' origin guard and bounded identity/SDP proxy;
+Next runs privately on 6087 with a separate `.next-web` output. It does not proxy
+Notebook APIs or copy official cookies.
+
+The Web source needs Registry admission, official Runtime-client login, Home source
+confirmation, and permission to the **Open Notebook on this PC** Integration.
+Its declared access is `runtime.consume` and `integration.consume`; the native App
+also provides `integration.provide`. Research, extraction, model steps, background
+commands, SurrealDB, uploads and podcast assembly retain their existing PC owner.
+The provider exposes fixed named Notebook operations, with no arbitrary URL,
+HTTP-header, Runtime-method, account or workspace selector. Uploads and response
+streams use 128 KiB chunks, including long UTF-8 text/JSON, and verified `consumerRef`
+ownership. Closing a response is an explicit App operation; background command and
+podcast workflows retain their own controls. No business operation is automatically
+replayed. Temporary transfers expire after 15 idle minutes and are removed at Host
+session shutdown. The existing 100 MiB upload bound also bounds Web transfer files.
+
+The Web **Models** page points to the PC App's model settings. It does not confuse
+Web AIConfig with the PC configuration that actually executes the research. Podcast
+voices are a fixed, input-free Notebook business query against that PC selection.
+A browser document binds one Runtime scope; replacement scopes reload the document.
+The current public Web factory ends its in-memory identity on pagehide, so a full
+reload returns to official sign-in; this is not silent session restoration.
+Business navigation is not persisted across Web documents; theme and layout choices
+remain browser preferences. Persisted notebooks and media remain in the original
+PC account workspace.
+
+Current verification: App Tools check, Electron build, frontend typecheck, frontend
+lint (zero errors; five existing hook warnings), six Host/transport regressions,
+573 backend tests and 144 frontend tests pass. The declared local Web Next build
+(`pnpm build:web --realm local`) also passes.
+The real Desktop-supervised renderer restored the original **Windows dev CDP 验收**
+notebook and **Windows验收·雨后书城资料** source. Captured native UI remains at its
+normal window size. Source/local Nimi is `42d686cbf` with Home `0.2.5-rc.11`.
+Real Web acceptance completed official Halliday login, initial Home source
+confirmation and a direct connection showing **My PC**. Home granted the final
+88-operation `io.github.nimiplatform.open-notebook.workspace.v1` target. The Web UI
+read the original Windows notebook/source, created and renamed a dedicated
+`Web 传输验收 · 霜叶6142 · 已读回` notebook, and uploaded a 504,197-byte synthetic
+UTF-8 text file with both summary and embedding disabled. Downloading through the
+source's real **Download** action produced the exact original bytes (SHA-256
+`9e12fbfb651d4d1f9bbbacd8b598e0e20c9ae4ca70d1823d4e8c3024768acc8c`).
+The transfer notebook is `notebook:pmgbh210ytj1sohocwzo`; its file source is
+`source:ji6rz9rrb8moribs5wpo`.
+
+A separate `Web 研究验收 · 霜叶6142` notebook (`notebook:t46lgzh7ricpmkng1ljf`)
+used only a short synthetic source (the UI reported 107 context tokens / 191 chars).
+The PC's configured **Gemma 4 26B Q4 text-only v2** returned FROST-6142, 林舟,
+seven observations per workday, MISSING/no-zero/no-fabrication, and budget not
+provided. Every item had a source citation; clicking it opened the actual
+`source:eqiezr3nafcp45d4jg84` and the original text. The large transfer file was
+not sent to the model. A full browser reload required official sign-in again;
+source and Integration permissions were reused, and the original and new
+notebooks, renamed title, sources and completed cited conversation were restored.
+
+The real login exposed and fixed root redirects dropping callback parameters
+and React development effect replay disposing a live session; focused regressions
+protect both. An earlier development provider under the unversioned Integration
+ID was refused with `INTEGRATION_PROVIDER_CONTRACT_CHANGED` after its schema
+changed. It remains historical and is not a compatibility alias. No original App
+registration, account or database was replaced. Provider failures now surface in
+the native App with the owner error reason instead of being hidden in stderr.
+
+UI review: desktop research, import, source download and re-entry work. The
+390 px screenshot revealed the original 256 px desktop sidebar squeezing the
+notebook into vertical text. The current code uses an accessible mobile navigation
+drawer, wraps notebook title/actions and retains every navigation and create action.
+Types and existing sidebar tests pass, and the unchanged native window renders
+correctly. The final 390 px Web check passed: notebook text and the composer stay
+readable, the original source/note/chat tabs remain, and the navigation drawer
+opens every retained section. Selecting Models opened the PC-owner explanation
+and closed the drawer. The viewport was reset afterward. This is a browser-width
+check, not Android or a complete keyboard/accessibility audit. Screenshots are
+under `.nimi/local/web-acceptance/`; `06-web-cited-research.jpg` shows the real answer
+and `09-web-narrow-after.jpg` / `10-web-mobile-navigation.jpg` show the repair.
+
+**NOT-VERIFIED at the Web checkpoint:** Android (the later bounded device slice is
+recorded above), cross-device, different-account switch, current-cohort podcast
+synthesis/transcription and audio playback/export,
+production Web hosting and new installed/Catalog journeys. These do not erase the
+older versioned media/install results below. The current real AI run covers text
+research only; engineering tests do not certify unrun product paths.
+
 ## Windows candidate 1.14.7 — 2026-10-13
 
 On October 14 the user approved the existing dual-platform stable candidate;
@@ -84,7 +351,7 @@ Uses published SDK 0.21.0, Kit/native 0.19.3, App Tools 0.12.2 and Nimi Coding 0
   only, protected by a per-process App secret added outside renderer JavaScript.
 - A random workspace reference in Nimi managed storage selects the App's durable
   database and media directory. The Electron profile remains Desktop-owned.
-- No public Integration operations are registered in this phase.
+- The current development branch provides the fixed Notebook business Integration described above; prior released versions had no public Integration operations.
 
 ## Development
 

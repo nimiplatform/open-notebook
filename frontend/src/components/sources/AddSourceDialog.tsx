@@ -24,6 +24,8 @@ import { useCreateSource } from '@/lib/hooks/use-sources'
 import { useSettings } from '@/lib/hooks/use-settings'
 import { CreateSourceRequest } from '@/lib/types/api'
 import { useTranslation } from '@/lib/hooks/use-translation'
+import { sourceDraft, rememberSourceDraft, isNotebookMobile } from '@/mobile/bridge'
+import { sourceFileList } from '@/mobile/SourceFileInput'
 
 const MAX_BATCH_SIZE = 50
 
@@ -91,6 +93,14 @@ export function AddSourceDialog({
   defaultNotebookId 
 }: AddSourceDialogProps) {
   const { t } = useTranslation()
+  const mobileDraftKey = 'source:' + (defaultNotebookId || 'global')
+  const [mobileInitial] = useState(() => sourceDraft(mobileDraftKey))
+  const mobileRestored = useRef(false)
+  useEffect(() => {
+    if (mobileRestored.current) return
+    mobileRestored.current = true
+    if (mobileInitial?.open) onOpenChange(true)
+  }, [mobileInitial, onOpenChange])
 
   const WIZARD_STEPS: readonly WizardStep[] = [
     { number: 1, title: t('sources.addSource'), description: t('sources.processDescription') },
@@ -99,13 +109,13 @@ export function AddSourceDialog({
   ]
 
   // Simplified state management
-  const [currentStep, setCurrentStep] = useState(1)
+  const [currentStep, setCurrentStep] = useState(mobileInitial?.step || 1)
   const [processing, setProcessing] = useState(false)
   const [processingStatus, setProcessingStatus] = useState<ProcessingState | null>(null)
   const [selectedNotebooks, setSelectedNotebooks] = useState<string[]>(
-    defaultNotebookId ? [defaultNotebookId] : []
+    mobileInitial?.notebooks || (defaultNotebookId ? [defaultNotebookId] : [])
   )
-  const [selectedTransformations, setSelectedTransformations] = useState<string[]>([])
+  const [selectedTransformations, setSelectedTransformations] = useState<string[]>(mobileInitial?.transformations || [])
 
   // Batch-specific state
   const [urlValidationErrors, setUrlValidationErrors] = useState<{ url: string; line: number }[]>([])
@@ -136,12 +146,14 @@ export function AddSourceDialog({
       embed: settings?.default_embedding_option === 'always' || settings?.default_embedding_option === 'ask',
       async_processing: true,
       transformations: [],
+      ...mobileInitial?.values,
+      ...(mobileInitial?.files?.length ? { file: sourceFileList(mobileInitial.files) } : {}),
     },
   })
 
   // Initialize form values when settings and transformations are loaded
   useEffect(() => {
-    if (settings && transformations.length > 0) {
+    if (!mobileInitial && settings && transformations.length > 0) {
       const defaultTransformations = transformations
         .filter(t => t.apply_default)
         .map(t => t.id)
@@ -159,7 +171,16 @@ export function AddSourceDialog({
         transformations: [],
       })
     }
-  }, [settings, transformations, defaultNotebookId, reset])
+  }, [settings, transformations, defaultNotebookId, reset, mobileInitial])
+
+  const mobileValues = watch()
+  useEffect(() => {
+    if (!isNotebookMobile()) return
+    const { file, ...values } = mobileValues
+    rememberSourceDraft(mobileDraftKey, { open: open && !processing, step: currentStep, values: processing ? {} : values,
+      notebooks: selectedNotebooks, transformations: selectedTransformations,
+      files: !processing && file instanceof FileList ? Array.from(file) : undefined })
+  }, [mobileDraftKey, mobileValues, open, processing, currentStep, selectedNotebooks, selectedTransformations])
 
   // Cleanup effect
   useEffect(() => {
@@ -551,6 +572,7 @@ export function AddSourceDialog({
           >
             {currentStep === 1 && (
               <SourceTypeStep
+                mobileDraftKey={mobileDraftKey}
                 // @ts-expect-error - Type inference issue with zod schema
                 control={control}
                 register={register}

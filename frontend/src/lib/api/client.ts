@@ -1,4 +1,6 @@
 import axios, { AxiosResponse } from 'axios'
+import { isNotebookWeb, notebookFetch } from '@/lib/nimi/web-transport'
+import { AxiosError } from 'axios'
 import { getApiUrl } from '@/lib/config'
 
 // API client with runtime-configurable base URL
@@ -28,6 +30,20 @@ export const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: false,
+  ...(isNotebookWeb ? { adapter: async (config) => {
+    const url = new URL(config.url!, config.baseURL!.endsWith('/') ? config.baseURL! : config.baseURL! + '/')
+    // Axios relative URLs begin with / but belong below the Notebook /api base.
+    if (!/^https?:/.test(config.url!)) url.pathname = new URL(config.baseURL!).pathname.replace(/\/$/, '') + '/' + config.url!.replace(/^\//, '')
+    for (const [key, value] of Object.entries(config.params || {})) if (value !== undefined && value !== null) url.searchParams.set(key, String(value))
+    const signals: AbortSignal[] = []
+    if (config.signal) signals.push(config.signal as AbortSignal)
+    if (config.timeout) signals.push(AbortSignal.timeout(config.timeout))
+    const response = await notebookFetch(url.href, { method: config.method?.toUpperCase(), body: config.data, signal: signals.length ? AbortSignal.any(signals) : undefined })
+    const data = config.responseType === 'blob' ? await response.blob() : await response.text()
+    const result = { data, status: response.status, statusText: response.statusText, headers: Object.fromEntries(response.headers), config }
+    if (!response.ok) throw new AxiosError(`Notebook request failed (${response.status})`, 'ERR_BAD_RESPONSE', config, undefined, { ...result, data: typeof data === 'string' ? (() => { try { return JSON.parse(data) } catch { return data } })() : data })
+    return result
+  } } : {}),
 })
 
 // Request interceptor to add base URL and auth header
