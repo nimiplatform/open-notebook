@@ -61,9 +61,16 @@ passes the optional actual name to the identity notice. If metadata is unavailab
 all fourteen locales show a success notice without a filename. Suggested names
 are never used as the saved destination name. Three focused result/transfer
 regressions plus 27 locale assertions, TypeScript, mobile/Capacitor build and Java
-tests/Android assembly passed. The new candidate's renamed Save is
-**NOT-VERIFIED** pending the device slot; the prior business and layout acceptance
-below remains applicable to unchanged behavior.
+tests/Android assembly passed. The new candidate was installed over the original
+App and formally signed in with the existing 88 grants. The original NOTE-6152
+source Save produced Android's collision name
+`open-notebook-android-20261115.txt (2)`; the identity notice displayed that exact
+actual name. The **324-byte** saved copy matched the earlier source byte for
+byte. The new scope restored the same notebook route, source modal, full original
+answer and citations, without AI or a new source submission. Evidence:
+`.nimi/local/ui-audit/2026-11-15-android/10-save-actual-suffixed-name.png` and
+`source-saved-suffixed.txt`. The prior business and layout acceptance below
+remains applicable to unchanged behavior.
 
 Source: client `io.github.nimiplatform.open-notebook.android.dev`, package
 `ai.nimi.apps.opennotebook.dev`, origin `ai.nimi.apps.opennotebook.dev:/`, callback
