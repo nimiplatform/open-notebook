@@ -163,8 +163,13 @@ dist-electron-package/
 dist/
 .python-build/
 
-# Web development environment and Next output
+# Web development environment and Next/Vite output
 /.env.local
 /frontend/.next-web/
 /frontend/.next-web-build/
+/dist-web/
 /dist-mobile/
+
+# oss-maintainer local state
+.maintainer/profile.local.toml
+.maintainer/state/

@@ -154,7 +154,7 @@ class TestSpeakerProfileResolve:
         assert profile.name == "Tech Experts"
         assert mock_query.await_args is not None
         query, params = mock_query.await_args.args
-        assert "FROM $id" in query
+        assert "FROM speaker_profile WHERE id = $id" in query
         assert str(params["id"]) == "speaker_profile:abc"
 
     @pytest.mark.asyncio

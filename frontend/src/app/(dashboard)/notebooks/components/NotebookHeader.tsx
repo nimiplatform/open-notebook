@@ -37,7 +37,7 @@ export function NotebookHeader({ notebook }: NotebookHeaderProps) {
     
     await updateNotebook.mutateAsync({
       id: notebook.id,
-      data: { description: description || undefined }
+      data: { description }
     })
   }
 
@@ -59,7 +59,7 @@ export function NotebookHeader({ notebook }: NotebookHeaderProps) {
                 name="notebook-name"
                 value={notebook.name}
                 onSave={handleUpdateName}
-                className="font-display text-2xl font-bold tracking-tight"
+                className="font-display text-2xl font-bold tracking-tight line-clamp-2 break-words text-left"
                 inputClassName="font-display text-2xl font-bold tracking-tight"
                 placeholder={t('notebooks.namePlaceholder')}
               />

@@ -195,7 +195,7 @@ class ProviderConfig(RecordModel):
     )
 
     @classmethod
-    async def get_instance(cls) -> "ProviderConfig":
+    async def get_instance(cls, force_reload: bool = False) -> "ProviderConfig":
         """
         Always fetch fresh configuration from database.
 
@@ -301,9 +301,7 @@ class ProviderConfig(RecordModel):
 
         return None
 
-    def get_config(
-        self, provider: str, config_id: str
-    ) -> Optional[ProviderCredential]:
+    def get_config(self, provider: str, config_id: str) -> Optional[ProviderCredential]:
         """
         Get a specific configuration by ID.
 

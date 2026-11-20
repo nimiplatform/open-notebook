@@ -1,0 +1,4 @@
+-- Migration 30: Docling vision endpoint fields in Settings (#1561)
+UPDATE open_notebook:content_settings SET docling_vision_url = NULL WHERE docling_vision_url = NONE;
+UPDATE open_notebook:content_settings SET docling_vision_model = NULL WHERE docling_vision_model = NONE;
+UPDATE open_notebook:content_settings SET docling_vision_prompt = NULL WHERE docling_vision_prompt = NONE;

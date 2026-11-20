@@ -18,28 +18,82 @@ from open_notebook.podcasts.models import (
 from open_notebook.utils.model_utils import full_model_dump
 
 
-def build_episode_output_dir(podcasts_folder: str = PODCASTS_FOLDER) -> tuple[str, Path]:
-    """Build a filesystem-safe output directory path for a podcast episode.
-
-    Uses a UUID as the directory name so the path is safe regardless of
-    what the user typed as episode name (spaces, special chars, etc.).
-
-    Builds under PODCASTS_FOLDER — the same root to_relative_audio_path()
-    validates against at write time (#1030) — so the two can't drift apart.
-
-    Returns:
-        A tuple of (episode_dir_name, output_dir_path).
-    """
+def build_episode_output_dir(
+    podcasts_folder: str = PODCASTS_FOLDER,
+) -> tuple[str, Path]:
+    """Build a filesystem-safe output directory path for a podcast episode."""
     episode_dir_name = str(uuid.uuid4())
     output_dir = Path(podcasts_folder) / "episodes" / episode_dir_name
     return episode_dir_name, output_dir
 
 
+def explain_generation_failure(error_msg: str) -> Optional[str]:
+    """Map a podcast-generation failure to an actionable hint, or None."""
+    if "Invalid speaker name" in error_msg:
+        return (
+            "The transcript model returned a speaker name that is not in the "
+            "speaker profile - usually a placeholder copied from the prompt "
+            'such as "..." rather than an invented person. Speaker names must '
+            "match the profile exactly. Retrying the episode often succeeds, "
+            "since each attempt is a fresh sample."
+        )
+
+    if "Voice name" in error_msg and "not supported" in error_msg:
+        return (
+            "The speaker profile's voice_id is not valid for its TTS model. "
+            "Check the speaker profile voices in Podcasts -> Profiles against the ones "
+            "your voice model provides (the profiles seeded on install use "
+            "OpenAI voice names)."
+        )
+
+    if "Requested entity was not found" in error_msg:
+        return (
+            "Google returns this for any resource it cannot find, without "
+            "naming which one. Two candidates, likeliest first: a speaker "
+            "profile voice_id that its TTS model doesn't provide (the profiles "
+            "seeded on install use OpenAI voice names, which Gemini voice "
+            "models reject with exactly this message), or a model id in the "
+            "episode profile that doesn't exist for its provider. If the "
+            "transcript finished and the failure came during audio, it is the "
+            "voice."
+        )
+
+    if "Invalid json output" in error_msg or "Expecting value" in error_msg:
+        return (
+            "The model's response could not be parsed as JSON. Two common "
+            "causes: (1) the response was truncated - podcast-creator requests "
+            "up to 8192 output tokens per outline or transcript step unless the "
+            "episode profile sets max_tokens; if the model stops earlier (a "
+            "lower output limit, or a token-expensive language), set max_tokens "
+            "to its limit or use fewer and shorter segments; (2) a model using "
+            "extended thinking put all of its output inside <think> tags, leaving "
+            "nothing to parse."
+        )
+
+    return None
+
+
+def pick_voice_model(
+    profile_name: str,
+    profile_voice_model: Optional[str],
+    default_voice_model: Optional[str],
+) -> str:
+    """Pick the TTS model for a speaker profile, falling back to DefaultModels."""
+    if profile_voice_model:
+        return str(profile_voice_model)
+
+    if default_voice_model:
+        return str(default_voice_model)
+
+    raise ValueError(
+        f"Speaker profile '{profile_name}' has no voice model configured and no "
+        "default Text-to-Speech model is set. Select a voice model in the speaker "
+        "profile, or set a default Text-to-Speech model in Manage -> Models."
+    )
+
+
 class PodcastGenerationInput(CommandInput):
     episode_profile: str
-    # Speaker profile record ID or name (the API boundary resolves the
-    # user-facing name to a record ID before submitting; both are accepted
-    # here for robustness).
     speaker_profile: Optional[str] = None
     episode_name: str
     content: str
@@ -60,9 +114,7 @@ class PodcastGenerationOutput(CommandOutput):
 async def generate_podcast_command(
     input_data: PodcastGenerationInput,
 ) -> PodcastGenerationOutput:
-    """
-    Real podcast generation using podcast-creator library with Episode Profiles
-    """
+    """Real podcast generation through Nimi speech and text with Episode Profiles."""
     start_time = time.time()
 
     try:
@@ -71,17 +123,12 @@ async def generate_podcast_command(
         )
         logger.info(f"Using episode profile: {input_data.episode_profile}")
 
-        # 1. Load Episode and Speaker profiles from SurrealDB
         episode_profile = await EpisodeProfile.get_by_name(input_data.episode_profile)
         if not episode_profile:
             raise ValueError(
                 f"Episode profile '{input_data.episode_profile}' not found"
             )
 
-        # Honor the explicitly requested speaker profile when provided,
-        # falling back to the episode profile's configured speaker
-        # (a speaker_profile record ID since migration 20, None when the
-        # referenced profile no longer exists).
         speaker_ref = input_data.speaker_profile or episode_profile.speaker_config
         if not speaker_ref:
             raise ValueError(
@@ -102,12 +149,10 @@ async def generate_podcast_command(
         logger.info(f"Loaded episode profile: {episode_profile.name}")
         logger.info(f"Loaded speaker profile: {speaker_profile.name}")
 
-        # 6. Generate briefing
         briefing = episode_profile.default_briefing
         if input_data.briefing_suffix:
             briefing += f"\n\nAdditional instructions: {input_data.briefing_suffix}"
 
-        # Create the record for the episode and associate with the ongoing command
         episode = PodcastEpisode(
             name=input_data.episode_name,
             episode_profile=full_model_dump(episode_profile.model_dump()),
@@ -124,38 +169,30 @@ async def generate_podcast_command(
         )
         await episode.save()
 
-        # 7. Create output directory using UUID for filesystem-safe paths
         episode_dir_name, output_dir = build_episode_output_dir()
         output_dir.mkdir(parents=True, exist_ok=True)
-
         logger.info(f"Created output directory: {output_dir}")
-
-        # 8. Generate podcast using podcast-creator
-        logger.info("Starting podcast generation with podcast-creator...")
 
         async def save_progress(outline, transcript):
             episode.outline = outline
             episode.transcript = {"transcript": transcript}
             await episode.save()
 
-        result = await create_notebook_podcast(input_data.content, briefing, episode_profile, speaker_profile, output_dir, save_progress)
+        result = await create_notebook_podcast(
+            input_data.content,
+            briefing,
+            episode_profile,
+            speaker_profile,
+            output_dir,
+            save_progress,
+        )
 
-        # podcast-creator reports audio-combination failures IN-BAND: on
-        # ffmpeg/clip errors combine_audio_files() returns an "ERROR: ..."
-        # string in final_output_file_path instead of a path. Detect it
-        # before path conversion so the real error surfaces (below, after
-        # the transcript/outline are persisted) instead of a misleading
-        # "outside the podcasts folder" ValueError.
         raw_audio_path = result.get("final_output_file_path") if result else None
         audio_error: Optional[str] = None
         if raw_audio_path is not None and str(raw_audio_path).startswith("ERROR:"):
             audio_error = str(raw_audio_path)
             raw_audio_path = None
 
-        # Store the audio path RELATIVE to PODCASTS_FOLDER (#1030). The
-        # validation inside to_relative_audio_path guarantees the DB never
-        # holds an absolute or root-escaping value; a violation raises
-        # ValueError, which marks the job permanently failed (no retry).
         audio_file_rel = (
             to_relative_audio_path(raw_audio_path) if raw_audio_path else None
         )
@@ -167,9 +204,6 @@ async def generate_podcast_command(
         await episode.save()
 
         if audio_error:
-            # Transcript/outline are saved above; fail the job with the real
-            # audio-combination error instead of reporting a silent success
-            # for an episode with no playable audio.
             raise RuntimeError(f"Podcast audio generation failed: {audio_error}")
 
         processing_time = time.time() - start_time
@@ -190,11 +224,20 @@ async def generate_podcast_command(
             processing_time=processing_time,
         )
 
-    except ValueError:
-        raise
+    except ValueError as e:
+        hint = explain_generation_failure(str(e))
+        if not hint:
+            raise
+        logger.error(f"Podcast generation failed: {e}")
+        raise ValueError(f"{e}\n\nNOTE: {hint}") from e
 
     except Exception as e:
         logger.error(f"Podcast generation failed: {e}")
         logger.exception(e)
 
-        raise RuntimeError(str(e)) from e
+        error_msg = str(e)
+        hint = explain_generation_failure(error_msg)
+        if hint:
+            error_msg += f"\n\nNOTE: {hint}"
+
+        raise RuntimeError(error_msg) from e

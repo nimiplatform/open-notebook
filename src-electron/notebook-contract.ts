@@ -29,6 +29,7 @@ export const NOTEBOOK_ROUTES = [
   { name: 'notebook.workspace.languages', method: 'GET', path: '/languages' },
   { name: 'notebook.workspace.settings', method: 'GET', path: '/settings' },
   { name: 'notebook.workspace.settings_update', method: 'PUT', path: '/settings' },
+  { name: 'notebook.sources.check_duplicates', method: 'POST', path: '/sources/check-duplicates' },
   { name: 'notebook.sources.list', method: 'GET', path: '/sources' },
   { name: 'notebook.sources.create', method: 'POST', path: '/sources' },
   { name: 'notebook.workspace.config', method: 'GET', path: '/config' },

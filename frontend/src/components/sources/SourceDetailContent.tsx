@@ -1,7 +1,7 @@
 'use client'
 import { saveNotebookFile } from '@/mobile/bridge'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { MarkdownRenderer } from '@/components/ui/markdown-renderer'
 import { sourcesApi } from '@/lib/api/sources'
@@ -14,7 +14,7 @@ import { SourceDetailResponse } from '@/lib/types/api'
 import { Transformation } from '@/lib/types/transformations'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 import { ContentUnavailable } from '@/components/common/ContentUnavailable'
-import { isNotFoundError } from '@/lib/utils/error-handler'
+import { getApiErrorMessage, isNotFoundError } from '@/lib/utils/error-handler'
 import { InlineEdit } from '@/components/common/InlineEdit'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -63,7 +63,8 @@ import {
   MessageSquare,
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
-import { getDateLocale } from '@/lib/utils/date-locale'
+import { formatDateTime, getDateLocale } from '@/lib/utils/date-locale'
+import { markdownPreview } from '@/lib/utils/markdown-preview'
 import { toast } from 'sonner'
 import { useTranslation } from '@/lib/hooks/use-translation'
 import { SourceInsightDialog } from '@/components/sources/SourceInsightDialog'
@@ -115,6 +116,7 @@ function SourceDetailContentInner({
   const [selectedInsight, setSelectedInsight] = useState<SourceInsightResponse | null>(null)
   const [insightToDelete, setInsightToDelete] = useState<string | null>(null)
   const [deletingInsight, setDeletingInsight] = useState(false)
+  const insightPollingRef = useRef<AbortController | null>(null)
 
   // A 404 means the source was deleted (e.g. a dangling chat/ask reference) —
   // handled by the shared "content no longer exists" state. The global query
@@ -158,17 +160,25 @@ function SourceDetailContentInner({
     }
   }, [fetchInsights, fetchTransformations, sourceId])
 
+  useEffect(() => () => insightPollingRef.current?.abort(), [])
+
   const createInsight = async () => {
     if (!selectedTransformation) {
       toast.error(t('sources.selectTransformation'))
       return
     }
 
+    insightPollingRef.current?.abort()
+    const controller = new AbortController()
+    insightPollingRef.current = controller
+
     try {
       setCreatingInsight(true)
       const response = await insightsApi.create(sourceId, {
         transformation_id: selectedTransformation
       })
+      if (controller.signal.aborted) return
+
       // Show toast for async operation
       toast.success(t('sources.insightGenerationStarted'))
       setSelectedTransformation('')
@@ -177,30 +187,53 @@ function SourceDetailContentInner({
       if (response.command_id) {
         // Poll in background (don't block UI)
         insightsApi.waitForCommand(response.command_id, {
-          maxAttempts: 120, // Up to 4 minutes (120 * 2s)
-          intervalMs: 2000
-        }).then(success => {
-          if (success) {
-            void fetchInsights()
-            // Invalidate sources queries so notebook page refreshes with updated insights_count
-            queryClient.invalidateQueries({ queryKey: ['sources'] })
+          intervalMs: 2000,
+          signal: controller.signal,
+        }).then(async status => {
+          if (controller.signal.aborted) return
+
+          await fetchInsights()
+          if (controller.signal.aborted) return
+          // Invalidate sources queries so notebook page refreshes with updated insights_count
+          queryClient.invalidateQueries({ queryKey: ['sources'] })
+          if (status?.status !== 'completed') {
+            toast.error(getApiErrorMessage(status?.error_message ?? '', (key) => t(key), 'common.error'))
           }
         }).catch(err => {
+          if (controller.signal.aborted) return
           console.error('Error waiting for insight command:', err)
+          toast.error(t('common.error'))
+        }).finally(() => {
+          if (insightPollingRef.current === controller) {
+            insightPollingRef.current = null
+          }
         })
       } else {
         // Fallback: refresh after delay if no command_id
         setTimeout(() => {
+          if (controller.signal.aborted) return
           void fetchInsights()
           // Also invalidate sources queries
           queryClient.invalidateQueries({ queryKey: ['sources'] })
+          if (insightPollingRef.current === controller) {
+            insightPollingRef.current = null
+          }
         }, 5000)
       }
     } catch (err) {
+      if (controller.signal.aborted) return
       console.error('Failed to create insight:', err)
-      toast.error(t('common.error'))
+      // Show the server's reason when there is one; a network error has no
+      // detail and keeps the localized generic message.
+      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+      toast.error(getApiErrorMessage(detail ?? '', (key) => t(key), 'common.error'))
+      if (insightPollingRef.current === controller) {
+        insightPollingRef.current = null
+      }
     } finally {
-      setCreatingInsight(false)
+      if (!controller.signal.aborted) {
+        setCreatingInsight(false)
+      }
     }
   }
 
@@ -436,7 +469,7 @@ function SourceDetailContentInner({
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" aria-label={t('common.actions')}>
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -477,6 +510,19 @@ function SourceDetailContentInner({
           </div>
         </div>
       </div>
+
+      {/* Why processing failed, when the source carries a reason */}
+      {source.status === 'failed' && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>{t('sources.statusFailedDesc')}</AlertTitle>
+          {typeof source.processing_info?.error === 'string' && source.processing_info.error && (
+            <AlertDescription className="break-words">
+              {source.processing_info.error}
+            </AlertDescription>
+          )}
+        </Alert>
+      )}
 
       {/* Tabs Content */}
       <div className="flex-1 overflow-y-auto">
@@ -618,7 +664,7 @@ function SourceDetailContentInner({
                         </span>
                       </div>
                       <p className="mt-2 text-sm text-muted-foreground">
-                        {insight.content.slice(0, 180)}{insight.content.length > 180 ? '…' : ''}
+                        {markdownPreview(insight.content, 180)}
                       </p>
                       <div className="mt-3 flex justify-end gap-2">
                         <Button size="sm" variant="outline" onClick={() => setSelectedInsight(insight)}>
@@ -763,7 +809,7 @@ function SourceDetailContentInner({
                         })}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {new Date(source.created).toLocaleString()}
+                        {formatDateTime(source.created, language)}
                       </p>
                     </div>
                     <div>
@@ -775,7 +821,7 @@ function SourceDetailContentInner({
                         })}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {new Date(source.updated).toLocaleString()}
+                        {formatDateTime(source.updated, language)}
                       </p>
                     </div>
                   </div>

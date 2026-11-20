@@ -2,12 +2,14 @@
 
 import MDEditor from '@/components/ui/md-editor-loader'
 import { forwardRef } from 'react'
+import remarkCjkFriendly from 'remark-cjk-friendly'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import type { PluggableList } from 'unified'
 
 import { useTheme } from '@/lib/stores/theme-store'
+import { KATEX_OPTIONS } from '@/lib/utils/katex-options'
 
 // Render `$...$` / `$$...$$` math in the live preview. @uiw/react-md-editor
 // concatenates these with its defaults (gfm, prism, raw), so syntax
@@ -42,8 +44,8 @@ const SANITIZE_SCHEMA = {
 }
 
 export const PREVIEW_OPTIONS = {
-  remarkPlugins: [remarkMath] as PluggableList,
-  rehypePlugins: [[rehypeSanitize, SANITIZE_SCHEMA], rehypeKatex] as PluggableList,
+  remarkPlugins: [remarkCjkFriendly, remarkMath] as PluggableList,
+  rehypePlugins: [[rehypeSanitize, SANITIZE_SCHEMA], [rehypeKatex, KATEX_OPTIONS]] as PluggableList,
 }
 
 export interface MarkdownEditorProps {

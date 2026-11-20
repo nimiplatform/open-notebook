@@ -21,9 +21,9 @@ args = [
     str(root / ".nimi/local/python-build"),
     "--paths",
     str(root),
-    # imageio resolves its version through distribution metadata at import time.
+    # imageio-ffmpeg resolves its version through distribution metadata at import time.
     "--copy-metadata",
-    "imageio",
+    "imageio-ffmpeg",
 ]
 for module in [
     "api",

@@ -44,6 +44,7 @@ const delay = () => new Promise(r => setTimeout(r, 5));
 
 test('fixed Notebook operation routing rejects arbitrary URLs and separates literal paths from records', () => {
   assert.equal(findNotebookRoute('GET', '/models/defaults').route.name, 'notebook.models.defaults');
+  assert.equal(findNotebookRoute('POST', '/sources/check-duplicates').route.name, 'notebook.sources.check_duplicates');
   assert.equal(findNotebookRoute('POST', '/sources/source:123/chat/sessions/chat:1/messages').params.session, 'chat:1');
   assert.throws(() => findNotebookRoute('POST', '/runtime/execute'), /UNAVAILABLE/);
   assert.ok(NOTEBOOK_PROVIDER_OPERATIONS.every(op => op.retryPolicy === 'none' && op.supportsCancel === false));

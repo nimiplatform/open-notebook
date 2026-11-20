@@ -2,6 +2,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, HTTPException, Query
 from loguru import logger
+from surrealdb import RecordID
 
 from api.models import (
     NotebookCreate,
@@ -65,30 +66,26 @@ async def get_notebooks(
 ):
     """Get all notebooks with optional filtering and ordering."""
     try:
-        # Validate order_by against allowlist to prevent SurrealQL injection
+        # Normalize through the central validator (SurrealQL injection guard),
+        # then apply this endpoint's stricter allowlist: a single clause on one
+        # of the sortable notebook fields.
         allowed_fields = {"name", "created", "updated"}
-        allowed_directions = {"asc", "desc"}
-
-        parts = order_by.strip().lower().split()
-        if len(parts) == 1:
-            if parts[0] not in allowed_fields:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Invalid order_by field: '{order_by}'. Allowed fields: {', '.join(sorted(allowed_fields))}",
-                )
-            validated_order_by = parts[0]
-        elif len(parts) == 2:
-            if parts[0] not in allowed_fields or parts[1] not in allowed_directions:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Invalid order_by: '{order_by}'. Allowed fields: {', '.join(sorted(allowed_fields))}. Allowed directions: asc, desc",
-                )
-            validated_order_by = f"{parts[0]} {parts[1]}"
-        else:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid order_by format: '{order_by}'. Expected 'field' or 'field direction'",
-            )
+        allowed_message = (
+            f"Allowed fields: {', '.join(sorted(allowed_fields))}. "
+            "Allowed directions: asc, desc"
+        )
+        invalid = InvalidInputError(
+            f"Invalid order_by: '{order_by}'. {allowed_message}"
+        )
+        try:
+            validated_order_by = Notebook._validate_order_by(order_by)
+        except InvalidInputError:
+            raise invalid from None
+        if (
+            "," in validated_order_by
+            or validated_order_by.split()[0] not in allowed_fields
+        ):
+            raise invalid
 
         # Build the query with counts
         query = f"""
@@ -239,6 +236,32 @@ async def get_notebook_delete_preview(notebook_id: str):
         )
 
 
+def _notebook_record_id(notebook_id: str) -> RecordID:
+    """Parse a notebook id, raising InvalidInputError (mapped to 400) if malformed.
+
+    `ensure_record_id` lets SurrealDB's parse error escape, and the catch-all
+    below would report it as a 500 leaking a driver message. A malformed id is a
+    client error, so raise the typed error the sibling single-record endpoints
+    already produce through `ObjectModel.get`; the `except OpenNotebookError`
+    arm re-raises it and the global handler answers 400.
+    """
+    try:
+        return ensure_record_id(notebook_id)
+    except Exception as e:
+        # Parsing is pure, so any failure here means "not a record id". A
+        # parseable id is left alone: unknown records still 404.
+        #
+        # The message is deliberately constant. Echoing the id back would only
+        # repeat what the caller just sent, and it makes the response grow with
+        # the request: a 400-character path segment produced a 461-character
+        # detail. Other routers here cap reflected text at 200 characters
+        # (api/routers/credentials.py, api/routers/models.py); naming the
+        # expected format says the same thing in a fixed length.
+        raise InvalidInputError(
+            "Invalid notebook id (expected the format 'notebook:<id>')"
+        ) from e
+
+
 @router.get("/notebooks/{notebook_id}", response_model=NotebookResponse)
 async def get_notebook(notebook_id: str):
     """Get a specific notebook by ID."""
@@ -250,7 +273,9 @@ async def get_notebook(notebook_id: str):
             count(<-artifact.in) as note_count
             FROM $notebook_id
         """
-        result = await repo_query(query, {"notebook_id": ensure_record_id(notebook_id)})
+        result = await repo_query(
+            query, {"notebook_id": _notebook_record_id(notebook_id)}
+        )
 
         if not result:
             raise HTTPException(status_code=404, detail="Notebook not found")
@@ -288,8 +313,10 @@ async def update_notebook(notebook_id: str, notebook_update: NotebookUpdate):
         # Update only provided fields
         if notebook_update.name is not None:
             notebook.name = notebook_update.name
-        if notebook_update.description is not None:
-            notebook.description = notebook_update.description
+        # An explicit "" (or null) clears the description; only an absent
+        # field leaves it untouched.
+        if "description" in notebook_update.model_fields_set:
+            notebook.description = notebook_update.description or ""
         if notebook_update.archived is not None:
             notebook.archived = notebook_update.archived
 
@@ -353,7 +380,7 @@ async def add_source_to_notebook(notebook_id: str, source_id: str):
 
         # Check if reference already exists (idempotency)
         existing_ref = await repo_query(
-            "SELECT * FROM reference WHERE out = $source_id AND in = $notebook_id",
+            "SELECT * FROM reference WHERE out = $notebook_id AND in = $source_id",
             {
                 "notebook_id": ensure_record_id(notebook_id),
                 "source_id": ensure_record_id(source_id),

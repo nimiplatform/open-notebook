@@ -6,6 +6,7 @@ import tempfile
 from pathlib import Path
 from urllib.parse import urlparse
 
+import content_core as cc
 import imageio_ffmpeg
 from content_core import ContentCoreConfig, extract_content
 from content_core.common import ExtractionOutput
@@ -81,15 +82,23 @@ async def extract_notebook_content(
         mime = await get_file_type(file_path)
         if mime.startswith(("audio/", "video/")):
             return await transcribe(file_path)
-    result = await extract_content(
-        url=url, file_path=file_path, content=content, config=cfg
-    )
-    if (
-        url
-        and urlparse(url).hostname
-        in {"youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be"}
-        and not result.content.strip()
-    ):
+    is_youtube = url and urlparse(url).hostname in {
+        "youtube.com",
+        "www.youtube.com",
+        "m.youtube.com",
+        "youtu.be",
+    }
+    no_transcript = False
+    try:
+        result = await extract_content(
+            url=url, file_path=file_path, content=content, config=cfg
+        )
+    except cc.NoTranscriptFound:
+        if not is_youtube:
+            raise
+        no_transcript = True
+        result = None
+    if is_youtube and (no_transcript or not result.content.strip()):
         from pytubefix import YouTube
 
         with tempfile.TemporaryDirectory() as directory:
