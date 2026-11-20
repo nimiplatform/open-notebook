@@ -7,3 +7,4 @@ AGENTS.md text eol=lf
 .agents/skills/nimi-app-lifecycle/** text eol=lf
 .nimi/methodology/authority-authoring.yaml text eol=lf
 .github/workflows/nimi-app-release.yml text eol=lf
+.github/workflows/nimi-web-release.yml text eol=lf

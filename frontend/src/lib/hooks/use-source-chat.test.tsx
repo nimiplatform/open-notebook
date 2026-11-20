@@ -146,7 +146,7 @@ describe('useSourceChat', () => {
     let createResolve!: (value: Awaited<ReturnType<typeof sourceChatApi.createSession>>) => void
     vi.mocked(sourceChatApi.createSession).mockReturnValue(new Promise(resolve => { createResolve = resolve }))
     vi.mocked(sourceChatApi.getSession).mockResolvedValue({ ...session, messages: [] })
-    const stream = new ReadableStream<Uint8Array>({ start(controller) { controller.close() } })
+    const stream = new ReadableStream<Uint8Array<ArrayBuffer>>({ start(controller) { controller.close() } })
     vi.mocked(sourceChatApi.sendMessage).mockResolvedValue(stream)
 
     const { result } = renderHook(() => useSourceChat('source:xyz'), { wrapper })

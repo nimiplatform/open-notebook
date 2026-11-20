@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams } from '@/lib/navigation'
+import { Link, useParams } from '@/lib/navigation'
 import { AppShell } from '@/components/layout/AppShell'
 import { NotebookHeader } from '../components/NotebookHeader'
 import { SourcesColumn } from '../components/SourcesColumn'
@@ -17,7 +17,6 @@ import { useTranslation } from '@/lib/hooks/use-translation'
 import { cn } from '@/lib/utils'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ArrowLeft, FileText, StickyNote, MessageSquare } from 'lucide-react'
-import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import {
   applyBulkSourceContext,

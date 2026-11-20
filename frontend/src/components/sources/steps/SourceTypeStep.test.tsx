@@ -11,7 +11,7 @@ function UploadStep() {
   const { control, register, setValue, formState: { errors } } = useForm<FormValues>({
     defaultValues: { type: 'upload', embed: false, async_processing: false },
   })
-  return <SourceTypeStep control={control} register={register} setValue={setValue} errors={errors} />
+  return <SourceTypeStep control={control} register={register} setValue={setValue} errors={errors} mobileDraftKey="test-draft" />
 }
 
 describe('SourceTypeStep', () => {

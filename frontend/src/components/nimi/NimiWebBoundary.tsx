@@ -8,12 +8,16 @@ import { setNotebookBackend } from '@/lib/nimi/client'
 import { useTranslation } from '@/lib/hooks/use-translation'
 import { Button } from '@/components/ui/button'
 
+declare const __NIMI_APP_WEB_CONFIG__: NimiRemoteAppConfig | undefined
+
 type Session = ReturnType<typeof createWebNimiAppSession>
 let documentSession: Session | null = null
 let documentStarted = false
 function getDocumentSession() {
   if (documentSession) return documentSession
-  const config = JSON.parse(process.env.NEXT_PUBLIC_NIMI_WEB_CONFIG || '{}') as NimiRemoteAppConfig
+  const config = typeof __NIMI_APP_WEB_CONFIG__ !== 'undefined'
+    ? __NIMI_APP_WEB_CONFIG__
+    : (JSON.parse(process.env.NEXT_PUBLIC_NIMI_WEB_CONFIG || '{}') as NimiRemoteAppConfig)
   const active = createWebNimiAppSession(config)
   documentSession = active
   let bound: string | null = null

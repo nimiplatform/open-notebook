@@ -47,10 +47,10 @@ function Workspace({ scope, state, save }: { scope: NimiAppScope; state: Noteboo
 }
 function IdentityWorkspace({ identity }: { identity: { signal: AbortSignal } }) {
   const { t, language } = useTranslation()
-  const input = useRef<HTMLInputElement>(null)
+  const [picker] = useState(() => ({ node: null as HTMLInputElement | null }))
   const [state] = useState(() => new NotebookMobileState(identity.signal, intent => {
-    if (!input.current) throw new Error('NOTEBOOK_FILE_INPUT_UNAVAILABLE')
-    input.current.accept = intent.accept; input.current.multiple = intent.multiple; input.current.click()
+    if (!picker.node) throw new Error('NOTEBOOK_FILE_INPUT_UNAVAILABLE')
+    picker.node.accept = intent.accept; picker.node.multiple = intent.multiple; picker.node.click()
   }))
   const [saved, setSaved] = useState<{ kind: string; name?: string; error?: string }>()
   const [save] = useState(() => async (blob: Blob, name: string, signal: AbortSignal) => {
@@ -65,7 +65,7 @@ function IdentityWorkspace({ identity }: { identity: { signal: AbortSignal } }) 
   useSyncExternalStore(state.subscribe, state.getRevision)
   const selection = state.selection
   return <>
-    <input ref={input} hidden type="file" aria-label={t('sources.uploadFile')} onChange={event => { const files = Array.from(event.currentTarget.files || []); event.currentTarget.value = ''; state.selected(files) }} />
+    <input ref={node => { picker.node = node }} hidden type="file" aria-label={t('sources.uploadFile')} onChange={event => { const files = Array.from(event.currentTarget.files || []); event.currentTarget.value = ''; state.selected(files) }} />
     {selection && <section className="notebook-mobile-notice" aria-live="polite"><strong>{selection.files.map(file => file.name).join(', ')}</strong><p>{t('nimi.mobileFiles')}</p>
       <div><Button disabled={!state.canDeliver()} onClick={() => state.deliver()}>{t('nimi.mobileContinue')}</Button><Button variant="outline" onClick={() => state.discard()}>{t('common.cancel')}</Button></div></section>}
     {saved && <p className="notebook-mobile-notice" role="status">{saved.kind === 'error' ? saved.error : saved.kind === 'saving' ? t('nimi.mobileSaving', { name: saved.name }) : saved.kind === 'saved' ? (saved.name ? t('nimi.mobileSaved', { name: saved.name }) : t('nimi.mobileSavedUnnamed')) : t('nimi.mobileCanceled')}</p>}

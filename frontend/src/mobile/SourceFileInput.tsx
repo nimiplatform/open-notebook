@@ -14,7 +14,8 @@ export function sourceFileList(files: File[]) {
 }
 export function SourceFileInput({ draftKey, ref, ...props }: ComponentProps<typeof Input> & { draftKey: string }) {
   const element = useRef<HTMLInputElement>(null)
-  const handler = useRef(props.onChange); handler.current = props.onChange
+  const handler = useRef(props.onChange)
+  useEffect(() => { handler.current = props.onChange }, [props.onChange])
   useEffect(() => {
     const services = mobileServices()
     if (!services) return

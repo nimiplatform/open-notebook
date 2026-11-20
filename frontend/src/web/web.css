@@ -1,0 +1,6 @@
+@import '../app/globals.css';
+@import 'katex/dist/katex.min.css';
+@source '../';
+:root { --font-instrument-sans: Arial; --font-bricolage: 'Trebuchet MS'; --font-spline-mono: monospace; }
+html, body, #root { height: 100%; width: 100%; margin: 0; overflow: hidden; }
+[data-slot='dialog-content'] { max-height: calc(100dvh - 2rem); overflow-y: auto; }

@@ -1,3 +1,7 @@
+# 1.15.1 — Upstream 1.15.1 sync, workspace Integration & static Web companion
+
+Syncs upstream Open Notebook `v1.15.1` (`0c1e7abbd`) including duplicate source checks, grouped vector/text search, view-timestamp preservation, Docling vision endpoint settings, chat session guards, and podcast audio/speaker profile fixes while retaining Nimi SDK/Kit boundaries and Runtime `embedding_space`. Upgrades to public Nimi App Tools `0.16.0-rc.10`, SDK `0.24.0-rc.10`, and Kit/native `0.24.0-rc.16`, providing the `io.github.nimiplatform.open-notebook.workspace.v1` Integration surface required by the static-hosted Web companion (`open-notebook`).
+
 # 1.14.7 — Windows installed renderer startup
 
 Forwards Windows `SystemRoot` to the packaged Next server's Electron utility
