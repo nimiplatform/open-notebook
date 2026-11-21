@@ -21,6 +21,7 @@ from typing import Any, Dict, Optional, Tuple
 
 from loguru import logger
 
+from open_notebook.config import ensure_tiktoken_cache
 from open_notebook.domain.notebook import (
     Note,
     Notebook,
@@ -217,6 +218,7 @@ def _truncate_source_to_token_budget(
 
     try:
         if encoding is _TOKENIZER_UNSET:
+            ensure_tiktoken_cache()
             import tiktoken
 
             encoding = tiktoken.get_encoding("o200k_base")
@@ -407,6 +409,7 @@ async def build_source_context(
                 insight_items.append(insight_content)
 
             try:
+                ensure_tiktoken_cache()
                 import tiktoken
 
                 encoding = tiktoken.get_encoding("o200k_base")

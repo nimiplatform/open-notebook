@@ -39,6 +39,7 @@ for module in [
     args += ["--collect-all", module]
 for source, dest in [
     ("open_notebook/database/migrations", "open_notebook/database/migrations"),
+    ("open_notebook/tiktoken_cache", "open_notebook/tiktoken_cache"),
     ("prompts", "prompts"),
     ("pyproject.toml", "."),
 ]:

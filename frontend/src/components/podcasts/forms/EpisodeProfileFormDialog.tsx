@@ -35,6 +35,28 @@ import { Separator } from '@/components/ui/separator'
 import { ModelSelector } from '@/components/common/ModelSelector'
 import type { TFunction } from 'i18next'
 
+const UNSET_LANGUAGE_VALUE = '__none__'
+
+const FALLBACK_LANGUAGES = [
+  { code: 'bn-IN', name: 'Bangla (India)' },
+  { code: 'ca-ES', name: 'Catalan (Spain)' },
+  { code: 'zh-CN', name: 'Chinese (China)' },
+  { code: 'zh-TW', name: 'Chinese (Taiwan)' },
+  { code: 'nl-NL', name: 'Dutch (Netherlands)' },
+  { code: 'en-GB', name: 'English (United Kingdom)' },
+  { code: 'en-US', name: 'English (United States)' },
+  { code: 'fr-FR', name: 'French (France)' },
+  { code: 'de-DE', name: 'German (Germany)' },
+  { code: 'it-IT', name: 'Italian (Italy)' },
+  { code: 'ja-JP', name: 'Japanese (Japan)' },
+  { code: 'ko-KR', name: 'Korean (South Korea)' },
+  { code: 'pl-PL', name: 'Polish (Poland)' },
+  { code: 'pt-BR', name: 'Portuguese (Brazil)' },
+  { code: 'ru-RU', name: 'Russian (Russia)' },
+  { code: 'es-ES', name: 'Spanish (Spain)' },
+  { code: 'tr-TR', name: 'Turkish (Turkey)' },
+] as const
+
 const episodeProfileSchema = (t: TFunction) => z.object({
   name: z.string().min(1, t('podcasts.nameRequired') || 'Name is required'),
   description: z.string().optional(),
@@ -74,7 +96,8 @@ export function EpisodeProfileFormDialog({
   const { t } = useTranslation()
   const createProfile = useCreateEpisodeProfile()
   const updateProfile = useUpdateEpisodeProfile()
-  const { data: languages = [] } = useLanguages()
+  const { data: fetchedLanguages } = useLanguages()
+  const languages = fetchedLanguages && fetchedLanguages.length > 0 ? fetchedLanguages : FALLBACK_LANGUAGES
 
   const getDefaults = useCallback((): EpisodeProfileFormValues => {
     const firstSpeaker = speakerProfiles[0]?.id ?? ''
@@ -249,7 +272,11 @@ export function EpisodeProfileFormDialog({
               render={({ field }) => (
                 <div className="space-y-2">
                   <Label htmlFor="speaker_config">{t('podcasts.speakerProfile')} *</Label>
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={speakerProfiles.length === 0}
+                  >
                     <SelectTrigger id="speaker_config">
                       <SelectValue placeholder={t('podcasts.selectSpeakerProfile')} />
                     </SelectTrigger>
@@ -343,13 +370,18 @@ export function EpisodeProfileFormDialog({
                 <div className="space-y-2">
                   <Label htmlFor="language">{t('podcasts.language')}</Label>
                   <Select
-                    value={field.value ?? ''}
-                    onValueChange={(v) => field.onChange(v || null)}
+                    value={field.value || UNSET_LANGUAGE_VALUE}
+                    onValueChange={(v) =>
+                      field.onChange(v === UNSET_LANGUAGE_VALUE ? null : v || null)
+                    }
                   >
                     <SelectTrigger id="language">
                       <SelectValue placeholder={t('podcasts.languagePlaceholder')} />
                     </SelectTrigger>
                     <SelectContent title={t('podcasts.language')}>
+                      <SelectItem value={UNSET_LANGUAGE_VALUE}>
+                        {t('podcasts.languagePlaceholder')}
+                      </SelectItem>
                       {languages.map((lang) => (
                         <SelectItem key={lang.code} value={lang.code}>
                           {lang.name} ({lang.code})

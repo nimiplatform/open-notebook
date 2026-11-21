@@ -54,7 +54,7 @@ export class NotebookWorker {
     const env: NodeJS.ProcessEnv = {
       PATH: process.env.PATH, HOME: process.env.HOME, SYSTEMROOT: process.env.SYSTEMROOT,
       PYTHON_DOTENV_DISABLED: '1', LANG: 'en_US.UTF-8', PYTHONUTF8: '1', PYTHONUNBUFFERED: '1', PYTHONNOUSERSITE: '1',
-      OPEN_NOTEBOOK_DATA_DIR: data, OPEN_NOTEBOOK_HOST_TOKEN: this.token,
+      OPEN_NOTEBOOK_DATA_DIR: data, TIKTOKEN_CACHE_DIR: path.join(data, 'tiktoken-cache'), OPEN_NOTEBOOK_HOST_TOKEN: this.token,
       OPEN_NOTEBOOK_API_PORT: String(apiPort), CORS_ORIGINS: this.rendererOrigin,
       SURREAL_URL: `ws://127.0.0.1:${dbPort}/rpc`, SURREAL_USER: 'notebook', SURREAL_PASSWORD: dbPassword,
       SURREAL_NAMESPACE: 'open_notebook', SURREAL_DATABASE: 'open_notebook',

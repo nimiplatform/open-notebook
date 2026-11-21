@@ -27,6 +27,7 @@ export function useLanguages() {
     queryKey: QUERY_KEYS.languages,
     queryFn: podcastsApi.listLanguages,
     staleTime: Infinity,
+    retry: false,
   })
 }
 

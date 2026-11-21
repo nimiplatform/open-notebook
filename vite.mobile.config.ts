@@ -13,7 +13,7 @@ export default defineConfig({
     { find: '@/components/ui/md-editor-loader', replacement: path.join(root, 'frontend/src/mobile/md-editor.ts') },
     { find: '@/lib/navigation', replacement: path.join(root, 'frontend/src/mobile/navigation.tsx') },
     { find: '@', replacement: path.join(root, 'frontend/src') },
-  ], dedupe: ['react', 'react-dom', 'i18next', 'react-i18next'] },
+  ], dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'i18next', 'react-i18next', '@radix-ui/react-context', '@radix-ui/react-dialog', '@radix-ui/react-dismissable-layer', '@radix-ui/react-focus-guards', '@radix-ui/react-focus-scope', '@radix-ui/react-portal'] },
   define: { __NOTEBOOK_MOBILE_CONFIG__: JSON.stringify(mobileAccess), 'process.env.NEXT_PUBLIC_NIMI_WEB': '"1"', 'process.env.NEXT_PUBLIC_API_TIMEOUT_MS': 'undefined' },
   css: { postcss: { plugins: [] } },
   build: { outDir: path.join(root, 'dist-mobile'), emptyOutDir: true, target: 'chrome120', rollupOptions: {
