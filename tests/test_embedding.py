@@ -23,6 +23,7 @@ def _build_text_exceeding_tokens(fragment: str, threshold_tokens: int) -> str:
         text += fragment
     return text
 
+
 # ============================================================================
 # TEST SUITE 1: Mean Pooling
 # ============================================================================
@@ -66,6 +67,7 @@ class TestMeanPoolEmbeddings:
         # Result should be same direction, just normalized
         # Original is already normalized if we normalize it
         import numpy as np
+
         orig_norm = np.linalg.norm(embedding)
         expected = [v / orig_norm for v in embedding]
         for i in range(4):
@@ -87,6 +89,7 @@ class TestMeanPoolEmbeddings:
         result = await mean_pool_embeddings(embeddings)
         # Check result is unit length
         import numpy as np
+
         norm = np.linalg.norm(result)
         assert abs(norm - 1.0) < 0.001
 
@@ -94,6 +97,7 @@ class TestMeanPoolEmbeddings:
     async def test_high_dimensional(self):
         """Test mean pooling with high-dimensional embeddings."""
         import numpy as np
+
         # Create random embeddings of dimension 768 (typical embedding size)
         np.random.seed(42)
         embeddings = [
@@ -152,7 +156,9 @@ class TestGenerateEmbeddings:
             assert len(result) == 2
             assert result[0] == [0.1, 0.2, 0.3]
             assert result[1] == [0.4, 0.5, 0.6]
-            mock_model.aembed.assert_called_once_with(["text1", "text2"], purpose="retrieval-document")
+            mock_model.aembed.assert_called_once_with(
+                ["text1", "text2"], purpose="retrieval-document"
+            )
 
 
 # ============================================================================
@@ -188,7 +194,9 @@ class TestGenerateEmbedding:
             result = await generate_embedding("Short text")
             assert result == [0.1, 0.2, 0.3]
             # Should be called with single text
-            mock_model.aembed.assert_called_once_with(["Short text"], purpose="retrieval-document")
+            mock_model.aembed.assert_called_once_with(
+                ["Short text"], purpose="retrieval-document"
+            )
 
     @pytest.mark.asyncio
     async def test_long_text_chunked_and_pooled(self):
@@ -238,7 +246,6 @@ class TestGenerateEmbedding:
             )
             assert len(result) == 3
 
-
     @pytest.mark.asyncio
     async def test_batching(self):
         """Test that large input is split into batches of EMBEDDING_BATCH_SIZE."""
@@ -253,9 +260,13 @@ class TestGenerateEmbedding:
         mock_model.model_name = "test-model"
 
         def make_embeddings(batch):
-            return [EmbeddingVector([float(i)] * 3, "test-space") for i in range(len(batch))]
+            return [
+                EmbeddingVector([float(i)] * 3, "test-space") for i in range(len(batch))
+            ]
 
-        mock_model.aembed = AsyncMock(side_effect=lambda batch, **_kwargs: make_embeddings(batch))
+        mock_model.aembed = AsyncMock(
+            side_effect=lambda batch, **_kwargs: make_embeddings(batch)
+        )
 
         with patch(
             "open_notebook.ai.models.model_manager.get_embedding_model",
@@ -268,7 +279,10 @@ class TestGenerateEmbedding:
             batches = [call.args[0] for call in mock_model.aembed.call_args_list]
             assert [text for batch in batches for text in batch] == texts
             assert all(0 < len(batch) <= EMBEDDING_BATCH_SIZE for batch in batches)
-            assert mock_model.aembed.call_count == (num_texts + EMBEDDING_BATCH_SIZE - 1) // EMBEDDING_BATCH_SIZE
+            assert (
+                mock_model.aembed.call_count
+                == (num_texts + EMBEDDING_BATCH_SIZE - 1) // EMBEDDING_BATCH_SIZE
+            )
 
     @pytest.mark.asyncio
     async def test_batch_retry_on_transient_failure(self):

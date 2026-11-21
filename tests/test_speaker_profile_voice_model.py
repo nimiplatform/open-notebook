@@ -34,7 +34,7 @@ def _speakers(overrides=(None,)):
 def client():
     from api.main import app
 
-    return TestClient(app, headers={'X-Notebook-Process': 'notebook-test-process'})
+    return TestClient(app, headers={"X-Notebook-Process": "notebook-test-process"})
 
 
 @pytest.fixture

@@ -13,12 +13,17 @@ def pipe_output(item, *, decode=False):
     if item["type"] != "reasoning-continuity":
         return item
     carrier = item["carrier"]
-    payload = list(base64.b64decode(carrier["payload"], validate=True)) if decode else base64.b64encode(bytes(carrier["payload"])).decode("ascii")
+    payload = (
+        list(base64.b64decode(carrier["payload"], validate=True))
+        if decode
+        else base64.b64encode(bytes(carrier["payload"])).decode("ascii")
+    )
     return {**item, "carrier": {**carrier, "payload": payload}}
 
 
 def structured_model_format(model_type):
     """An App-owned parser's declared fields define its exact model result."""
+
     def close(value):
         if isinstance(value, list):
             return [close(item) for item in value]
@@ -28,7 +33,12 @@ def structured_model_format(model_type):
         if result.get("type") == "object" and "additionalProperties" not in result:
             result["additionalProperties"] = False
         return result
-    return {"type": "json-schema", "schema": close(model_type.model_json_schema()), "strict": True}
+
+    return {
+        "type": "json-schema",
+        "schema": close(model_type.model_json_schema()),
+        "strict": True,
+    }
 
 
 class NotebookLanguageModel(BaseChatModel):
@@ -77,7 +87,11 @@ class NotebookLanguageModel(BaseChatModel):
         result = await request("research.complete", self._payload(messages))
         message = AIMessage(
             content=result["text"],
-            additional_kwargs={"nimi_output_items": [pipe_output(item, decode=True) for item in result["outputItems"]]},
+            additional_kwargs={
+                "nimi_output_items": [
+                    pipe_output(item, decode=True) for item in result["outputItems"]
+                ]
+            },
         )
         return ChatResult(generations=[ChatGeneration(message=message)])
 
@@ -104,7 +118,12 @@ class NotebookLanguageModel(BaseChatModel):
             yield ChatGenerationChunk(
                 message=AIMessageChunk(
                     content="",
-                    additional_kwargs={"nimi_output_items": [pipe_output(item, decode=True) for item in result["outputItems"]]},
+                    additional_kwargs={
+                        "nimi_output_items": [
+                            pipe_output(item, decode=True)
+                            for item in result["outputItems"]
+                        ]
+                    },
                 )
             )
         finally:

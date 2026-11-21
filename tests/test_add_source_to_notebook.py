@@ -16,7 +16,7 @@ from fastapi.testclient import TestClient
 def client():
     from api.main import app
 
-    return TestClient(app, headers={'X-Notebook-Process': 'notebook-test-process'})
+    return TestClient(app, headers={"X-Notebook-Process": "notebook-test-process"})
 
 
 class FakeReferences:

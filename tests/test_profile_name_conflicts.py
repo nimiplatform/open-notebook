@@ -47,7 +47,11 @@ def client():
 
     # raise_server_exceptions=False so an exception that escapes the app shows
     # up as a 500 response instead of blowing up the test.
-    return TestClient(app, headers={'X-Notebook-Process': 'notebook-test-process'}, raise_server_exceptions=False)
+    return TestClient(
+        app,
+        headers={"X-Notebook-Process": "notebook-test-process"},
+        raise_server_exceptions=False,
+    )
 
 
 EPISODE_BODY = {

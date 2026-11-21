@@ -17,7 +17,7 @@ def client():
     """Create test client after environment variables have been cleared by conftest."""
     from api.main import app
 
-    return TestClient(app, headers={'X-Notebook-Process': 'notebook-test-process'})
+    return TestClient(app, headers={"X-Notebook-Process": "notebook-test-process"})
 
 
 EXISTING = [

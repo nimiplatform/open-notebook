@@ -469,9 +469,7 @@ class TestContentProcessDeleteSource:
 
     @pytest.mark.asyncio
     @patch("open_notebook.graphs.source.extract_content")
-    async def test_uploaded_file_deleted_when_flag_set(
-        self, mock_extract, tmp_path
-    ):
+    async def test_uploaded_file_deleted_when_flag_set(self, mock_extract, tmp_path):
         from content_core.common import ExtractionOutput
 
         from open_notebook.graphs.source import SourceState, content_process
@@ -504,9 +502,7 @@ class TestContentProcessDeleteSource:
 
     @pytest.mark.asyncio
     @patch("open_notebook.graphs.source.extract_content")
-    async def test_uploaded_file_kept_when_flag_not_set(
-        self, mock_extract, tmp_path
-    ):
+    async def test_uploaded_file_kept_when_flag_not_set(self, mock_extract, tmp_path):
         from content_core.common import ExtractionOutput
 
         from open_notebook.graphs.source import SourceState, content_process
@@ -529,9 +525,7 @@ class TestContentProcessDeleteSource:
 
     @pytest.mark.asyncio
     @patch("open_notebook.graphs.source.extract_content")
-    async def test_empty_extraction_raises_valueerror(
-        self, mock_extract, tmp_path
-    ):
+    async def test_empty_extraction_raises_valueerror(self, mock_extract, tmp_path):
         from content_core.common import ExtractionOutput
 
         from open_notebook.graphs.source import SourceState, content_process

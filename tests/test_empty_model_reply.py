@@ -169,7 +169,7 @@ def test_notebook_chat_failed_turn_is_rolled_back_and_retry_is_clean():
 
     from api.main import app
 
-    client = TestClient(app, headers={'X-Notebook-Process': 'notebook-test-process'})
+    client = TestClient(app, headers={"X-Notebook-Process": "notebook-test-process"})
     graph = _toy_graph(["", "the answer"])
     session = MagicMock(model_override=None, save=AsyncMock())
     with (

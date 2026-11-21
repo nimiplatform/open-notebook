@@ -24,7 +24,7 @@ NUL_TEXT = "page one\x00page two"
 def client():
     from api.main import app
 
-    return TestClient(app, headers={'X-Notebook-Process': 'notebook-test-process'})
+    return TestClient(app, headers={"X-Notebook-Process": "notebook-test-process"})
 
 
 @pytest.fixture

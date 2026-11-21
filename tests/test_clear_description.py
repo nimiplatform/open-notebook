@@ -17,7 +17,7 @@ from open_notebook.domain.transformation import Transformation
 def client():
     from api.main import app
 
-    return TestClient(app, headers={'X-Notebook-Process': 'notebook-test-process'})
+    return TestClient(app, headers={"X-Notebook-Process": "notebook-test-process"})
 
 
 def _notebook():

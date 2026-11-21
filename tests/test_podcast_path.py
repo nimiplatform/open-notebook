@@ -82,7 +82,9 @@ class TestBuildEpisodeOutputDir:
 class TestResolveModelConfigMaxTokens:
     @pytest.mark.asyncio
     async def test_preserves_explicit_budget_for_nimi(self):
-        provider, model, config = await _resolve_model_config("model:nimi_language", max_tokens=12000)
+        provider, model, config = await _resolve_model_config(
+            "model:nimi_language", max_tokens=12000
+        )
         assert provider == "nimi"
         assert model == "model:nimi_language"
         assert config == {"max_tokens": 12000}

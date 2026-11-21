@@ -108,9 +108,7 @@ class TestSpeakerProfileResolution:
             ),
             patch.object(SpeakerProfile, "resolve", new=speaker_resolve),
         ):
-            with pytest.raises(
-                ValueError, match="has no speaker profile configured"
-            ):
+            with pytest.raises(ValueError, match="has no speaker profile configured"):
                 await generate_podcast_command(make_input(speaker_profile=None))
 
         speaker_resolve.assert_not_awaited()

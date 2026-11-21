@@ -31,7 +31,11 @@ CONFIG_ERROR_MESSAGE = "No default model configured. Set one in the Models secti
 def client():
     from api.main import app
 
-    return TestClient(app, headers={"X-Notebook-Process": "notebook-test-process"}, raise_server_exceptions=False)
+    return TestClient(
+        app,
+        headers={"X-Notebook-Process": "notebook-test-process"},
+        raise_server_exceptions=False,
+    )
 
 
 def _boom(*_args, **_kwargs):
@@ -40,22 +44,94 @@ def _boom(*_args, **_kwargs):
 
 # (router, patch target, method, url, json body) — one per fixed router.
 CASES = [
-    ("chat", "api.routers.chat.Notebook.get", "GET", "/api/chat/sessions?notebook_id=notebook:1", None),
-    ("source_chat", "api.routers._chat_shared.Source.get", "GET", "/api/sources/xyz/chat/sessions", None),
+    (
+        "chat",
+        "api.routers.chat.Notebook.get",
+        "GET",
+        "/api/chat/sessions?notebook_id=notebook:1",
+        None,
+    ),
+    (
+        "source_chat",
+        "api.routers._chat_shared.Source.get",
+        "GET",
+        "/api/sources/xyz/chat/sessions",
+        None,
+    ),
     ("sources", "api.routers.sources.repo_query", "GET", "/api/sources", None),
     ("notebooks", "api.routers.notebooks.repo_query", "GET", "/api/notebooks", None),
     ("notes", "api.routers.notes.Note.get_all", "GET", "/api/notes", None),
     ("models", "api.routers.models.Model.get_all", "GET", "/api/models", None),
-    ("commands", "api.routers.commands.CommandService.get_command_status", "GET", "/api/commands/jobs/command:abc", None),
-    ("embedding", "api.routers.embedding.model_manager.get_embedding_model", "POST", "/api/embed", {"item_id": "source:1", "item_type": "source"}),
-    ("embedding_rebuild", "api.routers.embedding_rebuild.repo_query", "POST", "/api/embeddings/rebuild", {"mode": "existing"}),
-    ("episode_profiles", "api.routers.episode_profiles.EpisodeProfile.get_all", "GET", "/api/episode-profiles", None),
-    ("insights", "api.routers.insights.SourceInsight.get", "GET", "/api/insights/source_insight:1", None),
-    ("podcasts", "api.routers.podcasts.PodcastService.list_episodes", "GET", "/api/podcasts/episodes", None),
-    ("search", "api.routers.search.text_search", "POST", "/api/search", {"query": "hello", "type": "text"}),
-    ("settings", "api.routers.settings.ContentSettings.get_instance", "GET", "/api/settings", None),
-    ("speaker_profiles", "api.routers.speaker_profiles.SpeakerProfile.get_all", "GET", "/api/speaker-profiles", None),
-    ("transformations", "api.routers.transformations.Transformation.get_all", "GET", "/api/transformations", None),
+    (
+        "commands",
+        "api.routers.commands.CommandService.get_command_status",
+        "GET",
+        "/api/commands/jobs/command:abc",
+        None,
+    ),
+    (
+        "embedding",
+        "api.routers.embedding.model_manager.get_embedding_model",
+        "POST",
+        "/api/embed",
+        {"item_id": "source:1", "item_type": "source"},
+    ),
+    (
+        "embedding_rebuild",
+        "api.routers.embedding_rebuild.repo_query",
+        "POST",
+        "/api/embeddings/rebuild",
+        {"mode": "existing"},
+    ),
+    (
+        "episode_profiles",
+        "api.routers.episode_profiles.EpisodeProfile.get_all",
+        "GET",
+        "/api/episode-profiles",
+        None,
+    ),
+    (
+        "insights",
+        "api.routers.insights.SourceInsight.get",
+        "GET",
+        "/api/insights/source_insight:1",
+        None,
+    ),
+    (
+        "podcasts",
+        "api.routers.podcasts.PodcastService.list_episodes",
+        "GET",
+        "/api/podcasts/episodes",
+        None,
+    ),
+    (
+        "search",
+        "api.routers.search.text_search",
+        "POST",
+        "/api/search",
+        {"query": "hello", "type": "text"},
+    ),
+    (
+        "settings",
+        "api.routers.settings.ContentSettings.get_instance",
+        "GET",
+        "/api/settings",
+        None,
+    ),
+    (
+        "speaker_profiles",
+        "api.routers.speaker_profiles.SpeakerProfile.get_all",
+        "GET",
+        "/api/speaker-profiles",
+        None,
+    ),
+    (
+        "transformations",
+        "api.routers.transformations.Transformation.get_all",
+        "GET",
+        "/api/transformations",
+        None,
+    ),
 ]
 
 
@@ -78,7 +154,6 @@ def test_configuration_error_maps_to_422(client, router, target, method, url, bo
 class TestNotFoundErrorPropagation:
     """NotFoundError raised by the domain layer maps to 404 where the router
     has no dedicated `except NotFoundError` arm (it used to become a 500)."""
-
 
 
 class TestUnsupportedTypeErrorPropagation:

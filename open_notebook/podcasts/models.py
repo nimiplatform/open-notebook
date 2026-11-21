@@ -8,7 +8,9 @@ from open_notebook.database.repository import ensure_record_id, repo_query
 from open_notebook.domain.base import ObjectModel
 
 
-async def _resolve_model_config(model_id: str, max_tokens: Optional[int] = None) -> Tuple[str, str, dict]:
+async def _resolve_model_config(
+    model_id: str, max_tokens: Optional[int] = None
+) -> Tuple[str, str, dict]:
     if model_id not in {"model:nimi_language", "model:nimi_text_to_speech"}:
         raise ValueError("Select a Nimi capability for this podcast profile")
     return ("nimi", model_id, {"max_tokens": max_tokens} if max_tokens else {})
@@ -213,7 +215,9 @@ class PodcastEpisode(ObjectModel):
         ..., description="Speaker profile used (stored as object)"
     )
     briefing: str = Field(..., description="Full briefing used for generation")
-    briefing_suffix: Optional[str] = Field(None, description="Additional episode instructions retained for explicit retry")
+    briefing_suffix: Optional[str] = Field(
+        None, description="Additional episode instructions retained for explicit retry"
+    )
     content: str = Field(..., description="Source content")
     audio_file: Optional[str] = Field(
         default=None,

@@ -17,7 +17,11 @@ from open_notebook.graphs.source import content_process, validate_content_state
 def client():
     from api.main import app
 
-    return TestClient(app, headers={'X-Notebook-Process': 'notebook-test-process'}, raise_server_exceptions=False)
+    return TestClient(
+        app,
+        headers={"X-Notebook-Process": "notebook-test-process"},
+        raise_server_exceptions=False,
+    )
 
 
 @pytest.fixture

@@ -229,10 +229,12 @@ async def lifespan(app: FastAPI):
         raise RuntimeError(f"Failed to run database migrations: {str(e)}") from e
 
     from open_notebook.nimi.bootstrap import prepare_workspace
+
     await prepare_workspace()
     from surreal_commands.core.worker import listen_for_commands
 
     import commands  # noqa: F401
+
     worker = asyncio.create_task(listen_for_commands(max_tasks=3))
     logger.success("API and notebook worker initialized")
 
@@ -275,7 +277,6 @@ else:
 # Exclude /api/auth/status and /api/config from authentication
 app.add_middleware(
     NotebookHostMiddleware,
-
 )
 
 # Reject oversized request bodies before they reach auth or routing - added

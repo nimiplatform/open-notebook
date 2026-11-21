@@ -42,9 +42,7 @@ def call_model_with_messages(state: ThreadState, config: RunnableConfig) -> dict
             try:
                 asyncio.set_event_loop(new_loop)
                 return new_loop.run_until_complete(
-                    provision_langchain_model(
-                        str(payload), model_id, "chat"
-                    )
+                    provision_langchain_model(str(payload), model_id, "chat")
                 )
             finally:
                 new_loop.close()

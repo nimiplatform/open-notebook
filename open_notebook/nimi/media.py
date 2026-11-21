@@ -88,7 +88,6 @@ async def extract_notebook_content(
         "m.youtube.com",
         "youtu.be",
     }
-    no_transcript = False
     try:
         result = await extract_content(
             url=url, file_path=file_path, content=content, config=cfg
@@ -96,9 +95,8 @@ async def extract_notebook_content(
     except cc.NoTranscriptFound:
         if not is_youtube:
             raise
-        no_transcript = True
         result = None
-    if is_youtube and (no_transcript or not result.content.strip()):
+    if is_youtube and (result is None or not result.content.strip()):
         from pytubefix import YouTube
 
         with tempfile.TemporaryDirectory() as directory:

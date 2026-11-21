@@ -52,11 +52,15 @@ EMBEDDING_RETRY_DELAY = 2  # seconds
 
 
 @overload
-async def mean_pool_embeddings(embeddings: Sequence[EmbeddingVector]) -> EmbeddingVector: ...
+async def mean_pool_embeddings(
+    embeddings: Sequence[EmbeddingVector],
+) -> EmbeddingVector: ...
 
 
 @overload
-async def mean_pool_embeddings(embeddings: Sequence[Sequence[float]]) -> List[float]: ...
+async def mean_pool_embeddings(
+    embeddings: Sequence[Sequence[float]],
+) -> List[float]: ...
 
 
 async def mean_pool_embeddings(embeddings: Sequence[Sequence[float]]) -> List[float]:
@@ -85,7 +89,9 @@ async def mean_pool_embeddings(embeddings: Sequence[Sequence[float]]) -> List[fl
 
     spaces = {getattr(vector, "space_id", None) for vector in embeddings}
     if len(spaces) != 1:
-        raise ConfigurationError("Cannot combine vectors from different embedding spaces")
+        raise ConfigurationError(
+            "Cannot combine vectors from different embedding spaces"
+        )
     space_id = spaces.pop()
     if len(embeddings) == 1:
         # Single embedding - just normalize and return
@@ -120,7 +126,10 @@ async def mean_pool_embeddings(embeddings: Sequence[Sequence[float]]) -> List[fl
 
 
 async def generate_embeddings(
-    texts: List[str], command_id: Optional[str] = None, *, purpose: str = "retrieval-document"
+    texts: List[str],
+    command_id: Optional[str] = None,
+    *,
+    purpose: str = "retrieval-document",
 ) -> List[EmbeddingVector]:
     """
     Generate embeddings for multiple texts with automatic batching and retry.
@@ -190,8 +199,14 @@ async def generate_embeddings(
         for attempt in range(1, EMBEDDING_MAX_RETRIES + 1):
             try:
                 batch_embeddings = await embedding_model.aembed(batch, purpose=purpose)
-                if all_embeddings and getattr(all_embeddings[0], "space_id", None) != batch_embeddings[0].space_id:
-                    raise ConfigurationError("Nimi embedding space changed during this batch; retry the task")
+                if (
+                    all_embeddings
+                    and getattr(all_embeddings[0], "space_id", None)
+                    != batch_embeddings[0].space_id
+                ):
+                    raise ConfigurationError(
+                        "Nimi embedding space changed during this batch; retry the task"
+                    )
                 all_embeddings.extend(batch_embeddings)
                 break
             except ConfigurationError:
@@ -265,7 +280,9 @@ async def generate_embedding(
     if text_tokens <= CHUNK_SIZE:
         # Short text - embed directly
         logger.debug(f"Embedding short text ({text_tokens} tokens) directly")
-        embeddings = await generate_embeddings([text], command_id=command_id, purpose=purpose)
+        embeddings = await generate_embeddings(
+            [text], command_id=command_id, purpose=purpose
+        )
         return embeddings[0]
 
     # Long text - chunk and mean pool
@@ -278,13 +295,17 @@ async def generate_embedding(
 
     if len(chunks) == 1:
         # Single chunk after splitting
-        embeddings = await generate_embeddings(chunks, command_id=command_id, purpose=purpose)
+        embeddings = await generate_embeddings(
+            chunks, command_id=command_id, purpose=purpose
+        )
         return embeddings[0]
 
     logger.debug(f"Embedding {len(chunks)} chunks and mean pooling")
 
     # Embed all chunks in batches
-    embeddings = await generate_embeddings(chunks, command_id=command_id, purpose=purpose)
+    embeddings = await generate_embeddings(
+        chunks, command_id=command_id, purpose=purpose
+    )
 
     # Mean pool to get single embedding
     pooled = await mean_pool_embeddings(embeddings)
