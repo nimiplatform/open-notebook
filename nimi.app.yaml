@@ -1,7 +1,7 @@
 app_id: io.github.nimiplatform.open-notebook
 public_slug: open-notebook
 display_name: Open Notebook
-version: 1.15.1
+version: 1.15.2
 profile: standalone
 manifest_role: submitted-input
 app_access:
@@ -65,9 +65,94 @@ local_development:
       redirect_uri: https://127.0.0.1:4487/
       client_id: io.github.nimiplatform.open-notebook.web.dev
 metadata:
-  summary: Research your sources, keep notes, ask questions and create podcasts using Nimi AI.
+  summary: Privacy-first research workspace for organizing documents, web pages, and notes, asking grounded questions with clickable citations, and turning sources into multi-speaker podcasts via Nimi AI.
   icon: assets/app-icon.png
   release_notes: docs/nimi-release-notes.md
   author: Luis Novo and Open Notebook contributors; Nimi adaptation contributors
   homepage_url: https://github.com/nimiplatform/open-notebook
   support_url: https://github.com/nimiplatform/open-notebook/issues
+  storefront:
+    category: research-learning
+    default_locale: en
+    locales:
+      en:
+        tags:
+          - Research Workspace
+          - Cited Q&A
+          - Semantic Search
+          - Research Podcasts
+          - Local-First
+        highlights:
+          - title: Grounded Q&A with Clickable Citations
+            description: Ask questions across your PDFs, web pages, text, and audio transcripts, then click inline citations to inspect the exact original source and insights.
+          - title: Cross-Notebook Semantic & Text Search
+            description: Index sources into a Runtime-managed vector space for grouped semantic search, keyword lookup, and multi-stage Ask synthesis across notebooks.
+          - title: Multi-Speaker Research Podcasts
+            description: Turn selected sources and notes into structured multi-speaker outlines and downloadable MP3 episodes using voices from your Nimi speech model.
+          - title: Private PC Storage & Browser Companion
+            description: Keep notebooks, files, and podcasts in your PC workspace while choosing on-device or cloud models in Nimi, or connect remotely via the hosted Web app.
+      zh:
+        display_name: Open Notebook
+        summary: 注重隐私的个人研究工作区：整理 PDF、网页与音频资料，结合可点击出处引用开展问答与语义检索，并将研究内容合成为多发言人播客。
+        introduction: NIMI_APP.zh.md
+        tags:
+          - 研究工作区
+          - 引用问答
+          - 语义检索
+          - 研究播客
+          - 本地优先
+        highlights:
+          - title: 基于原资料的可溯源引用问答
+            description: 导入 PDF、网页、文本与音频转写后直接提问，点击回答中的内联引用即可打开原始来源与提炼见解逐条核验。
+          - title: 跨笔记本语义检索与深度提问
+            description: 按 Nimi 向量空间为资料建索引，支持分组语义检索、全文搜索及多阶段知识库综合提问，换模型后可一键重建索引。
+          - title: 多发言人研究播客一键生成
+            description: 按主题挑选资料与笔记，配置发言人与单集大纲，调用 Nimi 配音模型合成可试听、可下载的 MP3 播客。
+          - title: 本机私有存储与网页端协同
+            description: 笔记本、原始文件与音频留存在主 PC 工作区；通过 Nimi 自由选择本机或云端模型，也可经官方网页端远程访问。
+    media:
+      cover:
+        path: assets/storefront/cover-en.webp
+        locales:
+          zh: assets/storefront/cover-zh.webp
+      gallery:
+        - id: notebook-workspace
+          kind: image
+          path: assets/storefront/cover-en.webp
+          locales:
+            zh: assets/storefront/cover-zh.webp
+          caption:
+            en: "Three-column research workspace: manage source context, notes, and grounded Q&A with inline citations side by side"
+            zh: "三栏研究工作区：同屏管理来源上下文、研究笔记与带内联引用的资料问答"
+        - id: citation-verification
+          kind: image
+          path: assets/storefront/citation-en.webp
+          locales:
+            zh: assets/storefront/citation-zh.webp
+          caption:
+            en: "Click any citation in chat to inspect the original source text, extracted insights, and source details"
+            zh: "点击对话中的内联引用，直接打开原资料正文、AI 提炼见解与来源详情进行核验"
+        - id: semantic-search
+          kind: image
+          path: assets/storefront/search-en.webp
+          locales:
+            zh: assets/storefront/search-zh.webp
+          caption:
+            en: "Ask and Search: run grouped semantic vector search or full-text lookup across sources and notes"
+            zh: "提问与搜索：跨来源与笔记执行按出处分组的向量语义检索与全文搜索"
+        - id: research-podcasts
+          kind: image
+          path: assets/storefront/podcasts-en.webp
+          locales:
+            zh: assets/storefront/podcasts-zh.webp
+          caption:
+            en: "Multi-speaker research podcasts: generate, listen to, inspect, and download MP3 episodes synthesized via Nimi TTS"
+            zh: "多发言人研究播客：基于所选资料生成并试听、查看或下载由 Nimi 配音合成的 MP3 播客"
+        - id: nimi-models
+          kind: image
+          path: assets/storefront/models-en.webp
+          locales:
+            zh: assets/storefront/models-zh.webp
+          caption:
+            en: "Nimi-managed AI models: configure on-device or cloud models for research, embeddings, transcription, and narration"
+            zh: "通过 Nimi 统一选择模型：一站式配置研究写作、语义检索、音频转写与播客配音"

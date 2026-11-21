@@ -5,6 +5,24 @@ SurrealDB notebooks, LangGraph research and chat, transformations, sources and
 podcast profiles. Nimi Desktop supervises the Electron Host. The Host uses the
 public SDK/Kit for authorization, model configuration, text, embeddings and speech.
 
+## Candidate 1.15.2: Bilingual Nimi Storefront (`app-tools@0.16.0-rc.12`) — 2026-11-21
+
+Prepared publishable native release candidate **`1.15.2`** (combining the post-`1.15.1` offline `tiktoken` cache and podcast language-selector fixes at `9ffce7a` with full bilingual Nimi Storefront metadata and static product media; unreleased pending `1.15.2` release authorization; hosted Web stays at published `1.15.1`):
+
+1. **Tooling & workflow sync**:
+   - Upgraded `@nimiplatform/app-tools` from `^0.16.0-rc.10` to `^0.16.0-rc.12` (retaining public `@nimiplatform/sdk@^0.24.0-rc.10`, `@nimiplatform/kit@^0.24.0-rc.16`, `@nimiplatform/nimi-coding@0.7.0`, `electron@^45.4.1`, `vite@^8.3.8`) and ran `pnpm exec nimi-app sync` (`nimi-app-release.yml` updated to upload and publish `*-storefront-media.zip`; `.nimi/config/app-identity.yaml` and `.nimi/admission/submission.yaml` synced to `1.15.2`).
+2. **Bilingual storefront copy & real-UI static media (`research-learning`, `default_locale: en`)**:
+   - Authored bilingual user guides in root `NIMI_APP.md` (`en`) and `NIMI_APP.zh.md` (`zh`), bilingual summaries, 5 tags/locale, 4 highlights/locale, and `docs/nimi-release-notes.md` (`1.15.2`) in `nimi.app.yaml`.
+   - Captured 10 localized `1600×900` (16:9) static WebP images (`assets/storefront/{cover,citation,search,podcasts,models}-{en,zh}.webp`, **33–87 KiB** each) from live Desktop-supervised Open Notebook sessions on isolated fictional research notebooks (`Coastal Kelp Forest Study` / `北湾海藻林生态研究`) using real on-device `Gemma 4` text generation, `llama.cpp GGUF` embeddings, and `qwen3-tts-flash` podcast synthesis (two completed 3:31/3:32 MP3 episodes).
+   - Verified bilingual developer preview directly inside live Nimi Home (`zh` ↔ `en` via Settings → Appearance): confirmed all 5 gallery slides loaded at `1600×900` (`hasError: false`), cropping, captions, tags, highlights, introductions, and controls rendered cleanly in both languages.
+3. **Engineering checks & Windows `x86_64` candidate artifacts**:
+   - Passed `pnpm exec nimi-app check --production`, `pnpm exec nimicoding sync --check`, `pnpm exec nimicoding doctor`, `pnpm --dir frontend lint` (0 errors), `pnpm --dir frontend exec tsc --noEmit` (0 errors), `pnpm test` (`6` Electron + `1,005` Python `pytest` + `490` frontend `Vitest`), and Windows `build` + `pack --target windows-x86_64 --production` + `pack --aggregate`.
+   - Windows `x86_64` `.nimiapp`: `dist/nimi-app/io.github.nimiplatform.open-notebook-1.15.2-windows-x86_64.nimiapp` (**1,435,206,895 bytes**, SHA-256 `cbecdcf125cf646f04757b105c8941125403a0572f946367ad7842f20975bbce`; verified 0 storefront screenshots inside `.nimiapp`).
+   - Sidecar `.app-info.json`: `dist/nimi-app/io.github.nimiplatform.open-notebook-1.15.2-windows-x86_64.app-info.json` (**57,938 bytes**, SHA-256 `4f0e45621ab3b40849b3e65e15192745535dd5513e4e2222c33b752f8d59e118`; byte-identical to embedded `app-info.json`).
+   - Aggregated media ZIP: `dist/nimi-app/io.github.nimiplatform.open-notebook-1.15.2-storefront-media.zip` (**582,380 bytes**, SHA-256 `53238134c8ad992993d31d4b5f86f54d314c051baaa04c470f60b7f5d1cd1afb`; 10 deduplicated `0644` `<sha256>.webp` entries in exact bijection with `app-info.json`).
+   - Aggregate candidate JSON: `dist/nimi-app/io.github.nimiplatform.open-notebook-1.15.2.candidate.json` (**1,348 bytes**, SHA-256 `30467529614101ded118a2d0078502b056dc2a39686e6bc901146bb61ad04b21`; `storefront_media` matches exact ZIP digest/size).
+   - **NOT-VERIFIED:** macOS `arm64` `1.15.2` native build/pack/cross-target CI aggregation, GitHub `v1.15.2` tag/immutable Release publication, `nimi-app-registry` PR admission, Cloudflare edge storefront projection (`has_storefront=true`), and installed Catalog upgrade to `1.15.2`.
+
 ## Post-1.15.1 local fixes: offline tiktoken cold-start & podcast language menu Escape — 2026-11-21
 
 Following the published `1.15.1` pilot acceptance (native Registry `#134`, Web Registry `#135`), two post-release issues were fixed and verified locally (not yet bumped/published as `1.15.2`):

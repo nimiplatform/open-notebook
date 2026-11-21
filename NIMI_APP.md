@@ -1,42 +1,55 @@
 # Open Notebook
 
-用自己的资料开展研究：整理来源、记录笔记、提出问题，并把内容制作成播客。
+Conduct private, source-grounded research on your own materials: collect documents, web pages, notes, and audio transcripts into notebooks, run semantic and full-text search, ask questions with clickable citations, and turn selected sources into multi-speaker podcasts.
 
-## 开始使用
+Open Notebook on Nimi is adapted from the open-source MIT-licensed [Open Notebook](https://github.com/lfnovo/open-notebook) project by Luis Novo and contributors.
 
-1. 在 Nimi Desktop 中打开 Open Notebook，并完成 App 授权。
-2. 打开 **模型**，通过 Nimi 选择研究、语义检索、音频转写和播客配音使用的模型。
-3. 创建笔记本，添加网页、文件或文字。勾选向量嵌入后，可以进行语义检索。
-4. 在笔记本中提问、查看来源引用，并把有用的回答保存为笔记。
-5. 制作播客前，先建立发言人和单集配置，再选择资料生成。声音选项来自当前 Nimi 配音模型。
+---
 
-生成结果可能有误，请对照来源检查。未完成或失败的生成会显示错误；查看原因后再明确重试。
-更换嵌入模型后，可在 **高级** 页面重建索引，让已有资料进入新的向量空间。
+## What You Can Do
 
-## 从浏览器使用
+- **Collect & organize sources**: Import PDFs, documents, pasted text, web links, and audio/video files (transcribed through Nimi speech recognition) into dedicated notebooks, with duplicate detection and reusable **Transformations** that save structured insights.
+- **Ask with clickable citations**: Control which sources and notes enter context (**Off**, **Insights only**, or **Full content**), ask grounded questions in notebook chat, click inline citations to inspect the exact source passage or insight, and save useful answers as notes.
+- **Search & synthesize across notebooks**: Use **Ask and Search** to run grouped semantic vector search or keyword search across your workspace, or launch multi-stage knowledge-base synthesis.
+- **Create multi-speaker podcasts**: Configure speaker profiles and episode templates, select source materials, and synthesize playable and downloadable MP3 episodes using voices from your configured Nimi speech model.
 
-网页版连接电脑上同一账号运行的 Open Notebook 工作区，需要电脑端安装并运行 **Open Notebook `1.15.1` 或更新版本**（早期 `1.14.7` 及更早版本未提供工作区集成能力，无法供网页版连接）。
+---
 
-1. 先在电脑 Nimi Desktop 中打开 Open Notebook `1.15.1+`。
-2. 在浏览器打开官方托管地址（上线后为 `https://open-notebook.nimi.xyz`）或已登记的 HTTPS 来源，使用同一 Nimi 账号登录。
-3. 首次连接时，在电脑 Nimi Home 完成来源确认并允许 **Open Notebook on this PC** 工作区集成权限。
-4. 保持电脑与 Open Notebook 运行，即可在浏览器同步查看和整理笔记本、添加来源、检索提问、保存笔记和制作播客。
+## Getting Started
 
-模型配置仍由电脑 App 的 **模型** 页面管理；网页版发言人的声音选项来自电脑的配音配置。
-网页版仅在当前页面内存中保存会话凭证，刷新页面或重新打开深链（`#/notebooks/...`）后会回到官方登录页，重新登录确认后会自动回到原笔记本路由；未保存的浏览器编辑内容不会自动迁移。
-网络中断不会自动重发研究或播客任务。重新连接后，先查看已有任务及结果，再决定是否重试。
+1. Open **Open Notebook** from **Nimi Desktop** and grant the requested App Access permissions.
+2. Open **Models** and select your Nimi models for each capability:
+   - **Research and writing** (`text.generate`) — notebook chat, insights, transformations, Ask synthesis, and podcast outlines/scripts.
+   - **Semantic search** (`text.embed`) — vector indexing and semantic search across sources and notes.
+   - **Audio transcription** (`audio.transcribe`) — transcribing uploaded audio or media files into searchable source text.
+   - **Podcast narration** (`audio.synthesize`) — synthesizing multi-speaker podcast audio clips.
+3. Create a notebook on **Notebooks**, then add web links, uploaded files, or text sources. Enable embedding when importing if you want semantic search.
+4. Open the notebook to manage source context, ask questions, click citations to verify original text, and save answers to **Notes**.
+5. To produce a podcast, open **Podcasts**, set up at least one speaker profile (voices come from your active Nimi speech model) and episode profile, then generate an episode from your chosen sources.
 
-## 数据与账号
+If you switch to a different embedding model later, open **Advanced** and rebuild embeddings so existing sources are indexed in the new Runtime vector space.
 
-Android 本地开发版同样连接这台电脑上的 Open Notebook `1.15.1+` 工作区，保留原笔记本、来源、研究和播客界面。
-首次登录后，需要在电脑 Home 确认 Android 来源并允许 Notebook 集成操作。
-选择手机文件返回后，文件会暂存在当前登录下；点击 **继续使用所选文件** 放回原来源表单，
-核对目标笔记本和处理选项后再创建。来源下载和播客音频保存使用 Android 系统保存位置选择器。
-退出登录会清除未提交的手机草稿；已保存资料仍在电脑。当前 Android 本地测试版未公开分发。
+---
 
-笔记本、上传文件、对话记录和播客保存在执行任务的电脑，并按当前 Nimi 工作区分开。
-网页版通过 Nimi 连接这台电脑；下载的文件另存到浏览器所用设备。
-Nimi 管理账号授权、模型连接和 AI 消费。关闭窗口不会删除已保存内容。
-开发登记与安装后的工作区是不同的数据范围。
+## Using the Web Companion
 
-如需帮助，请向 App 提供者反馈具体操作和错误提示；分享材料前请移除私人资料。
+The hosted Web edition at [open-notebook.nimi.xyz](https://open-notebook.nimi.xyz/) (also linked from the [Nimi App Storefront](https://nimi.ai/apps/open-notebook)) connects remotely to the Open Notebook workspace running on your primary PC under the same Nimi account.
+
+- **PC requirement**: Keep **Nimi Desktop** and **Open Notebook `1.15.1` or newer** running on your host PC (`1.14.7` and earlier do not expose the workspace Integration surface required by the Web companion).
+- **First-time setup**: Sign in on the Web app with your Nimi account, confirm the Web source once in **Nimi Home** on your PC, and approve the **Open Notebook on this PC** workspace Integration permission.
+- **Models & session behavior**: All AI execution and model settings remain owned by the PC app's **Models** page. The Web app keeps credentials only in page memory, so reloading the page or reopening a deep link (`#/notebooks/...`) returns to the official sign-in flow before restoring the notebook route; unsaved browser edits are not preserved across reloads.
+
+---
+
+## Data Handling & Limitations
+
+- **Local PC storage**: Notebooks, SurrealDB databases, uploaded files, notes, chat checkpoints, and generated podcast MP3s are stored on the host PC under your account-scoped Nimi workspace directory (`~/Library/Application Support/Open Notebook — Nimi/` on macOS; `%APPDATA%/Open Notebook — Nimi/` on Windows). Closing the window does not delete saved content.
+- **Nimi AI & network access**: Nimi manages your session, App Access, model routing (on-device or cloud), and AI usage. When you import URLs, Open Notebook fetches those web resources directly. Files downloaded in the Web app are saved to the browser's device.
+- **Accuracy & retries**: AI-generated answers, summaries, transcripts, and podcast scripts can contain inaccuracies—always verify important claims against the cited source text. Interrupted generations or background commands do not auto-replay after a disconnect or restart; inspect the reported error and retry explicitly.
+- **Platform availability**: Native desktop packages target macOS (`arm64`) and Windows (`x86_64`), paired with the hosted Web companion. Android remains a local development build and is not publicly distributed.
+
+---
+
+## Help & Feedback
+
+Report issues or share reproduction steps at [github.com/nimiplatform/open-notebook/issues](https://github.com/nimiplatform/open-notebook/issues). Remove private documents or personal information before sharing logs or screenshots.

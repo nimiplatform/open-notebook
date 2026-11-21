@@ -1,3 +1,9 @@
+# 1.15.2 — Bilingual Storefront, Offline `tiktoken` Cache & Podcast Language Menu Fix
+
+- Adds full bilingual (`en` / `zh`) Nimi App Storefront metadata, introductions (`NIMI_APP.md` and `NIMI_APP.zh.md`), `research-learning` category, highlights, tags, and static 16:9 product cover and gallery media packaged via `app-tools@0.16.0-rc.12` (`storefront-media.zip` distributed separately from `.nimiapp`).
+- Bundles a SHA-256-verified `o200k_base` `tiktoken` cache inside both source checkouts and packaged `notebook-worker` binaries so first-run context token counting works reliably offline without outbound downloads.
+- Fixes the podcast Episode Profile language selector by unifying `@radix-ui/react-dismissable-layer`, removing closed-state unmount delay, and supplying fallback language choices so pressing `Escape` closes only the menu without locking dialog pointer events.
+
 # 1.15.1 — Upstream 1.15.1 sync, workspace Integration & static Web companion
 
 Syncs upstream Open Notebook `v1.15.1` (`0c1e7abbd`) including duplicate source checks, grouped vector/text search, view-timestamp preservation, Docling vision endpoint settings, chat session guards, and podcast audio/speaker profile fixes while retaining Nimi SDK/Kit boundaries and Runtime `embedding_space`. Upgrades to public Nimi App Tools `0.16.0-rc.10`, SDK `0.24.0-rc.10`, and Kit/native `0.24.0-rc.16`, providing the `io.github.nimiplatform.open-notebook.workspace.v1` Integration surface required by the static-hosted Web companion (`open-notebook`).
