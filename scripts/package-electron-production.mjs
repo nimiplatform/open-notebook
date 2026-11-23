@@ -1,14 +1,13 @@
 import { spawn } from 'node:child_process';
-import { copyFile, cp, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises';
+import { copyFile, cp, mkdir, mkdtemp, open, readdir, readFile, realpath, rm, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { packager } from '@electron/packager';
 import { build } from 'esbuild';
-import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 
-const APP_EXECUTABLE_NAME = "open-notebook-shell";
-const APP_PRODUCT_NAME = "Open Notebook";
+const APP_EXECUTABLE_NAME = 'open-notebook-shell';
+const APP_PRODUCT_NAME = 'Open Notebook';
 function resolveWindowsResourceVersion(appVersion) {
   const semverPattern = /^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?(?:\+[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?$/u;
   if (typeof appVersion !== 'string' || !semverPattern.test(appVersion)) {
@@ -19,31 +18,6 @@ function resolveWindowsResourceVersion(appVersion) {
     throw new Error(`Windows production packaging requires App version core components in the 0..65535 range: ${appVersion}`);
   }
   return `${coreComponents.join('.')}.0`;
-}
-function rebaseLocalPackagePaths(value, sourceDir, targetDir) {
-  // Parsed pnpm documents retain complete locators in overrides, specifiers
-  // and resolutions. Reuse those exact strings in package/peer keys instead
-  // of guessing whether a parenthesis belongs to a path or a peer suffix.
-  const replacements = new Map();
-  const collect = (item) => {
-    if (typeof item === 'string' && /^file:[^\r\n]+\.(?:tgz|tar\.gz)$/u.test(item)) {
-      replacements.set(item, 'file:' + path.relative(targetDir, path.resolve(sourceDir, item.slice(5))).split(path.sep).join('/'));
-    } else if (Array.isArray(item)) item.forEach(collect);
-    else if (item && typeof item === 'object') Object.values(item).forEach(collect);
-  };
-  collect(value);
-  if (replacements.size === 0) return value;
-  const pattern = new RegExp([...replacements.keys()].sort((a, b) => b.length - a.length)
-    .map((locator) => locator.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&')).join('|'), 'gu');
-  const rebase = (text) => text.replace(pattern, (locator) => replacements.get(locator));
-  const rewrite = (item) => {
-    if (typeof item === 'string') return rebase(item);
-    if (Array.isArray(item)) return item.map(rewrite);
-    if (item && typeof item === 'object') return Object.fromEntries(Object.entries(item)
-      .map(([key, child]) => [rebase(key), rewrite(child)]));
-    return item;
-  };
-  return rewrite(value);
 }
 const MACOS_BUILD = process.platform === 'darwin' && process.arch === 'arm64';
 const NATIVE_PLATFORM = MACOS_BUILD ? 'darwin' : 'win32';
@@ -77,8 +51,6 @@ const nativeEntry = requireFromKit.resolve(NATIVE_BINDING_PACKAGE);
 const nativePackageRoot = await findPackageRoot(nativeEntry, NATIVE_BINDING_PACKAGE);
 
 await rm(outputRoot, { recursive: true, force: true });
-// Use the physical staging root: pnpm canonicalizes cwd before resolving relative tarballs.
-// Staging is this project's ignored work area, not OS temp; finally removes it.
 const stagingParent = path.join(appRoot, '.nimi', 'local', 'build');
 await mkdir(stagingParent, { recursive: true });
 const stagingRoot = await realpath(await mkdtemp(path.join(stagingParent, 'electron-')));
@@ -90,37 +62,59 @@ try {
   for (const script of ['build', 'build:electron', 'build:backend']) {
     await new Promise((resolve, reject) => {
       const child = spawn(process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm', ['run', script], { cwd: appRoot, stdio: 'inherit', shell: process.platform === 'win32' });
-      child.once('error', reject); child.once('exit', code => code === 0 ? resolve() : reject(new Error(`${script} failed: ${code}`)));
+      child.once('error', reject);
+      child.once('exit', (code) => (code === 0 ? resolve() : reject(new Error(`${script} failed: ${code}`))));
     });
   }
+  const mainBundlePath = path.join(appRoot, 'dist-electron/main.js');
   await build({
     entryPoints: [path.join(appRoot, 'src-electron/main.ts')],
-    outfile: path.join(appRoot, 'dist-electron/main.js'),
+    outfile: mainBundlePath,
     bundle: true,
     platform: 'node',
     target: 'node22',
     format: 'esm',
-    packages: 'external',
-    external: ['electron'],
+    external: ['electron', 'original-fs', 'sharp', '@nimiplatform/kit-protected-local-win32-x64', '@nimiplatform/kit-protected-local-darwin-arm64'],
+    banner: {
+      js: "import { createRequire as __nimiCreateRequire } from 'node:module'; const require = __nimiCreateRequire(import.meta.url);",
+    },
     define: { __NIMI_ELECTRON_PRODUCTION__: 'true' },
     logLevel: 'silent',
   });
+  await verifyNodeSyntax(mainBundlePath);
 
   await realpath(path.join(appRoot, 'frontend/.next/standalone/frontend/server.js'));
   await realpath(path.join(appRoot, 'dist-electron', 'preload.cjs'));
+  const preloadCheck = await build({
+    entryPoints: [path.join(appRoot, 'src-electron/preload.cts')],
+    outfile: path.join(stagingRoot, 'preload-check.cjs'),
+    bundle: true,
+    platform: 'node',
+    target: 'node22',
+    format: 'cjs',
+    external: ['electron'],
+    metafile: true,
+    write: false,
+    logLevel: 'silent',
+  });
+  for (const output of Object.values(preloadCheck.metafile?.outputs || {})) {
+    for (const imp of output.imports || []) {
+      if (imp.external && imp.path.startsWith('@nimiplatform/')) {
+        throw new Error(`Electron preload bundle must not retain external Nimi import: ${imp.path}`);
+      }
+    }
+  }
 
   await mkdir(path.join(productionSourceRoot, 'dist-electron'), { recursive: true });
-  await copyFile(path.join(appRoot, 'package.json'), path.join(productionSourceRoot, 'package.json'));
-  const dependencyLock = parseYaml(await readFile(path.join(appRoot, 'pnpm-lock.yaml'), 'utf8'));
-  await writeFile(path.join(productionSourceRoot, 'pnpm-lock.yaml'), stringifyYaml(rebaseLocalPackagePaths(dependencyLock, appRoot, productionSourceRoot)));
-  try {
-    const workspace = parseYaml(await readFile(path.join(appRoot, 'pnpm-workspace.yaml'), 'utf8'));
-    await writeFile(path.join(productionSourceRoot, 'pnpm-workspace.yaml'), stringifyYaml({ ...rebaseLocalPackagePaths(workspace, appRoot, productionSourceRoot), packages: ['.'] }));
-  } catch (cause) {
-    if (cause.code !== 'ENOENT') throw cause;
-    // Staging sits inside the project: keep pnpm from adopting an enclosing workspace.
-    await writeFile(path.join(productionSourceRoot, 'pnpm-workspace.yaml'), stringifyYaml({ packages: ['.'] }));
-  }
+  const productionManifest = {
+    name: appPackage.name,
+    version: APP_VERSION,
+    type: 'module',
+    main: 'dist-electron/main.js',
+    ...(appPackage.license ? { license: appPackage.license } : {}),
+    ...(appPackage.author ? { author: appPackage.author } : {}),
+  };
+  await writeFile(path.join(productionSourceRoot, 'package.json'), `${JSON.stringify(productionManifest, null, 2)}\n`);
   const rendererResource = path.join(stagingRoot, 'notebook-renderer');
   const backendResource = path.join(stagingRoot, 'notebook');
   await cp(path.join(appRoot, 'frontend/.next/standalone'), rendererResource, { recursive: true, dereference: true });
@@ -128,24 +122,13 @@ try {
   await cp(path.join(appRoot, 'frontend/public'), path.join(rendererResource, 'frontend/public'), { recursive: true });
   await cp(path.join(appRoot, '.nimi/local/backend'), backendResource, { recursive: true, dereference: true });
   await copyFile(path.join(appRoot, '.nimi/local/bin', MACOS_BUILD ? 'surreal' : 'surreal.exe'), path.join(backendResource, MACOS_BUILD ? 'surreal' : 'surreal.exe'));
-  await copyFile(path.join(appRoot, 'dist-electron', 'main.js'), path.join(productionSourceRoot, 'dist-electron', 'main.js'));
+  await copyFile(mainBundlePath, path.join(productionSourceRoot, 'dist-electron', 'main.js'));
   await copyFile(path.join(appRoot, 'dist-electron', 'preload.cjs'), path.join(productionSourceRoot, 'dist-electron', 'preload.cjs'));
-  await cp(path.join(appRoot, 'patches'), path.join(productionSourceRoot, 'patches'), { recursive: true });
-  await installProductionDependencies(productionSourceRoot);
-
-  const productionManifestPath = path.join(productionSourceRoot, 'package.json');
-  const productionManifest = JSON.parse(await readFile(productionManifestPath, 'utf8'));
-  delete productionManifest.devDependencies;
-  await writeFile(productionManifestPath, `${JSON.stringify(productionManifest, null, 2)}\n`);
-  await rm(path.join(productionSourceRoot, 'pnpm-lock.yaml'));
-  await rm(path.join(productionSourceRoot, 'patches'), { recursive: true });
-  await rm(path.join(productionSourceRoot, 'pnpm-workspace.yaml'), { force: true });
 
   const installedNativePackage = path.join(productionSourceRoot, 'node_modules', ...NATIVE_BINDING_PACKAGE.split('/'));
   const nativeDestination = MACOS_BUILD
     ? path.join(stagingRoot, 'nimi-native', 'protected-local')
     : installedNativePackage;
-  await rm(installedNativePackage, { recursive: true, force: true });
   await mkdir(path.dirname(nativeDestination), { recursive: true });
   await cp(nativePackageRoot, nativeDestination, { recursive: true, dereference: true, force: false });
   await mkdir(packagerTempRoot, { recursive: true });
@@ -156,7 +139,7 @@ try {
     dir: productionSourceRoot,
     platform: NATIVE_PLATFORM,
     arch: NATIVE_ARCH,
-    appBundleId: "ai.nimi.apps.io.github.nimiplatform.open-notebook",
+    appBundleId: 'ai.nimi.apps.io.github.nimiplatform.open-notebook',
     name: APP_EXECUTABLE_NAME,
     executableName: APP_EXECUTABLE_NAME,
     appVersion: RESOURCE_VERSION,
@@ -202,6 +185,10 @@ try {
   await realpath(MACOS_BUILD
     ? path.join(expectedPackageRoot, `${APP_EXECUTABLE_NAME}.app`, 'Contents', 'MacOS', APP_EXECUTABLE_NAME)
     : path.join(expectedPackageRoot, `${APP_EXECUTABLE_NAME}.exe`));
+  const resourcesRoot = MACOS_BUILD
+    ? path.join(expectedPackageRoot, `${APP_EXECUTABLE_NAME}.app`, 'Contents', 'Resources')
+    : path.join(expectedPackageRoot, 'resources');
+  await assertCleanAppBundle(resourcesRoot);
   packageCompleted = true;
   process.stdout.write(`[nimi-app] Electron production package: ${expectedPackageRoot}\n`);
 } finally {
@@ -210,25 +197,80 @@ try {
   await Promise.all(cleanupTasks);
 }
 
-async function installProductionDependencies(projectRoot) {
-  const command = 'pnpm install --prod --frozen-lockfile --ignore-scripts --node-linker=hoisted';
-  const commandShell = MACOS_BUILD ? 'pnpm' : process.env.ComSpec || 'cmd.exe';
-  const commandArguments = MACOS_BUILD ? ['install', '--prod', '--frozen-lockfile', '--ignore-scripts', '--node-linker=hoisted'] : ['/d', '/s', '/c', command];
+async function verifyNodeSyntax(scriptPath) {
   await new Promise((resolve, reject) => {
-    const child = spawn(commandShell, commandArguments, {
-      cwd: projectRoot,
-      stdio: 'inherit',
-      windowsHide: true,
-    });
+    const child = spawn(process.execPath, ['--check', scriptPath], { stdio: 'inherit', windowsHide: true });
     child.once('error', reject);
     child.once('exit', (code, signal) => {
-      if (code === 0) {
-        resolve();
-        return;
-      }
-      reject(new Error(`pnpm production dependency staging failed (${signal || `exit ${String(code)}`}).`));
+      if (code === 0) { resolve(); return; }
+      reject(new Error(`Node syntax check failed for ${scriptPath} (${signal || `exit ${String(code)}`}).`));
     });
   });
+}
+
+async function listAsarPaths(asarPath) {
+  const handle = await open(asarPath, 'r');
+  try {
+    const headerPrefix = Buffer.alloc(16);
+    const prefixRead = await handle.read(headerPrefix, 0, 16, 0);
+    if (prefixRead.bytesRead !== 16) throw new Error('Invalid app.asar header.');
+    const jsonLength = headerPrefix.readUInt32LE(12);
+    if (jsonLength === 0 || jsonLength > 64 * 1024 * 1024) throw new Error('Invalid app.asar header length.');
+    const jsonBuffer = Buffer.alloc(jsonLength);
+    const jsonRead = await handle.read(jsonBuffer, 0, jsonLength, 16);
+    if (jsonRead.bytesRead !== jsonLength) throw new Error('Truncated app.asar header.');
+    const root = JSON.parse(jsonBuffer.toString('utf8'));
+    const entries = [];
+    const walk = (node, prefix) => {
+      for (const [name, child] of Object.entries(node?.files || {})) {
+        const next = prefix ? `${prefix}/${name}` : name;
+        if (child && typeof child === 'object' && child.files) walk(child, next);
+        else entries.push(next);
+      }
+    };
+    walk(root, '');
+    return entries;
+  } finally {
+    await handle.close();
+  }
+}
+
+async function listTreePaths(rootDir, prefix = '') {
+  let items;
+  try {
+    items = await readdir(rootDir, { withFileTypes: true });
+  } catch (error) {
+    if (error?.code === 'ENOENT') return [];
+    throw error;
+  }
+  const paths = [];
+  for (const item of items) {
+    const rel = prefix ? `${prefix}/${item.name}` : item.name;
+    if (item.isDirectory()) paths.push(...(await listTreePaths(path.join(rootDir, item.name), rel)));
+    else paths.push(rel);
+  }
+  return paths;
+}
+
+async function assertCleanAppBundle(resourcesRoot) {
+  const asarPaths = await listAsarPaths(path.join(resourcesRoot, 'app.asar'));
+  const unpackedPaths = await listTreePaths(path.join(resourcesRoot, 'app.asar.unpacked'));
+  const allPaths = [...asarPaths, ...unpackedPaths];
+  const forbiddenPatterns = [
+    /(?:^|\/)@electron-internal(?:\/|$)/,
+    /(?:^|\/)node_modules\/typescript(?:\/|$)/,
+    /(?:^|\/)@img\/sharp-/,
+    ...(MACOS_BUILD
+      ? [/\.dll$/i, /(?:^|\/)kit-protected-local-win32-x64(?:\/|$)/, /win32-x64.*\.node$/i, /linux-.*\.node$/i]
+      : [/\.dylib$/i, /(?:^|\/)kit-protected-local-darwin-arm64(?:\/|$)/, /darwin-arm64.*\.node$/i, /linux-.*\.node$/i]),
+  ];
+  for (const entryPath of allPaths) {
+    for (const pattern of forbiddenPatterns) {
+      if (pattern.test(entryPath)) {
+        throw new Error(`Unexpected contaminated payload entry in Electron bundle: ${entryPath}`);
+      }
+    }
+  }
 }
 
 async function findPackageRoot(entry, expectedName) {

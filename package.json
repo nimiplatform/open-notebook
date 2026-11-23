@@ -46,13 +46,13 @@
     "@capacitor/core": "8.6.0",
     "@capacitor/app": "8.1.2",
     "@capacitor/browser": "8.0.5",
-    "@nimiplatform/kit": "^0.24.0-rc.16",
-    "@nimiplatform/sdk": "^0.24.0-rc.10"
+    "@nimiplatform/kit": "^0.24.0-rc.18",
+    "@nimiplatform/sdk": "^0.24.0-rc.11"
   },
   "devDependencies": {
     "@capacitor/cli": "8.6.0",
     "@electron/packager": "^20.3.0",
-    "@nimiplatform/app-tools": "^0.16.0-rc.12",
+    "@nimiplatform/app-tools": "^0.16.0-rc.15",
     "@nimiplatform/nimi-coding": "0.7.0",
     "@tailwindcss/vite": "^4.3.5",
     "@types/node": "^24.19.2",

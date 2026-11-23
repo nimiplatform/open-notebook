@@ -1,6 +1,7 @@
 # 1.15.2 — Bilingual Storefront, Offline `tiktoken` Cache & Podcast Language Menu Fix
 
-- Adds full bilingual (`en` / `zh`) Nimi App Storefront metadata, introductions (`NIMI_APP.md` and `NIMI_APP.zh.md`), `research-learning` category, highlights, tags, and static 16:9 product cover and gallery media packaged via `app-tools@0.16.0-rc.12` (`storefront-media.zip` distributed separately from `.nimiapp`).
+- Adds full bilingual (`en` / `zh`) Nimi App Storefront metadata, introductions (`NIMI_APP.md` and `NIMI_APP.zh.md`), `research-learning` category, highlights, tags, and static 16:9 product cover and gallery media packaged via `app-tools@0.16.0-rc.15` (`storefront-media.zip` distributed separately from `.nimiapp`).
+- Upgrades to `@nimiplatform/sdk` `0.24.0-rc.11`, `@nimiplatform/kit` `0.24.0-rc.18`, and `@nimiplatform/app-tools` `0.16.0-rc.15`, bundles the Electron main process as a pure single-file ESM module without redundant root `node_modules` staging, and packs `.nimiapp` with deterministic bounded Deflate compression.
 - Bundles a SHA-256-verified `o200k_base` `tiktoken` cache inside both source checkouts and packaged `notebook-worker` binaries so first-run context token counting works reliably offline without outbound downloads.
 - Fixes the podcast Episode Profile language selector by unifying `@radix-ui/react-dismissable-layer`, removing closed-state unmount delay, and supplying fallback language choices so pressing `Escape` closes only the menu without locking dialog pointer events.
 
